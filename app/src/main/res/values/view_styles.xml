@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="EmptyView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">20dp</item>
+        <item name="android:textColor">@color/lt_black</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:typeface">monospace</item>
+    </style>
+
+    <style name="CustomTab" parent="@android:style/Widget.TabWidget">
+        <item name="tabTextAppearance">@style/CustomTab.Text</item>
+    </style>
+
+    <style name="CustomTab.Text" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+</resources>

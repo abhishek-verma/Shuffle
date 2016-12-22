@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Shuffle</string>
+
+    <string name="no_items_message">No Items Available</string>
+    <string name="choose_from">CHOOSE FROM</string>
+
+
+    <plurals name="song_count">
+        <item quantity="one">%d Song </item>
+        <item quantity="other">%d  Songs</item>
+    </plurals>
+</resources>

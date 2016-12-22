@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#fff</color>
+    <color name="colorPrimaryDark">#eee</color>
+    <color name="colorAccent">#FF5252</color>
+
+
+    <color name="black">#000</color>
+    <color name="lt_black">#111</color>
+    <color name="dr_grey">#424242</color>
+    <color name="grey">#AAA</color>
+    <color name="lt_grey">#e4e4e4</color>
+    <color name="white">#fff</color>
+
+    <color name="translucent_black">#9fff</color>
+
+    <color name="selection_blue">#2196F3</color>
+
+</resources>

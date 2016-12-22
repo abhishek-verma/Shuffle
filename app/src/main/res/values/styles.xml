@@ -1,0 +1,40 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <!-- use this to avoid white screen at launch -->
+        <!--<item name="android:windowDisablePreview">true</item>-->
+
+        <item name="android:windowContentTransitions">true</item>
+
+
+        <item name="android:tabWidgetStyle">@style/CustomTab</item>
+    </style>
+
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar.MainActivity" parent="AppTheme.NoActionBar">
+        <!--<item name="android:windowEnterTransition">@transition/main_activity_transition</item>-->
+        <!--<item name="android:windowExitTransition">@transition/main_activity_transition</item>-->
+        <!--<item name="android:windowReturnTransition">@transition/main_activity_transition</item>-->
+
+        <!--&lt;!&ndash; specify shared element transitions &ndash;&gt;-->
+        <!--<item name="android:windowSharedElementEnterTransition">-->
+        <!--@transition/change_image_transform-->
+        <!--</item>-->
+        <!--<item name="android:windowSharedElementExitTransition">-->
+        <!--@transition/change_image_transform-->
+        <!--</item>-->
+    </style>
+
+
+</resources>
