@@ -1,6 +1,8 @@
 package com.inpen.shuffle.mainscreen;
 
 import android.content.Context;
+import android.os.RemoteException;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v7.app.AppCompatActivity;
 
 /**
@@ -17,6 +19,7 @@ public interface MainScreenContract {
 
         AppCompatActivity getActivityContext();
 
+        void connectToSession(MediaSessionCompat.Token token) throws RemoteException;
     }
 
     interface ActivityActionsListener {
@@ -25,8 +28,7 @@ public interface MainScreenContract {
 
         void gotPermissionResult(Context context, boolean hasPermissionsResult);
 
-        void shuffleClicked(Context context);
-
+        void stop(Context context);
     }
 
 }

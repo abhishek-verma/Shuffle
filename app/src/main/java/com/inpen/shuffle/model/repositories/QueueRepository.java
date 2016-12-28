@@ -6,18 +6,15 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.inpen.shuffle.model.MutableMediaMetadata;
 import com.inpen.shuffle.model.QueueProvider;
 import com.inpen.shuffle.utility.CustomTypes;
 import com.inpen.shuffle.utility.LogHelper;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.inpen.shuffle.utility.CustomTypes.RepositoryState.INITIALIZED;
+import static com.inpen.shuffle.utility.CustomTypes.RepositoryState.NON_INITIALIZED;
 
 /**
  * Created by Abhishek on 12/10/2016.
@@ -42,6 +39,7 @@ public class QueueRepository {
     public int mCurrentTrackIndex = -1;
     private SharedPreferences mPreferences;
     private volatile CustomTypes.RepositoryState mCurrentState = CustomTypes.RepositoryState.NON_INITIALIZED;
+    private QueueCallback mQueueCallbackObserver;
 
     public static synchronized QueueRepository getInstance() {
         if (mQueueRepositoryInstance == null)
@@ -52,7 +50,7 @@ public class QueueRepository {
 
     public synchronized void initialize(@NonNull final Context context,
                                         @Nullable final SelectedItemsRepository selectedItemsRepository,
-                                        @Nullable final QueueRepositoryCallback queueRepositoryCallback) {
+                                        @Nullable final RepositoryInitializedCallback repositoryInitializedCallback) {
 
 
         // Asynchronously load the music catalog in a separate thread
@@ -63,15 +61,12 @@ public class QueueRepository {
 
                 try {
 
-                    if (mCurrentState == CustomTypes.RepositoryState.NON_INITIALIZED) {
+                    if (selectedItemsRepository != null) {
                         mCurrentState = CustomTypes.RepositoryState.INITIALIZING;
-
-                        if (selectedItemsRepository != null) {
-                            retrieveQueue(context, selectedItemsRepository);
-                            storeQueue(context);
-                        } else if (!isCatchEmpty(context)) {
-                            loadCachedQueue(context, queueRepositoryCallback);
-                        }
+                        retrieveQueue(context, selectedItemsRepository);
+                        storeQueue(context);
+                    } else if (mCurrentState == NON_INITIALIZED && !isCatchEmpty(context)) {
+                        loadCachedQueue(context, repositoryInitializedCallback);
                     }
 
                 } finally {
@@ -89,8 +84,8 @@ public class QueueRepository {
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
 
-                if (queueRepositoryCallback != null) {
-                    queueRepositoryCallback.onRepositoryInitialized(isInitialized());
+                if (repositoryInitializedCallback != null) {
+                    repositoryInitializedCallback.onRepositoryInitialized(isInitialized() && mPlayingQueue.size() > 0);
                 }
             }
         }.execute();
@@ -104,7 +99,7 @@ public class QueueRepository {
             return null;
 
         if (mCurrentTrackIndex < 0 && isInitialized())
-            mCurrentTrackIndex = 0;
+            setCurrentQueueIndex(0);
 
         return mPlayingQueue.get(mCurrentTrackIndex);
     }
@@ -119,13 +114,20 @@ public class QueueRepository {
             // skip forwards when in last song will cycle back to play of the queue
             index %= mPlayingQueue.size();
         }
-        mCurrentTrackIndex = index;
+        setCurrentQueueIndex(index);
     }
 
     public void setCurrentQueueItem(MutableMediaMetadata mutableMediaMetadata) {
         if (mPlayingQueue != null)
-            mCurrentTrackIndex = mPlayingQueue.indexOf(mutableMediaMetadata);
+            setCurrentQueueIndex(mPlayingQueue.indexOf(mutableMediaMetadata));
 
+    }
+
+    public void setCurrentQueueIndex(int index) {
+        mCurrentTrackIndex = index;
+
+        if (mQueueCallbackObserver != null)
+            mQueueCallbackObserver.onIndexChanged();
     }
 
     public boolean isInitialized() {
@@ -136,7 +138,7 @@ public class QueueRepository {
 
         mCurrentState = CustomTypes.RepositoryState.NON_INITIALIZED;
         mPlayingQueue.clear();
-        mCurrentTrackIndex = -1;
+        setCurrentQueueIndex(-1);
 
         SharedPreferences.Editor editor = getmPreferences(context).edit();
         editor.clear();
@@ -176,31 +178,34 @@ public class QueueRepository {
         mCurrentState = INITIALIZED;
     }
 
-    private void loadCachedQueue(Context context, final QueueRepositoryCallback callback) {
+    private void loadCachedQueue(Context context, final RepositoryInitializedCallback callback) {
+        LogHelper.d(LOG_TAG, "loadCachedQueue called but unimplemented!");
 
-        Gson gson = new Gson();
-        String json = getmPreferences(context).getString(KEY_PLAYING_QUEUE, null);
-
-        Type type = new TypeToken<ArrayList<MutableMediaMetadata>>() {
-        }.getType();
-
-        mPlayingQueue = gson.fromJson(json, type);
-        mCurrentTrackIndex = getmPreferences(context).getInt(KEY_CURRENT_TRACK_INDEX, -1);
-
-        if (mPlayingQueue != null && mPlayingQueue.size() > 0) {
-            mCurrentState = CustomTypes.RepositoryState.INITIALIZED;
-        }
+//
+//        Gson gson = new Gson();
+//        String json = getmPreferences(context).getString(KEY_PLAYING_QUEUE, null);
+//
+//        Type type = new TypeToken<ArrayList<MutableMediaMetadata>>() {
+//        }.getType();
+//
+//        mPlayingQueue = gson.fromJson(json, type);
+//        mCurrentTrackIndex = getmPreferences(context).getInt(KEY_CURRENT_TRACK_INDEX, -1);
+//
+//        if (mPlayingQueue != null && mPlayingQueue.size() > 0) {
+//            mCurrentState = CustomTypes.RepositoryState.INITIALIZED;
+//        }
     }
 
     private void storeQueue(Context context) {
+        LogHelper.d(LOG_TAG, "storeQueue called but unimplemented!");
 
-        SharedPreferences.Editor editor = getmPreferences(context).edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(mPlayingQueue);
-        editor.putString(KEY_PLAYING_QUEUE, json);
-
-        editor.putInt(KEY_CURRENT_TRACK_INDEX, mCurrentTrackIndex);
-        editor.apply();
+//        SharedPreferences.Editor editor = getmPreferences(context).edit();
+//        Gson gson = new Gson();
+//        String json = gson.toJson(mPlayingQueue);
+//        editor.putString(KEY_PLAYING_QUEUE, json);
+//
+//        editor.putInt(KEY_CURRENT_TRACK_INDEX, mCurrentTrackIndex);
+//        editor.apply();
     }
 
     private SharedPreferences getmPreferences(Context context) {
@@ -211,8 +216,19 @@ public class QueueRepository {
         return mPreferences;
     }
 
-    public interface QueueRepositoryCallback {
+    public void setQueueCallbackObserver(QueueCallback queueCallbackObserver) {
+        mQueueCallbackObserver = queueCallbackObserver;
+    }
+
+    public interface RepositoryInitializedCallback {
         void onRepositoryInitialized(boolean success);
     }
 
+    public interface QueueCallback {
+        void onIndexChanged();
+
+        void onMetadataChanged();
+
+//        void onQueueChanged(); TODO implement
+    }
 }

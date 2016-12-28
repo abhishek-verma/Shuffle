@@ -47,4 +47,8 @@ public class CustomTypes {
     public enum RepositoryState {
         NON_INITIALIZED, INITIALIZING, INITIALIZED
     }
+
+    public enum FabMode {
+        SHUFFLE, LOADING, PLAYER, DISABLED, ANIMATING
+    }
 }

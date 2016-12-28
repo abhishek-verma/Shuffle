@@ -1,4 +1,4 @@
-package com.inpen.shuffle.mainscreen;
+package com.inpen.shuffle.playerscreen;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.media.session.MediaSessionCompat;
 
 import com.inpen.shuffle.playback.MusicService;
-import com.inpen.shuffle.syncmedia.SyncMediaIntentService;
 import com.inpen.shuffle.utility.LogHelper;
 
 import org.greenrobot.eventbus.EventBus;
@@ -18,14 +17,21 @@ import org.greenrobot.eventbus.EventBus;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 /**
- * Created by Abhishek on 12/21/2016.
+ * Created by Abhishek on 12/28/2016.
  */
 
-public class MainPresenter implements MainScreenContract.ActivityActionsListener {
+public class PlayerActivityPresenter implements PlayerActivityContract.PlayerActivityListener {
 
-    private static final String LOG_TAG = LogHelper.makeLogTag(MainPresenter.class);
-    private MainScreenContract.MainView mMainView;
+    ///////////////////////////////////////////////////////////////////////////
+    // Regular fields and methods
+    ///////////////////////////////////////////////////////////////////////////
 
+    private static final String LOG_TAG = LogHelper.makeLogTag(PlayerActivityPresenter.class);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Regular fields and methods
+    ///////////////////////////////////////////////////////////////////////////
+    public PlayerActivityContract.PlayerActivityView mPlayerActivityView;
     private boolean mBound;
     /**
      * Defines callbacks for service binding, passed to bindService()
@@ -43,7 +49,7 @@ public class MainPresenter implements MainScreenContract.ActivityActionsListener
             MediaSessionCompat.Token token = musicService.getSessionToken();
 
             try {
-                mMainView.connectToSession(token);
+                mPlayerActivityView.connectToSession(token);
 
                 EventBus.getDefault()
                         .post(new MusicServiceConnectedEvent(token));
@@ -59,13 +65,12 @@ public class MainPresenter implements MainScreenContract.ActivityActionsListener
         }
     };
 
-    public MainPresenter(@NonNull MainScreenContract.MainView mainView) {
-        mMainView = checkNotNull(mainView);
+    public PlayerActivityPresenter(@NonNull PlayerActivityContract.PlayerActivityView playerActivityView) {
+        mPlayerActivityView = checkNotNull(playerActivityView);
     }
 
     @Override
     public void init(Context context) {
-        scanMedia(context);
         connectToService(context);
     }
 
@@ -85,22 +90,6 @@ public class MainPresenter implements MainScreenContract.ActivityActionsListener
         Intent serviceIntent = new Intent(context, MusicService.class);
         context.startService(serviceIntent);
         context.bindService(serviceIntent, mConnection, 0);
-    }
-
-    @Override
-    public void gotPermissionResult(Context context, boolean hasPermissionsResult) {
-        if (hasPermissionsResult)
-            scanMedia(context);
-        else
-            mMainView.getPermissions();
-    }
-
-    public void scanMedia(Context context) {
-
-        if (mMainView.hasPermissions())
-            SyncMediaIntentService.syncMedia(context);
-        else
-            mMainView.getPermissions();
     }
 
     public class MusicServiceConnectedEvent {

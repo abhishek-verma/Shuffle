@@ -55,16 +55,21 @@ public class ExtendedFab extends LinearLayout {
         setElevation(getResources().getDimension(R.dimen.main_elevation));
         setGravity(Gravity.CENTER_VERTICAL);
 
+        applyLayoutChangesAnimation();
+    }
+
+    private void applyLayoutChangesAnimation() {
+
         setLayoutTransition(new LayoutTransition());
         LayoutTransition layoutTransition = getLayoutTransition();
 
         //Changing enter animation
         PropertyValuesHolder pvAlphaIn =
-                PropertyValuesHolder.ofFloat("alpha", 1f, 0f, 1f); // Todo use ("xxx", 0f, 1f); only as params if dosent work
+                PropertyValuesHolder.ofFloat("alpha", 0f, 1f); // Todo use ("xxx", 0f, 1f); only as params if dosent work
         PropertyValuesHolder pvhScaleXIn =
-                PropertyValuesHolder.ofFloat("scaleX", 1f, 0f, 1f);
+                PropertyValuesHolder.ofFloat("scaleX", 0.7f, 1f);
         PropertyValuesHolder pvhScaleYIn =
-                PropertyValuesHolder.ofFloat("scaleY", 1f, 0f, 1f);
+                PropertyValuesHolder.ofFloat("scaleY", 0.7f, 1f);
         final ObjectAnimator changeIn = ObjectAnimator.ofPropertyValuesHolder(
                 this, pvAlphaIn, pvhScaleXIn, pvhScaleYIn).
                 setDuration(layoutTransition.getDuration(LayoutTransition.CHANGE_APPEARING));
@@ -73,17 +78,21 @@ public class ExtendedFab extends LinearLayout {
 
         //Changing enter animation
         PropertyValuesHolder pvAlphaOut =
-                PropertyValuesHolder.ofFloat("alpha", 1f, 0f, 1f); // Todo use ("xxx", 1f, 0f); only as params if dosent work
+                PropertyValuesHolder.ofFloat("alpha", 1f, 0f); // Todo use ("xxx", 1f, 0f); only as params if dosent work
         PropertyValuesHolder pvhScaleXOut =
-                PropertyValuesHolder.ofFloat("scaleX", 1f, 0f, 1f);
+                PropertyValuesHolder.ofFloat("scaleX", 1f, 0.7f);
         PropertyValuesHolder pvhScaleYOut =
-                PropertyValuesHolder.ofFloat("scaleY", 1f, 0f, 1f);
+                PropertyValuesHolder.ofFloat("scaleY", 1f, 0.7f);
         final ObjectAnimator changeOut = ObjectAnimator.ofPropertyValuesHolder(
                 this, pvAlphaOut, pvhScaleXOut, pvhScaleYOut).
                 setDuration(layoutTransition.getDuration(LayoutTransition.CHANGE_DISAPPEARING));
         layoutTransition.setAnimator(LayoutTransition.DISAPPEARING, changeOut);
         layoutTransition.setInterpolator(LayoutTransition.DISAPPEARING, new AccelerateInterpolator());
+    }
 
+    private void removeLayoutChangesTransition() {
+
+        setLayoutTransition(null);
     }
 
     private void setupImageSwitcher() {
@@ -93,6 +102,8 @@ public class ExtendedFab extends LinearLayout {
         LinearLayout.LayoutParams layoutParams = new LayoutParams(fabSize, fabSize);
         layoutParams.gravity = Gravity.CENTER;
         mMainFabImageSwitcher.setLayoutParams(layoutParams);
+        mMainFabImageSwitcher.setPadding(0, 0, 0, 0);
+        mMainFabImageSwitcher.setElevation(20);
 
         mMainFabImageSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
             @Override
@@ -100,13 +111,13 @@ public class ExtendedFab extends LinearLayout {
                 CircularImageView circularImageView = new CircularImageView(getContext());
 
                 // Set Border
-//                circularImageView.setBorderColor(getResources().getColor(R.color.GrayLight));
-//                circularImageView.setBorderWidth(1);
+                circularImageView.setBorderColor(getResources().getColor(R.color.icon_black));
+                circularImageView.setBorderWidth(0.5f);
 
                 // Add Shadow with default param
-                circularImageView.addShadow();
-                circularImageView.setShadowRadius(1);
-                circularImageView.setShadowColor(getResources().getColor(R.color.GrayLight));
+//                circularImageView.addShadow();
+//                circularImageView.setShadowRadius(1);
+//                circularImageView.setShadowColor(getResources().getColor(R.color.GrayLight));
 
                 circularImageView.setLayoutParams(new ImageSwitcher.LayoutParams(
                         LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -127,66 +138,36 @@ public class ExtendedFab extends LinearLayout {
         mMainFabImageSwitcher.setOnClickListener(listener);
     }
 
-    public void addLeftView(View view) {
-        if (mMode == Mode.UNILATERAL && mRightViewList.size() > 0) {
-            // emove all right views from layout
-            for (View v : mRightViewList) {
-                removeView(v);
-            }
-            mRightViewList.clear();
-        }
+    public void addLeftView(View view, boolean animate) {
 
-//        view.setScaleX(0);
-//        view.setScaleY(0);
-//        view.setAlpha(0);
-
-
-        // fix for IllegalStateException: The specified child already has a parent. You must call removeView() on the child's parent first.
-//        if (view.getParent() != null)
-//            ((ViewGroup) view.getParent()).removeView(view);
+//        if (mMode == Mode.UNILATERAL && mRightViewList.size() > 0) {
+//            // emove all right views from layout
+//            for (View v : mRightViewList) {
+//                removeView(v);
+//            }
+//            mRightViewList.clear();
+//        }
 
         addView(view, indexOfChild(mMainFabImageSwitcher));
-//
-//        view.animate()
-//                .alpha(1)
-//                .scaleX(1)
-//                .scaleY(1)
-//                .setDuration(100)
-//                .withLayer()
-//                .setInterpolator(new AccelerateInterpolator());
 
         mLeftViewList.add(view);
+
     }
 
-    public void addRightView(final View view) {
-        if (mMode == Mode.UNILATERAL && mLeftViewList.size() > 0) {
-            // remove all left views from layout
-            for (View v : mLeftViewList) {
-                removeView(v);
-            }
-            mLeftViewList.clear();
-        }
+    public void addRightView(final View view, boolean animate) {
 
-        // add the view
-//        view.setScaleX(0);
-//        view.setScaleY(0);
-//        view.setAlpha(0);
-
-        // fix for IllegalStateException: The specified child already has a parent. You must call removeView() on the child's parent first.
-//        if (view.getParent() != null)
-//            ((ViewGroup) view.getParent()).removeView(view);
+//        if (mMode == Mode.UNILATERAL && mLeftViewList.size() > 0) {
+//            // remove all left views from layout
+//            for (View v : mLeftViewList) {
+//                removeView(v);
+//            }
+//            mLeftViewList.clear();
+//        }
 
         addView(view);
 
-//        view.animate()
-//                .alpha(1)
-//                .scaleX(1)
-//                .scaleY(1)
-//                .setDuration(100)
-//                .setInterpolator(new AccelerateInterpolator())
-//                .setListener(null);
-
         mRightViewList.add(view);
+
     }
 
     public void collapse() {
@@ -196,35 +177,13 @@ public class ExtendedFab extends LinearLayout {
         // hide all left and right views
         // remove all left views from layout
         for (final View v : mLeftViewList) {
-            v.animate()
-                    .alpha(0)
-                    .scaleX(0)
-                    .scaleY(0)
-                    .setDuration(100)
-                    .withLayer()
-                    .setInterpolator(new AccelerateInterpolator())
-                    .withEndAction(new Runnable() {
-                        @Override
-                        public void run() {
-                            v.setVisibility(GONE);
-                        }
-                    });
+
+            v.setVisibility(GONE);
         }
 
         for (final View v : mRightViewList) {
-            v.animate()
-                    .alpha(0)
-                    .scaleX(0)
-                    .scaleY(0)
-                    .setDuration(100)
-                    .withLayer()
-                    .setInterpolator(new AccelerateInterpolator())
-                    .withEndAction(new Runnable() {
-                        @Override
-                        public void run() {
-                            v.setVisibility(GONE);
-                        }
-                    });
+
+            v.setVisibility(GONE);
         }
 
         // TODO animate padding to 0 and margin to default
@@ -240,35 +199,11 @@ public class ExtendedFab extends LinearLayout {
         // hide all left and right views
         // remove all left views from layout
         for (final View v : mLeftViewList) {
-            v.animate()
-                    .alpha(1)
-                    .scaleX(1)
-                    .scaleY(1)
-                    .setDuration(100)
-                    .withLayer()
-                    .setInterpolator(new AccelerateInterpolator())
-                    .withEndAction(new Runnable() {
-                        @Override
-                        public void run() {
-                            v.setVisibility(VISIBLE);
-                        }
-                    });
+            v.setVisibility(VISIBLE);
         }
 
         for (final View v : mRightViewList) {
-            v.animate()
-                    .alpha(1)
-                    .scaleX(1)
-                    .scaleY(1)
-                    .setDuration(100)
-                    .withLayer()
-                    .setInterpolator(new AccelerateInterpolator())
-                    .withEndAction(new Runnable() {
-                        @Override
-                        public void run() {
-                            v.setVisibility(VISIBLE);
-                        }
-                    });
+            v.setVisibility(VISIBLE);
         }
 
         // TODO animate padding to default and margin to 0
@@ -276,7 +211,6 @@ public class ExtendedFab extends LinearLayout {
 
         mIsExpanded = true;
     }
-
 
     ///////////////////////////////////////////////////////////////////////////
     // Overridden methods
@@ -286,8 +220,25 @@ public class ExtendedFab extends LinearLayout {
         return false;
     }
 
+    @Override
+    public void removeAllViews() {
+
+        // remove all left views from layout
+        for (View v : mLeftViewList) {
+            removeView(v);
+        }
+        mLeftViewList.clear();
+
+        // remove all right views from layout
+        for (View v : mRightViewList) {
+            removeView(v);
+        }
+        mRightViewList.clear();
+    }
 
     public enum Mode {
         UNILATERAL, BILATERAL
     }
+
+
 }

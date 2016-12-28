@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -24,13 +23,13 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.inpen.shuffle.R;
 import com.inpen.shuffle.mainscreen.MainActivity;
 import com.inpen.shuffle.utility.LogHelper;
-import com.inpen.shuffle.utility.ResourceHelper;
 
 /**
- * Created by Abhishek on 12/11/2016.
+ * Created by Abhishek on 12/27/2016.
  */
 
 public class MediaNotificationManager extends BroadcastReceiver {
+
     public static final String ACTION_PAUSE = "com.inpen.shuffle.pause";
     public static final String ACTION_PLAY = "com.inpen.shuffle.play";
     public static final String ACTION_PREV = "com.inpen.shuffle.prev";
@@ -102,9 +101,8 @@ public class MediaNotificationManager extends BroadcastReceiver {
         mMusicService = musicService;
         updateSessionToken();
 
+        mNotificationColor = mMusicService.getResources().getColor(R.color.dr_grey);
 
-        mNotificationColor = ResourceHelper.getThemeColor(mMusicService, R.attr.colorPrimary,
-                Color.DKGRAY);
 
         mNotificationManager = NotificationManagerCompat.from(mMusicService);
 
@@ -118,7 +116,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 new Intent(ACTION_PREV).setPackage(pkg), PendingIntent.FLAG_CANCEL_CURRENT);
         mNextIntent = PendingIntent.getBroadcast(mMusicService, REQUEST_CODE,
                 new Intent(ACTION_NEXT).setPackage(pkg), PendingIntent.FLAG_CANCEL_CURRENT);
-        updateSessionToken();
 
         // Cancel all notifications to handle the case where the Service was killed and
         // restarted by the system.
@@ -152,8 +149,11 @@ public class MediaNotificationManager extends BroadcastReceiver {
      * updated. The notification will automatically be removed if the session is
      * destroyed before {@link #stopNotification} is called.
      */
-    public void startNotification() {
+    public void startNotification() throws RemoteException {
+
         if (!mStarted) {
+            updateSessionToken();
+
             mMetadata = mController.getMetadata();
             mPlaybackState = mController.getPlaybackState();
 
@@ -192,7 +192,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
         }
     }
 
-
     /**
      * Update the state based on a change on the session token. Called either when we are running
      * for the first time or when the media session owner has destroyed the session (see {@link
@@ -216,7 +215,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
         }
     }
 
-
     private void updateNotificationMetadata(MediaMetadataCompat metadata) {
         mMetadata = metadata;
         LogHelper.d(TAG, "Received new metadata ", metadata);
@@ -225,7 +223,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
             mNotificationManager.notify(NOTIFICATION_ID, notification);
         }
     }
-
 
     private Notification createNotification() {
         LogHelper.d(TAG, "updateNotificationMetadata. mMetadata=" + mMetadata);
@@ -260,16 +257,17 @@ public class MediaNotificationManager extends BroadcastReceiver {
 
         String fetchArtUrl = null;
         Bitmap art = null;
+
         if (description.getIconUri() != null) {
             // This section assumes the iconUri will be a valid URL formatted String, but
             // it can actually be any valid Android Uri formatted String.
             // async fetch the album art icon
             fetchArtUrl = description.getIconUri().toString();
-
-            // use a placeholder art while the remote art is being downloaded
-            art = BitmapFactory.decodeResource(mMusicService.getResources(),
-                    R.drawable.ic_shuffle_black_24dp);
         }
+
+        // use a placeholder art while the remote art is being downloaded
+        art = BitmapFactory.decodeResource(mMusicService.getResources(),
+                R.drawable.transparent_icon);
 
 
         notificationBuilder
@@ -279,12 +277,12 @@ public class MediaNotificationManager extends BroadcastReceiver {
                         .setMediaSession(mSessionToken))
                 .setColor(mNotificationColor)
                 .setSmallIcon(R.drawable.ic_shuffle_black_24dp)
+                .setLargeIcon(art)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setUsesChronometer(true)
                 .setContentIntent(createContentIntent(description))
                 .setContentTitle(description.getTitle())
-                .setContentText(description.getSubtitle())
-                .setLargeIcon(art);
+                .setContentText(description.getSubtitle());
 
         setNotificationPlaybackState(notificationBuilder);
         if (fetchArtUrl != null) {
@@ -360,6 +358,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 .with(mMusicService)
                 .load(artUrl)
                 .asBitmap()
+                .error(R.drawable.transparent_icon)
                 .into(new SimpleTarget<Bitmap>(MAX_ART_WIDTH_ICON, MAX_ART_HEIGHT_ICON) {
                     @Override
                     public void onResourceReady(Bitmap bitmap, GlideAnimation glideAnimation) {
@@ -368,9 +367,12 @@ public class MediaNotificationManager extends BroadcastReceiver {
                         // If the media is still the same, update the notification:
                         LogHelper.d(TAG, "fetchBitmapFromURLAsync: set bitmap to ", artUrl);
                         builder.setLargeIcon(bitmap);
+
+                        // TODO get a color from image and set it as notificaiton background
                         mNotificationManager.notify(NOTIFICATION_ID, builder.build());
                     }
                 });
     }
+
 
 }

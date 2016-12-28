@@ -34,7 +34,7 @@ public class SongsRepository {
     private final static int COL_INDEX_ALBUM_ART = 10;
 
     private static final String[] projection = {
-            MediaContract.MediaEntry._ID,
+            MediaContract.MediaEntry.TABLE_NAME + "." + MediaContract.MediaEntry._ID,
             MediaContract.MediaEntry.COLUMN_SONG_ID,
             MediaContract.MediaEntry.COLUMN_PATH,
             MediaContract.MediaEntry.COLUMN_TITLE,
@@ -146,9 +146,11 @@ public class SongsRepository {
         List<String> songIdList = new ArrayList<>();
 
         if (songsDataCursor != null && songsDataCursor.moveToFirst()) {
-            //noinspection ResourceType
-            songIdList.add(songsDataCursor.getString(0));
-            songsDataCursor.close();
+            do {
+                //noinspection ResourceType
+                songIdList.add(songsDataCursor.getString(0));
+                songsDataCursor.close();
+            } while (songsDataCursor.moveToFirst());
         }
 
         return songIdList;
@@ -163,7 +165,7 @@ public class SongsRepository {
                 songsDataCursor = mContext.getContentResolver()
                         .query(MediaContract.MediaEntry.CONTENT_URI,
                                 projection,
-                                MediaContract.MediaEntry.COLUMN_ALBUM_ART
+                                MediaContract.MediaEntry.COLUMN_ALBUM_KEY
                                         + " IN ("
                                         + getStringFromSelectorItems(filterItems)
                                         + ")",
@@ -206,30 +208,32 @@ public class SongsRepository {
         List<MutableMediaMetadata> songMetadataList = new ArrayList<>();
 
         if (songsDataCursor != null && songsDataCursor.moveToFirst()) {
-            //noinspection ResourceType
-            MediaMetadataCompat mediaMetadataCompat =
-                    new MediaMetadataCompat
-                            .Builder()
-                            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, songsDataCursor.getString(COL_INDEX_ID))
-                            .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_TRACK_ID, songsDataCursor.getString(COL_INDEX_SONG_ID))
-                            .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_TRACK_SOURCE, songsDataCursor.getString(COL_INDEX_PATH))
-                            .putString(MediaMetadataCompat.METADATA_KEY_TITLE, songsDataCursor.getString(COL_INDEX_TITLE))
-                            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, songsDataCursor.getString(COL_INDEX_ALBUM))
-                            .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_ALBUM_KEY, songsDataCursor.getString(COL_INDEX_ALBUM_KEY))
-                            .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, songsDataCursor.getString(COL_INDEX_ARTIST))
-                            .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_ARTIST_KEY, songsDataCursor.getString(COL_INDEX_ARTIST_KEY))
-                            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, songsDataCursor.getLong(COL_INDEX_DURATION))
-                            .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_FOLDER_PATH, songsDataCursor.getString(COL_INDEX_FOLDER_PATH))
-                            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, songsDataCursor.getString(COL_INDEX_ALBUM_ART))
-                            .build();
+            do {
+                //noinspection ResourceType
+                MediaMetadataCompat mediaMetadataCompat =
+                        new MediaMetadataCompat
+                                .Builder()
+                                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, songsDataCursor.getString(COL_INDEX_ID))
+                                .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_TRACK_ID, songsDataCursor.getString(COL_INDEX_SONG_ID))
+                                .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_TRACK_SOURCE, songsDataCursor.getString(COL_INDEX_PATH))
+                                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, songsDataCursor.getString(COL_INDEX_TITLE))
+                                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, songsDataCursor.getString(COL_INDEX_ALBUM))
+                                .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_ALBUM_KEY, songsDataCursor.getString(COL_INDEX_ALBUM_KEY))
+                                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, songsDataCursor.getString(COL_INDEX_ARTIST))
+                                .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_ARTIST_KEY, songsDataCursor.getString(COL_INDEX_ARTIST_KEY))
+                                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, songsDataCursor.getLong(COL_INDEX_DURATION))
+                                .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_FOLDER_PATH, songsDataCursor.getString(COL_INDEX_FOLDER_PATH))
+                                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, songsDataCursor.getString(COL_INDEX_ALBUM_ART))
+                                .build();
 
-            MutableMediaMetadata mutableMediaMetadata =
-                    new MutableMediaMetadata(
-                            mediaMetadataCompat.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID),
-                            mediaMetadataCompat
-                    );
+                MutableMediaMetadata mutableMediaMetadata =
+                        new MutableMediaMetadata(
+                                mediaMetadataCompat.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID),
+                                mediaMetadataCompat
+                        );
 
-            songMetadataList.add(mutableMediaMetadata);
+                songMetadataList.add(mutableMediaMetadata);
+            } while (songsDataCursor.moveToNext());
         }
 
         return songMetadataList;
@@ -261,7 +265,7 @@ public class SongsRepository {
                         .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_ARTIST_KEY, songDataCursor.getString(COL_INDEX_ARTIST_KEY))
                         .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, songDataCursor.getLong(COL_INDEX_DURATION))
                         .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_FOLDER_PATH, songDataCursor.getString(COL_INDEX_FOLDER_PATH))
-                        .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, songDataCursor.getString(COL_INDEX_ALBUM_ART))
+                        .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, songDataCursor.getString(COL_INDEX_ALBUM_ART))
                         .build();
 
         MutableMediaMetadata mutableMediaMetadata =

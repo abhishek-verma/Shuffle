@@ -24,6 +24,7 @@
                 android:layout_gravity="center"
                 android:letterSpacing="0.6"
                 android:text="@string/choose_from"
+                android:textColor="@color/chooseFromTextColor"
                 android:textSize="@dimen/choose_from_text_size"
                 android:textStyle="bold"
                 android:typeface="monospace" />
@@ -38,12 +39,21 @@
             app:tabGravity="center"
             app:tabIndicatorHeight="0dp"
             app:tabMode="scrollable"
-            app:tabSelectedTextColor="@color/colorAccent"
+            app:tabSelectedTextColor="@color/selectedTabTextColor"
             app:tabTextAppearance="@style/CustomTab.Text"
-            app:tabTextColor="@color/grey" />
+            app:tabTextColor="@color/tabTextColor" />
 
     </android.support.design.widget.AppBarLayout>
 
     <include layout="@layout/content_main" />
+
+    <FrameLayout
+        android:id="@+id/fabFragmentContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        tools:ignore="RtlHardcoded">
+
+    </FrameLayout>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -79,6 +79,10 @@ public class QueueProvider {
             if (mLikedSongs.contains(song)) {
                 song.setLiked();
             }
+
+            if (mDislikedSongs.contains(song)) {
+                song.setDisliked();
+            }
         }
     }
 

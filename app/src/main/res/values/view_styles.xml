@@ -11,9 +11,9 @@
         <item name="android:typeface">monospace</item>
     </style>
 
-    <style name="CustomTab" parent="@android:style/Widget.TabWidget">
-        <item name="tabTextAppearance">@style/CustomTab.Text</item>
-    </style>
+    <!--<style name="CustomTab" parent="@android:style/Widget.TabWidget">-->
+    <!--<item name="tabTextAppearance">@style/CustomTab.Text</item>-->
+    <!--</style>-->
 
     <style name="CustomTab.Text" parent="TextAppearance.Design.Tab">
         <item name="textAllCaps">false</item>

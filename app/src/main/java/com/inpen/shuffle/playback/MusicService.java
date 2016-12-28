@@ -1,61 +1,99 @@
 package com.inpen.shuffle.playback;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 
+import com.inpen.shuffle.model.MutableMediaMetadata;
+import com.inpen.shuffle.model.repositories.QueueRepository;
 import com.inpen.shuffle.utility.LogHelper;
 
-public class MusicService extends Service {
+/**
+ * Created by Abhishek on 12/27/2016.
+ */
 
+public class MusicService extends Service
+        implements PlaybackManager.PlaybackServiceCallback {
+
+    // The action of the incoming Intent indicating that it contains a command
+    // to be executed (see {@link #onStartCommand})
+    public static final String ACTION_CMD = "com.inpen.shuffle.ACTION_CMD";
+    // The key in the extras of the incoming Intent indicating the command that
+    // should be executed (see {@link #onStartCommand})
+    public static final String CMD_NAME = "CMD_NAME";
+    // A value of a CMD_NAME key in the extras of the incoming Intent that
+    // indicates that the music playback should start with service (see {@link #onStartCommand})
+    public static final String CMD_PLAY = "CMD_PLAY";
+    ///////////////////////////////////////////////////////////////////////////
+    // Static fields
+    ///////////////////////////////////////////////////////////////////////////
     private static final String TAG = LogHelper.makeLogTag(MusicService.class);
-
     ///////////////////////////////////////////////////////////////////////////
     // Regular fields and methods
     ///////////////////////////////////////////////////////////////////////////
     private IBinder mMusicBinder = new MusicServiceBinder();
-
     private boolean mIsBound;
 
+    private MediaSessionCompat mMediaSession;
     private PlaybackManager mPlaybackManager;
     private MediaNotificationManager mMediaNotificationManager;
+    private QueueRepository mQueueRepository;
 
+    private QueueRepository.QueueCallback mQueueCallback = new QueueRepository.QueueCallback() {
+        @Override
+        public void onIndexChanged() {
 
-    private MediaSessionCompat mSession;
+        }
 
+        @Override
+        public void onMetadataChanged() {
 
-    public static void startService(Context context) {
-        context.startService(new Intent(context, MusicService.class));
-    }
+        }
+    };
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        // Start a new MediaSession
-        mSession = new MediaSessionCompat(this, "MusicService");
-        mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+        mMediaSession = new MediaSessionCompat(this,
+                MusicService.class.getSimpleName()); // TODO use other constructor for mediabuttonreciever {@Link "https://www.youtube.com/watch?v=FBC1FgWe5X4" }
+
+        mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
-        // Create and initialize PlaybackManager
-        mPlaybackManager = new PlaybackManager(this);
-        mSession.setCallback(mPlaybackManager.getMediaSessionCallback());
+        mQueueRepository = QueueRepository.getInstance();
+        mQueueRepository.setQueueCallbackObserver(mQueueCallback);
 
-        // Create Notification Manager
+        // Create and initialize PlaybackManager
+        mPlaybackManager = new PlaybackManager(this, mQueueRepository, new Playback(this));
+        mMediaSession.setCallback(mPlaybackManager.getMediaSessionCallback());
+
         try {
             mMediaNotificationManager = new MediaNotificationManager(this);
         } catch (RemoteException e) {
-            throw new IllegalStateException("Could not create a MediaNotificationManager", e);
+            e.printStackTrace();
+            LogHelper.e(TAG, "Cannot initialize notification manager! " + e);
         }
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        mMediaNotificationManager.startNotification();
+    public int onStartCommand(Intent startIntent, int flags, int startId) {
+        if (startIntent != null) {
+            String action = startIntent.getAction();
+            String command = startIntent.getStringExtra(CMD_NAME);
+            if (ACTION_CMD.equals(action) && CMD_PLAY.equals(command)) {
+                mPlaybackManager.handlePlayRequest();
+            }
+        } else {
+            // Try to handle the intent as a media button event wrapped by MediaButtonReceiver
+            MediaButtonReceiver.handleIntent(mMediaSession, startIntent);
+        }
+
 
         return START_STICKY;
     }
@@ -64,10 +102,68 @@ public class MusicService extends Service {
     public void onDestroy() {
         LogHelper.d(TAG, "onDestroy");
 
-        mPlaybackManager.handleStopRequest();
+        // Service is being killed, so make sure we release our resources
+        mPlaybackManager.handleStopRequest(null);
         mMediaNotificationManager.stopNotification();
 
-        mSession.release();
+        mMediaSession.release();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // private methods
+    ///////////////////////////////////////////////////////////////////////////
+
+    private void updateSessionMetadata() {
+        MutableMediaMetadata mutableMediaMetadata = mQueueRepository.getCurrentSong();
+
+        if (mutableMediaMetadata == null) {
+            mMediaSession.setMetadata(null);
+            return;
+        }
+
+        if (mMediaSession.getController().getMetadata() == null ||
+                !mMediaSession.getController().getMetadata().equals(mutableMediaMetadata.metadata)) {
+            mMediaSession.setMetadata(mutableMediaMetadata.metadata);
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // PlaybackServiceCallbacks
+    ///////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void onPlaybackStart() {
+        updateSessionMetadata();
+
+        if (!mMediaSession.isActive()) {
+            mMediaSession.setActive(true);
+
+//      TODO notification should update itself automatically, however if doesn't work uncomment this
+//            try {
+//                mMediaMediaNotificationManager.startNotification();
+//            } catch (RemoteException e) {
+//                e.printStackTrace();
+//            }
+        }
+    }
+
+    @Override
+    public void onNotificationRequired() {
+        try {
+            mMediaNotificationManager.startNotification();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onPlaybackStop() {
+        stopForeground(true);
+    }
+
+    @Override
+    public void onPlaybackStateUpdated(PlaybackStateCompat newState) {
+        mMediaSession.setPlaybackState(newState);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -75,7 +171,7 @@ public class MusicService extends Service {
     ///////////////////////////////////////////////////////////////////////////
 
     public MediaSessionCompat.Token getSessionToken() {
-        return mSession.getSessionToken();
+        return mMediaSession.getSessionToken();
     }
 
     ///////////////////////////////////////////////////////////////////////////

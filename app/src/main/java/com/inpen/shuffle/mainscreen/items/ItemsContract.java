@@ -10,7 +10,7 @@ import java.util.List;
  * Created by Abhishek on 12/21/2016.
  */
 
-public class ItemsContract {
+class ItemsContract {
 
 
     interface ItemsView {

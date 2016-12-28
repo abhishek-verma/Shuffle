@@ -83,7 +83,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
     }
 
     private boolean toggleSelectionForItem(Item item) {
-        LogHelper.v(LOG_TAG, "toggleSelectionForItem- title: " + item.title);
+//        LogHelper.v(LOG_TAG, "toggleSelectionForItem- title: " + item.title);
 
         boolean selected = mSelectedItemsRepository.hasItem(item.id);
 
@@ -116,7 +116,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
 
             ItemView itemView = (ItemView) view;
 
-            LogHelper.v(LOG_TAG, "view with itemId: " + itemView.getItem().id + " clicked! ");
+//            LogHelper.v(LOG_TAG, "view with itemId: " + itemView.getItem().id + " clicked! ");
 
             boolean select = toggleSelectionForItem(itemView.getItem());
             itemView.setSelected(select);

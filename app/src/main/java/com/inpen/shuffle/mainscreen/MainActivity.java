@@ -3,16 +3,21 @@ package com.inpen.shuffle.mainscreen;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.inpen.shuffle.R;
+import com.inpen.shuffle.mainscreen.fab.FabFragment;
 import com.inpen.shuffle.mainscreen.items.ItemsFragment;
 import com.inpen.shuffle.utility.CustomTypes;
 
@@ -46,16 +51,29 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        if (savedInstanceState == null)
+            setupFabFragment();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         mActivityActionsListener = new MainPresenter(this);
         mActivityActionsListener.init(this);
 
         setupAdapterAndViewPager();
     }
 
-    public void setupAdapterAndViewPager() {
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        mActivityActionsListener.stop(this);
+    }
+
+    private void setupAdapterAndViewPager() {
         //Set up the Adapter
         mFragmentAdapter = new MyPagerAdapter(getSupportFragmentManager());
-        mViewPager = (ViewPager) findViewById(R.id.viewpager);
         mViewPager.setAdapter(mFragmentAdapter);
         mViewPager.setOffscreenPageLimit(4);
 
@@ -63,6 +81,19 @@ public class MainActivity extends AppCompatActivity
         mTabLayout.setupWithViewPager(mViewPager);
     }
 
+    private void setupFabFragment() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.fabFragmentContainer, new FabFragment())
+                .commit();
+    }
+
+    @Override
+    public void connectToSession(MediaSessionCompat.Token token)
+            throws RemoteException {
+        MediaControllerCompat mediaController = new MediaControllerCompat(this, token);
+        setSupportMediaController(mediaController);
+    }
 
     @Override
     public boolean hasPermissions() {
@@ -89,10 +120,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            mActivityActionsListener.gotPermissionResult(this, true);
+        }
+    }
+
+    @Override
     public AppCompatActivity getActivityContext() {
         return this;
     }
-
 
     public class MyPagerAdapter extends FragmentPagerAdapter {
 

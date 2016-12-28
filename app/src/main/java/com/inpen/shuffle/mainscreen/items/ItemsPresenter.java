@@ -36,7 +36,7 @@ public class ItemsPresenter
     private CustomTypes.ItemType mItemType;
     private SelectedItemsRepository mSelectedItemsRepository;
 
-    private boolean active = false;
+    private boolean mActive = false;
 
     public ItemsPresenter(@NonNull LoaderManager loaderManager,
                           @NonNull Context context,
@@ -82,11 +82,13 @@ public class ItemsPresenter
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onItemTypeChangedEvent(SelectedItemsRepository.ItemTypeChangedEvent obs) {
-        if (mSelectedItemsRepository.getItemType().equals(mItemType)) {
-            active = true;
-        } else if (active && !mSelectedItemsRepository.getItemType().equals(mItemType)) {
+        if (mSelectedItemsRepository.getItemType() == null) {
             mItemsView.clearSelection();
-            active = false;
+        } else if (mSelectedItemsRepository.getItemType().equals(mItemType)) {
+            mActive = true;
+        } else if (mActive && !mSelectedItemsRepository.getItemType().equals(mItemType)) {
+            mItemsView.clearSelection();
+            mActive = false;
         }
     }
 

@@ -3,6 +3,7 @@
     package="com.inpen.shuffle">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".MyApplication"
@@ -22,17 +23,28 @@
         </activity>
 
         <service
-            android:name=".playback.MusicService"
-            android:enabled="true"
-            android:exported="true" />
-
-        <service
             android:name=".syncmedia.SyncMediaIntentService"
             android:exported="false" />
 
         <provider
             android:name=".model.database.MediaProvider"
             android:authorities="com.inpen.shuffle" />
+
+        <service
+            android:name=".playback.MusicService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
+
+        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".playerscreen.PlayerActivity"></activity>
     </application>
 
 </manifest>

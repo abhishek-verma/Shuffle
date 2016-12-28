@@ -51,7 +51,6 @@ public class ItemView extends FrameLayout {
 
     public void setItem(Item item, boolean selected) {
         mItem = item;
-        mIsSelected = selected;
 
         if (mTitleTextView != null)
             mTitleTextView.setText(mItem.title);
@@ -63,17 +62,19 @@ public class ItemView extends FrameLayout {
         if (mAlbumArtView != null) {
             Glide.with(getContext())
                     .load(mItem.imagePath)
-                    .error(R.drawable.ic_loading_circle)
+                    .error(getResources().getDrawable(R.drawable.ic_loading_circle, null))
                     .into(mAlbumArtView);
         }
 
-        if (mIsSelected) {
-            mAlbumArtView.setAlpha(0.6f);
-            mMaskView.setAlpha(1f);
-        } else {
-            mAlbumArtView.setAlpha(1f);
-            mMaskView.setAlpha(0f);
-        }
+//        if (mIsSelected) {
+//            mAlbumArtView.setAlpha(0.6f);
+//            mMaskView.setAlpha(1f);
+//        } else {
+//            mAlbumArtView.setAlpha(1f);
+//            mMaskView.setAlpha(0f);
+//        }
+
+        setSelected(selected);
     }
 
     public void setSelected(boolean select) {
@@ -82,9 +83,6 @@ public class ItemView extends FrameLayout {
         }
 
         mIsSelected = select;
-
-        LogHelper.d(TAG, mItem.title +
-                ((mIsSelected) ? " selected!" : "deselected!"));
 
         if (mIsSelected) {
             mMaskView.animate()

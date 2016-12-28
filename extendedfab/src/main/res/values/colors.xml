@@ -2,4 +2,6 @@
 <resources>
     <color name="green">#4a8</color>
     <color name="GrayLight">#aaa</color>
+
+    <color name="icon_black">#33333333</color>
 </resources>

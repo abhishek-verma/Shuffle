@@ -11,4 +11,5 @@
     <dimen name="choose_from_text_size">16sp</dimen>
     <dimen name="choose_from_text_padding_left">8dp</dimen>
     <dimen name="tab_text_size">24sp</dimen>
+    <dimen name="fab_child_padding">12dp</dimen>
 </resources>

@@ -36,6 +36,7 @@ public class ResourceHelper {
      */
     public static int getThemeColor(Context context, int attribute, int defaultColor) {
         int themeColor = 0;
+
         String packageName = context.getPackageName();
         try {
             Context packageContext = context.createPackageContext(packageName, 0);
