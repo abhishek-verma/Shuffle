@@ -1,5 +1,6 @@
 package com.inpen.shuffle.playback;
 
+import android.content.Context;
 import android.os.SystemClock;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -24,6 +25,7 @@ public class PlaybackManager implements Playback.Callback {
     // Regular fields and methods
     ///////////////////////////////////////////////////////////////////////////
 
+    private final Context mContext;
     private final PlaybackServiceCallback mServiceCallback;
     private final Playback mPlayback;
     private QueueRepository mQueueRepository;
@@ -59,7 +61,7 @@ public class PlaybackManager implements Playback.Callback {
 
         @Override
         public void onSeekTo(long pos) {
-            super.onSeekTo(pos);
+            seekTo((int) pos);
         }
 
         @Override
@@ -70,8 +72,10 @@ public class PlaybackManager implements Playback.Callback {
 
     public PlaybackManager(PlaybackServiceCallback serviceCallback,
                            QueueRepository initializedQueueRepo,
-                           Playback playback) {
+                           Playback playback,
+                           Context context) {
         this.mServiceCallback = serviceCallback;
+        mContext = context;
 
         mQueueRepository = initializedQueueRepo;
 
@@ -124,7 +128,7 @@ public class PlaybackManager implements Playback.Callback {
     }
 
     private void setRating(RatingCompat rating) {
-        // TODO implement rating
+        mQueueRepository.setRating(rating, mContext);
     }
 
     /**

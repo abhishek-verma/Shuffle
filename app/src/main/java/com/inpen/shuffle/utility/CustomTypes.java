@@ -1,6 +1,12 @@
 package com.inpen.shuffle.utility;
 
+import android.support.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 public class CustomTypes {
+
 
     /**
      * Created by Abhishek on 12/10/2016.
@@ -44,11 +50,19 @@ public class CustomTypes {
         }
     }
 
-    public enum RepositoryState {
-        NON_INITIALIZED, INITIALIZING, INITIALIZED
+    @IntDef({RepositoryState.NON_INITIALIZED, RepositoryState.INITIALIZING, RepositoryState.INITIALIZED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RepositoryState {
+        int NON_INITIALIZED = -1, INITIALIZING = 0, INITIALIZED = 1;
     }
 
-    public enum FabMode {
-        SHUFFLE, LOADING, PLAYER, DISABLED, ANIMATING
+    @IntDef({FabMode.SHUFFLE, FabMode.LOADING, FabMode.PLAYER, FabMode.DISABLED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface FabMode {
+        int SHUFFLE = 100,
+                LOADING = 110,
+                PLAYER = 120,
+                DISABLED = 130;
     }
+
 }

@@ -1,12 +1,15 @@
 package com.inpen.shuffle.model.repositories;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.RatingCompat;
 
 import com.inpen.shuffle.model.MutableMediaMetadata;
 import com.inpen.shuffle.model.database.MediaContract;
 import com.inpen.shuffle.utility.CustomTypes;
+import com.inpen.shuffle.utility.StaticStrings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -186,7 +189,7 @@ public class SongsRepository {
                 songsDataCursor = mContext.getContentResolver()
                         .query(MediaContract.MediaEntry.CONTENT_URI,
                                 projection,
-                                MediaContract.MediaEntry.COLUMN_PATH
+                                MediaContract.MediaEntry.COLUMN_FOLDER_PATH
                                         + " IN ("
                                         + getStringFromSelectorItems(filterItems)
                                         + ")",
@@ -277,11 +280,26 @@ public class SongsRepository {
         return mutableMediaMetadata;
     }
 
-    public void setSongLiked(String songId, boolean isLiked) {
+    public void storeSongRating(String songId, RatingCompat ratingCompat) {
+        ContentValues cv = new ContentValues();
+        cv.put(MediaContract.PlaylistsEntry.COLUMN_SONG_ID, songId);
 
-    }
 
-    public void setSongDisliked(String songId, boolean isDisliked) {
+        // removing from both liked and disliked
+        mContext.getContentResolver().delete(MediaContract.PlaylistsEntry.CONTENT_URI,
+                MediaContract.PlaylistsEntry.COLUMN_SONG_ID + " = ? " +
+                        "AND " + MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME +
+                        " IN (?, ?) ",
+                new String[]{songId, StaticStrings.PlAYLIST_NAME_LIKED, StaticStrings.PlAYLIST_NAME_DISLIKED});
 
+        // adding only if rated (liked or disliked)
+        if (ratingCompat.isRated()) {
+            if (ratingCompat.isThumbUp()) {
+                cv.put(MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME, StaticStrings.PlAYLIST_NAME_LIKED);
+            } else {
+                cv.put(MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME, StaticStrings.PlAYLIST_NAME_DISLIKED);
+            }
+            mContext.getContentResolver().insert(MediaContract.PlaylistsEntry.CONTENT_URI, cv);
+        }
     }
 }

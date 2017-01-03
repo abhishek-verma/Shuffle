@@ -19,9 +19,11 @@ interface FabContract {
 
         void connectToMediaController();
 
-        void showPlayer(MediaMetadataCompat metadata);
+        void showPlayer(MediaMetadataCompat metadata, PlaybackStateCompat playbackState);
 
         void showShuffle();
+
+        void updatePlayer(MediaMetadataCompat metadata, PlaybackStateCompat playbackStateCompat);
 
         void showLoading();
 
@@ -47,6 +49,8 @@ interface FabContract {
         void playerIconClicked(AppCompatActivity activity);
 
         void setTransportControls(MediaControllerCompat.TransportControls transportControls);
+
+        void playPausedClicked();
     }
 
 }

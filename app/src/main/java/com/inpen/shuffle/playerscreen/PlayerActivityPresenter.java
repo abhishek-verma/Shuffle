@@ -7,8 +7,15 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.RatingCompat;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v4.view.ViewPager;
 
+import com.inpen.shuffle.mainscreen.MainActivity;
+import com.inpen.shuffle.model.repositories.QueueRepository;
 import com.inpen.shuffle.playback.MusicService;
 import com.inpen.shuffle.utility.LogHelper;
 
@@ -21,7 +28,6 @@ import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
  */
 
 public class PlayerActivityPresenter implements PlayerActivityContract.PlayerActivityListener {
-
     ///////////////////////////////////////////////////////////////////////////
     // Regular fields and methods
     ///////////////////////////////////////////////////////////////////////////
@@ -33,6 +39,33 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
     ///////////////////////////////////////////////////////////////////////////
     public PlayerActivityContract.PlayerActivityView mPlayerActivityView;
     private boolean mBound;
+    private MediaControllerCompat.TransportControls mTransportControls;
+
+    private PlaybackStateCompat mPlaybackState;
+    private MediaMetadataCompat mMediaMetadata;
+    // Receive callbacks from the MediaController. Here we update our state such as which queue
+    // is being shown, the current title and description and the PlaybackState.
+    MediaControllerCompat.Callback mControllerCallback = new MediaControllerCompat.Callback() {
+
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            super.onPlaybackStateChanged(state);
+
+            LogHelper.d(LOG_TAG, "Received playback state change to state ", state.getState());
+            playbackStateChanged(state);
+        }
+
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
+            super.onMetadataChanged(metadata);
+
+            LogHelper.d(LOG_TAG, "Received metadata state change to mediaId=",
+                    metadata.getDescription().getMediaId(),
+                    " song=", metadata.getDescription().getTitle());
+            metadataChanged(metadata);
+        }
+    };
+    private QueueRepository mQueueRepository;
     /**
      * Defines callbacks for service binding, passed to bindService()
      */
@@ -64,13 +97,63 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
             mBound = false;
         }
     };
+    private ViewPager.OnPageChangeListener mPageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
+        @Override
+        public void onPageSelected(final int position) {
+            super.onPageSelected(position);
+
+            new Runnable() {
+                @Override
+                public void run() {
+
+                    int prevPosition = mQueueRepository.getCurrentIndex();
+
+                    LogHelper.d(LOG_TAG, " ViewAdapter Page Changed; pageposition: " + position +
+                            " \nQueuePosition: " + prevPosition);
+
+                    if (prevPosition < position) {
+                        mTransportControls.skipToNext();
+                    } else if (prevPosition > position) {
+                        mTransportControls.skipToPrevious();
+                    }
+                }
+            }.run();
+        }
+
+    };
 
     public PlayerActivityPresenter(@NonNull PlayerActivityContract.PlayerActivityView playerActivityView) {
         mPlayerActivityView = checkNotNull(playerActivityView);
+        mQueueRepository = QueueRepository.getInstance();
+    }
+
+    @Override
+    public void setTransportControls(MediaControllerCompat.TransportControls transportControls) {
+        mTransportControls = transportControls;
+    }
+
+    @Override
+    public MediaControllerCompat.Callback getControllerCallback() {
+        return mControllerCallback;
+    }
+
+    @Override
+    public ViewPager.OnPageChangeListener getPageChangeListener() {
+        return mPageChangeListener;
     }
 
     @Override
     public void init(Context context) {
+        if (!QueueRepository.getInstance().isInitialized()
+                && mQueueRepository.isCatchEmpty(context)) {
+
+            //launching main activity if queue empty
+            Intent mainActivityIntent = new Intent(context, MainActivity.class);
+            mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(mainActivityIntent);
+        }
+
         connectToService(context);
     }
 
@@ -83,6 +166,55 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
 
             context.unbindService(mConnection);
             mBound = false;
+        }
+    }
+
+    @Override
+    public void playbackStateChanged(PlaybackStateCompat state) {
+        mPlaybackState = state;
+        mPlayerActivityView.updatePlaybackStateViews(state);
+    }
+
+    @Override
+    public void metadataChanged(MediaMetadataCompat metadata) {
+        mMediaMetadata = metadata;
+        mPlayerActivityView.updateMetadataViews(metadata);
+    }
+
+    @Override
+    public void playPauseButtonClicked() {
+        if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+            mTransportControls.pause();
+        } else {
+            mTransportControls.play();
+        }
+    }
+
+    @Override
+    public void likeButtonClicked() {
+        RatingCompat prevRating = mMediaMetadata.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING);
+        if (prevRating != null &&
+                prevRating.isRated() &&
+                prevRating.isThumbUp()) {
+            RatingCompat unratedRating = RatingCompat.newUnratedRating(RatingCompat.RATING_THUMB_UP_DOWN);
+            mTransportControls.setRating(unratedRating);
+        } else {
+            RatingCompat likedRating = RatingCompat.newThumbRating(true);
+            mTransportControls.setRating(likedRating);
+        }
+    }
+
+    @Override
+    public void dislikeButtonClicked() {
+        RatingCompat prevRating = mMediaMetadata.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING);
+        if (prevRating != null &&
+                prevRating.isRated() &&
+                !prevRating.isThumbUp()) {
+            RatingCompat unratedRating = RatingCompat.newUnratedRating(RatingCompat.RATING_THUMB_UP_DOWN);
+            mTransportControls.setRating(unratedRating);
+        } else {
+            RatingCompat dislikedRating = RatingCompat.newThumbRating(false);
+            mTransportControls.setRating(dislikedRating);
         }
     }
 

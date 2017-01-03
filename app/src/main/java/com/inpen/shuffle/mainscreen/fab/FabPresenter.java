@@ -1,18 +1,18 @@
 package com.inpen.shuffle.mainscreen.fab;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 import com.inpen.shuffle.mainscreen.MainActivity;
 import com.inpen.shuffle.mainscreen.MainPresenter;
 import com.inpen.shuffle.model.repositories.QueueRepository;
 import com.inpen.shuffle.model.repositories.SelectedItemsRepository;
+import com.inpen.shuffle.playerscreen.PlayerActivity;
 import com.inpen.shuffle.utility.LogHelper;
 
 import org.greenrobot.eventbus.EventBus;
@@ -34,6 +34,9 @@ public class FabPresenter implements FabContract.InteractionsListener {
     private boolean mShouldShowLoading = false;
     private boolean mShouldShowPlayer = false;
     private boolean mShouldShowShuffle = false;
+    private MediaControllerCompat.TransportControls mTransportControls;
+    private MediaMetadataCompat mMetadata;
+    private PlaybackStateCompat mPlaybackState;
     // Receive callbacks from the MediaController. Here we update our state such as which queue
     // is being shown, the current title and description and the PlaybackState.
     MediaControllerCompat.Callback mControllerCallback = new MediaControllerCompat.Callback() {
@@ -56,7 +59,6 @@ public class FabPresenter implements FabContract.InteractionsListener {
             metadataChanged(metadata);
         }
     };
-    private MediaControllerCompat.TransportControls mTransportControls;
 
     @Override
     public void init(@NonNull FabContract.FabView fabView, Context context) {
@@ -68,13 +70,14 @@ public class FabPresenter implements FabContract.InteractionsListener {
 
         if (!SelectedItemsRepository.getInstance().isEmpty()) {
             mShouldShowShuffle = true;
-            updateView(null);
+            LogHelper.d(TAG, "Update view called from paybackStateChanged!");
+            updateView();
         }
     }
 
     @Override
     public void stop() {
-        mFabView.disable(false);
+
     }
 
     @Override
@@ -84,21 +87,26 @@ public class FabPresenter implements FabContract.InteractionsListener {
 
     @Override
     public void playbackStateChanged(PlaybackStateCompat state) {
+
+        mPlaybackState = state;
+
         LogHelper.d(TAG, "onPlaybackStateChanged ", state);
         if (mFabView.getFragmentActivity() == null) {
             LogHelper.w(TAG, "onPlaybackStateChanged called when getActivity null," +
                     "this should not happen if the callback was properly unregistered. Ignoring.");
             return;
         }
-        if (state == null) {
-            mShouldShowPlayer = true;
-            return;
-        }
 
+        mShouldShowPlayer = state != null;
+
+        LogHelper.d(TAG, "Update view called from paybackStateChanged!");
+        updateView();
     }
 
     @Override
     public void metadataChanged(MediaMetadataCompat metadata) {
+
+        mMetadata = metadata;
 
         LogHelper.d(TAG, "onMetadataChanged ", metadata);
         if (mFabView.getFragmentActivity() == null) {
@@ -106,38 +114,38 @@ public class FabPresenter implements FabContract.InteractionsListener {
                     "this should not happen if the callback was properly unregistered. Ignoring.");
             return;
         }
-        if (metadata == null) {
-            mShouldShowPlayer = false;
-            return;
-        }
 
-        mShouldShowPlayer = true;
-        updateView(metadata);
+        mShouldShowPlayer = metadata != null;
+
+        LogHelper.d(TAG, "Update view called from metadataChanged!");
+        updateView();
     }
 
-    /**
-     * @param metadata to pass to showPlayer method
-     */
-    private void updateView(@Nullable MediaMetadataCompat metadata) {
+    private void updateView() {
         LogHelper.d(TAG, "update View called");
+
         if (mShouldShowLoading) {
+            LogHelper.d(TAG, "Showing loading");
             mFabView.showLoading();
         } else if (!mShouldShowPlayer &&
                 !mShouldShowShuffle) {
+            LogHelper.d(TAG, "Showing disabled");
             mFabView.disable(true);
         } else if (mShouldShowShuffle) {
+            LogHelper.d(TAG, "Showing shuffle");
             mFabView.showShuffle();
         } else {
-            mFabView.showPlayer(metadata);
+            LogHelper.d(TAG, "showing player");
+            mFabView.updatePlayer(mMetadata, mPlaybackState);
         }
+
     }
 
     @Override
     public void shuffleClicked(MainActivity activity) {
         mShouldShowShuffle = false;
         mShouldShowLoading = true;
-
-        updateView(null);
+//        updateView();
 
         QueueRepository mQueueRepository = QueueRepository.getInstance(); // hold reference to queue repository somehow
         mQueueRepository.initialize(activity,
@@ -151,11 +159,11 @@ public class FabPresenter implements FabContract.InteractionsListener {
 
                             SelectedItemsRepository
                                     .getInstance()
-                                    .clearItems(true);
+                                    .clearItems(true); //TODO removed since it flickered the fab, do something else instead
                         } else {
                             mShouldShowShuffle = true;
                             mShouldShowLoading = false;
-                            updateView(null);
+                            updateView();
 
                             LogHelper.e(TAG, "Cannot initialize queue repo, SHIT IS SERIOUS DAMMIT!");
                         }
@@ -165,8 +173,17 @@ public class FabPresenter implements FabContract.InteractionsListener {
 
     @Override
     public void playerIconClicked(AppCompatActivity activity) {
-        // TODO launch player
-        Toast.makeText(activity, "Launching Player stub", Toast.LENGTH_SHORT);
+        // launch player
+        activity.startActivity(new Intent(activity, PlayerActivity.class));
+    }
+
+    @Override
+    public void playPausedClicked() {
+        if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+            mTransportControls.pause();
+        } else {
+            mTransportControls.play();
+        }
     }
 
     @Override
@@ -179,7 +196,9 @@ public class FabPresenter implements FabContract.InteractionsListener {
         // mShouldShowShuffle true when !isEmpty && false when isEmpty
         if (event.isEmpty == mShouldShowShuffle) { // that means mShouldShowShuffle state must be changed!
             mShouldShowShuffle = !event.isEmpty;
-            updateView(null);
+
+            LogHelper.d(TAG, "Update view called from repository emptystate changed!");
+            updateView();
         }
     }
 
@@ -190,6 +209,7 @@ public class FabPresenter implements FabContract.InteractionsListener {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMusicPlayerDisconnected(MainPresenter.MusicServiceDisconnectedEvent event) {
-
+//        mShouldShowPlayer = false;
+//        updateView();
     }
 }

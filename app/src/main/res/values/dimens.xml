@@ -12,4 +12,13 @@
     <dimen name="choose_from_text_padding_left">8dp</dimen>
     <dimen name="tab_text_size">24sp</dimen>
     <dimen name="fab_child_padding">12dp</dimen>
+    <dimen name="exfab_borderless_btn_padding">12dp</dimen>
+    <dimen name="controlsParentVerticalPadding">20dp</dimen>
+    <dimen name="player_title_text_size">32sp</dimen>
+    <dimen name="player_metadata_text_size">24sp</dimen>
+    <dimen name="songDetailParentPadding">30dp</dimen>
+    <dimen name="suggestionViewHeight">68dp</dimen>
+    <dimen name="seekbar_padding">10dp</dimen>
+    <dimen name="control_button_size">60dp</dimen>
+    <dimen name="control_button_padding">15dp</dimen>
 </resources>

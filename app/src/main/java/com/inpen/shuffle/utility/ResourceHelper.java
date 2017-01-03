@@ -21,6 +21,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.util.TypedValue;
 
 /**
  * Generic reusable methods to handle resources.
@@ -51,5 +52,14 @@ public class ResourceHelper {
             e.printStackTrace();
         }
         return themeColor;
+    }
+
+    public static int getBorderlessButtonBackground(Context context) {
+        // If we're running on Honeycomb or newer, then we can use the Theme's
+        // selectableItemBackground to ensure that the View has a pressed state
+        TypedValue outValue = new TypedValue();
+        context.getTheme().resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true);
+
+        return outValue.resourceId;
     }
 }

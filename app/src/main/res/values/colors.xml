@@ -17,5 +17,8 @@
     <color name="selectedTabTextColor">@color/colorAccent</color>
     <color name="tabTextColor">@color/grey</color>
     <color name="chooseFromTextColor">#777</color>
+    <color name="controlViewBackgroundColor">#0000</color>
+    <color name="playerSongDetailTextColor">#fff</color>
+    <color name="seekbar_bg_color">#6fff</color>
 
 </resources>

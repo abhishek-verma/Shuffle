@@ -1,13 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:sothree="http://schemas.android.com/apk/com.inpen.shuffle"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_player"
+    android:id="@+id/sliding_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.inpen.shuffle.playerscreen.PlayerActivity">
+    android:layout_alignParentBottom="true"
+    android:gravity="bottom"
+    sothree:panelHeight="68dp"
+    sothree:shadowHeight="4dp">
 
-</RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/activity_player"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="false"
+        tools:context="com.inpen.shuffle.playerscreen.PlayerActivity">
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/playerViewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true" />
+
+        <RelativeLayout
+            android:id="@+id/controlsParent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/playerViewpager"
+            android:alpha="0.8"
+            android:background="@color/controlViewBackgroundColor"
+            android:gravity="center_vertical"
+            android:padding="@dimen/controlsParentVerticalPadding"
+            android:theme="@style/Theme.AppCompat">
+
+            <ImageButton
+                android:id="@+id/playPauseBtn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="@dimen/control_button_size"
+                android:layout_height="@dimen/control_button_size"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:adjustViewBounds="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/control_button_padding"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_play_arrow_white_24dp" />
+
+            <ImageButton
+                android:id="@+id/likeButton"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="@dimen/control_button_size"
+                android:layout_height="@dimen/control_button_size"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:adjustViewBounds="true"
+                android:alpha="0.4"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/control_button_padding"
+                android:paddingRight="@dimen/controlsParentVerticalPadding"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_thumb_up_white_24dp" />
+
+            <ImageButton
+                android:id="@+id/dislikeButton"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="@dimen/control_button_size"
+                android:layout_height="@dimen/control_button_size"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/likeButton"
+                android:adjustViewBounds="true"
+                android:alpha="0.4"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/control_button_padding"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_thumb_down_white_24dp" />
+
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/controlsParent"
+            android:background="@color/seekbar_bg_color"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingLeft="@dimen/seekbar_padding"
+            android:paddingRight="@dimen/seekbar_padding">
+
+            <TextView
+                android:id="@+id/currentDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="5dp"
+                android:text="3:32"
+                android:textColor="@color/white" />
+
+            <android.support.v7.widget.AppCompatSeekBar
+                android:id="@+id/seekbar"
+                android:layout_width="0dp"
+                android:layout_height="25dp"
+                android:layout_margin="0dp"
+                android:layout_weight="1"
+                android:padding="0dp"
+                android:progressDrawable="@drawable/seekbar_progress_drawable"
+                android:thumb="@drawable/seekbar_thumb_drawable"
+                android:thumbTintMode="multiply" />
+
+            <TextView
+                android:id="@+id/totalDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="5:26"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:background="@android:color/transparent"
+            android:fitsSystemWindows="true"
+            app:elevation="0dp">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                style="@style/Widget.AppCompat.Toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:fitsSystemWindows="true"
+                android:minHeight="?attr/actionBarSize"
+                android:theme="@style/Theme.AppCompat" />
+        </android.support.design.widget.AppBarLayout>
+
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="top"
+        android:orientation="vertical">
+
+        <com.inpen.shuffle.customviews.TypefacedTextView xmlns:typeface="http://schemas.android.com/apk/res/com.inpen.shuffle"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/suggestionViewHeight"
+            android:alpha="0.8"
+            android:background="@color/white"
+            android:gravity="start|center_vertical"
+            android:paddingLeft="?android:attr/listPreferredItemPaddingStart"
+            android:text="@string/recommendations_title"
+            android:textSize="24sp"
+            typeface:fontPath="fonts/PoiretOne-Regular.ttf" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:gravity="center_horizontal"
+            android:text="No Recommendations Available!"
+            android:typeface="monospace" />
+    </LinearLayout>
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>
+

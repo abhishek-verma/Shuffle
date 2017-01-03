@@ -358,7 +358,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 .with(mMusicService)
                 .load(artUrl)
                 .asBitmap()
-                .error(R.drawable.transparent_icon)
                 .into(new SimpleTarget<Bitmap>(MAX_ART_WIDTH_ICON, MAX_ART_HEIGHT_ICON) {
                     @Override
                     public void onResourceReady(Bitmap bitmap, GlideAnimation glideAnimation) {

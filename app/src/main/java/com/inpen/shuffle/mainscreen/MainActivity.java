@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity
     Toolbar mToolbar;
 
     private MyPagerAdapter mFragmentAdapter;
+    private FabFragment mFabFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +52,6 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        if (savedInstanceState == null)
-            setupFabFragment();
     }
 
     @Override
@@ -61,14 +60,29 @@ public class MainActivity extends AppCompatActivity
         mActivityActionsListener = new MainPresenter(this);
         mActivityActionsListener.init(this);
 
+        setupFabFragment();
+
         setupAdapterAndViewPager();
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .remove(mFabFragment)
+                .commit();
+
+        mFabFragment.onDestroy();
+        mFabFragment = null;
+
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     protected void onStop() {
-        super.onStop();
 
         mActivityActionsListener.stop(this);
+        super.onStop();
     }
 
     private void setupAdapterAndViewPager() {
@@ -82,9 +96,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setupFabFragment() {
+        if (mFabFragment == null) {
+            mFabFragment = FabFragment.newInstance();
+        }
+
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.fabFragmentContainer, new FabFragment())
+                .add(R.id.fabFragmentContainer, mFabFragment)
                 .commit();
     }
 

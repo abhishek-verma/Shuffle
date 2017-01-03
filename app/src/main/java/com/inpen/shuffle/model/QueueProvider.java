@@ -89,7 +89,66 @@ public class QueueProvider {
     public void shuffle() {
         Collections.shuffle(mSongs);
 
-        //TODO apply biased shuffle algo here
+        //apply biased shuffle algo here
+        weightedShuffle();
+    }
+
+
+    private void weightedShuffle() {
+
+        final double LIKED_PREF = 0.7/*very_often=0.8, often=0.7, normal= 0.6*/,
+                NORMAL_PREF = 0.6,
+                DISLIKED_PREF = 0.4/*normal=0.6, less_often=0.5, rarely=0.4, never=0*/;
+
+        int i;
+
+        for (i = (int) (mSongs.size() * 0.5); i < mSongs.size(); i++) {
+            double pref = mLikedSongs.contains(mSongs.get(i)) ?
+                    LIKED_PREF :
+                    mDislikedSongs.contains(mSongs.get(i)) ? DISLIKED_PREF : NORMAL_PREF;
+
+            double rand = Math.random();
+
+            if (pref > NORMAL_PREF) {
+                if (rand * pref > 0.5) {
+                    //swap to song to somewhere between
+                    //0 to (int)songs.size()*(1-random*pref)
+                    //ie random()*((int) songs.size()*(1-random*pref)
+
+                    int dest = (int) (
+                            Math.random()
+                                    * (mSongs.size() * (1 - rand * pref))
+                    );
+
+                    Collections.swap(mSongs, i, dest);
+                }
+            }
+        }
+
+        for (i = 0; i < (int) (mSongs.size() * 0.6); i++) {
+            double pref = mLikedSongs.contains(mSongs.get(i)) ?
+                    LIKED_PREF :
+                    mDislikedSongs.contains(mSongs.get(i)) ? DISLIKED_PREF : NORMAL_PREF;
+
+            double rand = Math.random();
+
+            if (pref < NORMAL_PREF) {
+
+                if (rand * pref < 0.37) {
+                    //swap to song to somewhere between
+                    //(int)songs.size()*(1-random*pref) to songs.size()
+                    //ie (int)songs.size*(1-random*pref + random()*(random*pref))
+
+                    int dest = (int) (
+                            mSongs.size()
+                                    * (1 - rand * pref + Math.random() * (rand * pref))
+                    );
+
+                    Collections.rotate(mSongs.subList(i, dest + 1), -1);
+                    i--;//so that the counter does not skip the next song
+                }
+            }
+        }
     }
 
 }

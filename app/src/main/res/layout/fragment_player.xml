@@ -1,0 +1,56 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.inpen.shuffle.playerscreen.player.PlayerFragment">
+
+    <ImageView
+        android:id="@+id/albumArt"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop" />
+
+    <View
+        android:id="@+id/mask"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.6"
+        android:background="@color/black" />
+
+    <RelativeLayout xmlns:typeface="http://schemas.android.com/apk/res/com.inpen.shuffle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:padding="@dimen/songDetailParentPadding"
+        app:layout_anchor="@id/albumArt"
+        app:layout_anchorGravity="center">
+
+        <com.inpen.shuffle.customviews.TypefacedTextView
+            android:id="@+id/songArtist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.5"
+            android:maxLines="1"
+            android:text="Artist Name"
+            android:textColor="@color/playerSongDetailTextColor"
+            android:textSize="@dimen/player_metadata_text_size"
+            typeface:fontPath="fonts/PoiretOne-Regular.ttf" />
+
+        <com.inpen.shuffle.customviews.TypefacedTextView
+            android:id="@+id/songTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/songArtist"
+            android:maxLines="2"
+            android:paddingBottom="10dp"
+            android:text="Song Name Song Name"
+            android:textColor="@color/playerSongDetailTextColor"
+            android:textSize="@dimen/player_title_text_size"
+            typeface:fontPath="fonts/PoiretOne-Regular.ttf" />
+
+    </RelativeLayout>
+
+
+</android.support.design.widget.CoordinatorLayout>

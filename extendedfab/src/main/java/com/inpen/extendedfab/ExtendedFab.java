@@ -1,15 +1,14 @@
 package com.inpen.extendedfab;
 
 import android.animation.LayoutTransition;
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
+import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageSwitcher;
 import android.widget.LinearLayout;
@@ -27,20 +26,32 @@ import java.util.List;
 public class ExtendedFab extends LinearLayout {
 
     ImageSwitcher mMainFabImageSwitcher;
+
     List<View> mLeftViewList = new ArrayList<>();
     List<View> mRightViewList = new ArrayList<>();
-    private Mode mMode = Mode.UNILATERAL;
+
     private boolean mIsExpanded = true;
 
     public ExtendedFab(Context context) {
         super(context);
+        init();
+    }
 
+    public ExtendedFab(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
+    }
+
+    public ExtendedFab(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init();
+    }
+
+    private void init() {
         setLayoutProperties();
-
         setupImageSwitcher();
         addView(mMainFabImageSwitcher);
     }
-
 
     private void setLayoutProperties() {
         setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -49,61 +60,32 @@ public class ExtendedFab extends LinearLayout {
         int padding = getResources().getDimensionPixelSize(R.dimen.main_padding);
         setPadding(padding, padding, padding, padding);
 
-
         setBackground(getResources().getDrawable(R.drawable.extended_fab_bg, null));
-        setClipToOutline(false);
         setElevation(getResources().getDimension(R.dimen.main_elevation));
         setGravity(Gravity.CENTER_VERTICAL);
 
         applyLayoutChangesAnimation();
     }
 
+
     private void applyLayoutChangesAnimation() {
 
         setLayoutTransition(new LayoutTransition());
         LayoutTransition layoutTransition = getLayoutTransition();
-
-        //Changing enter animation
-        PropertyValuesHolder pvAlphaIn =
-                PropertyValuesHolder.ofFloat("alpha", 0f, 1f); // Todo use ("xxx", 0f, 1f); only as params if dosent work
-        PropertyValuesHolder pvhScaleXIn =
-                PropertyValuesHolder.ofFloat("scaleX", 0.7f, 1f);
-        PropertyValuesHolder pvhScaleYIn =
-                PropertyValuesHolder.ofFloat("scaleY", 0.7f, 1f);
-        final ObjectAnimator changeIn = ObjectAnimator.ofPropertyValuesHolder(
-                this, pvAlphaIn, pvhScaleXIn, pvhScaleYIn).
-                setDuration(layoutTransition.getDuration(LayoutTransition.CHANGE_APPEARING));
-        layoutTransition.setAnimator(LayoutTransition.APPEARING, changeIn);
-        layoutTransition.setInterpolator(LayoutTransition.APPEARING, new DecelerateInterpolator());
-
-        //Changing enter animation
-        PropertyValuesHolder pvAlphaOut =
-                PropertyValuesHolder.ofFloat("alpha", 1f, 0f); // Todo use ("xxx", 1f, 0f); only as params if dosent work
-        PropertyValuesHolder pvhScaleXOut =
-                PropertyValuesHolder.ofFloat("scaleX", 1f, 0.7f);
-        PropertyValuesHolder pvhScaleYOut =
-                PropertyValuesHolder.ofFloat("scaleY", 1f, 0.7f);
-        final ObjectAnimator changeOut = ObjectAnimator.ofPropertyValuesHolder(
-                this, pvAlphaOut, pvhScaleXOut, pvhScaleYOut).
-                setDuration(layoutTransition.getDuration(LayoutTransition.CHANGE_DISAPPEARING));
-        layoutTransition.setAnimator(LayoutTransition.DISAPPEARING, changeOut);
-        layoutTransition.setInterpolator(LayoutTransition.DISAPPEARING, new AccelerateInterpolator());
+        layoutTransition.enableTransitionType(LayoutTransition.CHANGING);
     }
 
-    private void removeLayoutChangesTransition() {
-
-        setLayoutTransition(null);
-    }
 
     private void setupImageSwitcher() {
         mMainFabImageSwitcher = new ImageSwitcher(getContext());
 
         int fabSize = (int) getResources().getDimension(R.dimen.fab_size);
         LinearLayout.LayoutParams layoutParams = new LayoutParams(fabSize, fabSize);
-        layoutParams.gravity = Gravity.CENTER;
+        layoutParams.gravity = Gravity.CENTER_VERTICAL;
         mMainFabImageSwitcher.setLayoutParams(layoutParams);
-        mMainFabImageSwitcher.setPadding(0, 0, 0, 0);
-        mMainFabImageSwitcher.setElevation(20);
+
+        mMainFabImageSwitcher.setInAnimation(getContext(), android.R.anim.fade_in);
+        mMainFabImageSwitcher.setOutAnimation(getContext(), android.R.anim.fade_out);
 
         mMainFabImageSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
             @Override
@@ -112,12 +94,7 @@ public class ExtendedFab extends LinearLayout {
 
                 // Set Border
                 circularImageView.setBorderColor(getResources().getColor(R.color.icon_black));
-                circularImageView.setBorderWidth(0.5f);
-
-                // Add Shadow with default param
-//                circularImageView.addShadow();
-//                circularImageView.setShadowRadius(1);
-//                circularImageView.setShadowColor(getResources().getColor(R.color.GrayLight));
+                circularImageView.setBorderWidth(1f);
 
                 circularImageView.setLayoutParams(new ImageSwitcher.LayoutParams(
                         LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -126,90 +103,50 @@ public class ExtendedFab extends LinearLayout {
         });
     }
 
+
     ///////////////////////////////////////////////////////////////////////////
     // public methods to be called
     ///////////////////////////////////////////////////////////////////////////
-    public void setMode(Mode mode) {
-        mMode = mode;
-    }
 
-    public void setMainView(Drawable iconDrawable, OnClickListener listener) {
+    public synchronized void setMainView(Drawable iconDrawable, @Nullable final Runnable touchAction) {
         mMainFabImageSwitcher.setImageDrawable(iconDrawable);
-        mMainFabImageSwitcher.setOnClickListener(listener);
+        mMainFabImageSwitcher.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP && touchAction != null) {
+                    touchAction.run();
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    // todo animate button
+                }
+                return true;
+            }
+        });
     }
 
-    public void addLeftView(View view, boolean animate) {
-
-//        if (mMode == Mode.UNILATERAL && mRightViewList.size() > 0) {
-//            // emove all right views from layout
-//            for (View v : mRightViewList) {
-//                removeView(v);
-//            }
-//            mRightViewList.clear();
-//        }
-
+    public synchronized void addLeftView(View view) {
         addView(view, indexOfChild(mMainFabImageSwitcher));
-
         mLeftViewList.add(view);
-
     }
 
-    public void addRightView(final View view, boolean animate) {
-
-//        if (mMode == Mode.UNILATERAL && mLeftViewList.size() > 0) {
-//            // remove all left views from layout
-//            for (View v : mLeftViewList) {
-//                removeView(v);
-//            }
-//            mLeftViewList.clear();
-//        }
-
+    public synchronized void addRightView(View view) {
         addView(view);
-
         mRightViewList.add(view);
-
     }
 
-    public void collapse() {
-        if (!mIsExpanded)
-            return;
-
-        // hide all left and right views
+    public synchronized void removeLeftViews() {
         // remove all left views from layout
         for (final View v : mLeftViewList) {
-
-            v.setVisibility(GONE);
+            removeView(v);
+            mLeftViewList.remove(v);
         }
-
-        for (final View v : mRightViewList) {
-
-            v.setVisibility(GONE);
-        }
-
-        // TODO animate padding to 0 and margin to default
-
-
-        mIsExpanded = false;
     }
 
-    public void expand() {
-        if (mIsExpanded)
-            return;
-
-        // hide all left and right views
-        // remove all left views from layout
-        for (final View v : mLeftViewList) {
-            v.setVisibility(VISIBLE);
-        }
-
+    public synchronized void removeRightViews() {
+        // remove all right view from layout
         for (final View v : mRightViewList) {
-            v.setVisibility(VISIBLE);
+            removeView(v);
+            mRightViewList.remove(v);
         }
-
-        // TODO animate padding to default and margin to 0
-
-
-        mIsExpanded = true;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -220,25 +157,11 @@ public class ExtendedFab extends LinearLayout {
         return false;
     }
 
+
     @Override
-    public void removeAllViews() {
-
-        // remove all left views from layout
-        for (View v : mLeftViewList) {
-            removeView(v);
-        }
-        mLeftViewList.clear();
-
-        // remove all right views from layout
-        for (View v : mRightViewList) {
-            removeView(v);
-        }
-        mRightViewList.clear();
+    public synchronized void removeAllViews() {
+        removeLeftViews();
+        removeRightViews();
     }
-
-    public enum Mode {
-        UNILATERAL, BILATERAL
-    }
-
 
 }

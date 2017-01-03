@@ -7,6 +7,9 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.inpen.shuffle.R;
 import com.inpen.shuffle.mainscreen.items.Item;
 import com.inpen.shuffle.utility.LogHelper;
@@ -62,7 +65,18 @@ public class ItemView extends FrameLayout {
         if (mAlbumArtView != null) {
             Glide.with(getContext())
                     .load(mItem.imagePath)
-                    .error(getResources().getDrawable(R.drawable.ic_loading_circle, null))
+                    .listener(new RequestListener<String, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            mAlbumArtView.setImageDrawable(getResources().getDrawable(R.drawable.ic_loading_circle));
+                            return true;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            return false;
+                        }
+                    })
                     .into(mAlbumArtView);
         }
 

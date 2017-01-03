@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.RatingCompat;
 
 import com.inpen.shuffle.model.MutableMediaMetadata;
 import com.inpen.shuffle.model.QueueProvider;
@@ -35,11 +37,13 @@ public class QueueRepository {
     // Regular fields and methods
     ///////////////////////////////////////////////////////////////////////////
     // cached playing queue
-    public List<MutableMediaMetadata> mPlayingQueue;
-    public int mCurrentTrackIndex = -1;
+    private List<MutableMediaMetadata> mPlayingQueue;
+    private int mCurrentTrackIndex = -1;
     private SharedPreferences mPreferences;
-    private volatile CustomTypes.RepositoryState mCurrentState = CustomTypes.RepositoryState.NON_INITIALIZED;
-    private QueueCallback mQueueCallbackObserver;
+    private volatile
+    @CustomTypes.RepositoryState
+    int mCurrentState = CustomTypes.RepositoryState.NON_INITIALIZED;
+    private QueueMetadataCallback mQueueMetadataCallbackObserver;
 
     public static synchronized QueueRepository getInstance() {
         if (mQueueRepositoryInstance == null)
@@ -64,7 +68,14 @@ public class QueueRepository {
                     if (selectedItemsRepository != null) {
                         mCurrentState = CustomTypes.RepositoryState.INITIALIZING;
                         retrieveQueue(context, selectedItemsRepository);
-                        storeQueue(context);
+
+                        // store playlist asynchronously
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                storeQueue(context);
+                            }
+                        }.run();
                     } else if (mCurrentState == NON_INITIALIZED && !isCatchEmpty(context)) {
                         loadCachedQueue(context, repositoryInitializedCallback);
                     }
@@ -104,6 +115,14 @@ public class QueueRepository {
         return mPlayingQueue.get(mCurrentTrackIndex);
     }
 
+    public MutableMediaMetadata getSongForIndex(int index) {
+        return mPlayingQueue.get(index);
+    }
+
+    public int getSize() {
+        return mPlayingQueue.size();
+    }
+
     public void skipQueuePosition(int amt) {
 
         int index = mCurrentTrackIndex + amt;
@@ -126,8 +145,8 @@ public class QueueRepository {
     public void setCurrentQueueIndex(int index) {
         mCurrentTrackIndex = index;
 
-        if (mQueueCallbackObserver != null)
-            mQueueCallbackObserver.onIndexChanged();
+//        if (mQueueMetadataCallbackObserver != null)
+//            mQueueMetadataCallbackObserver.onIndexChanged(); TODO remove commect when index callback needed
     }
 
     public boolean isInitialized() {
@@ -149,15 +168,19 @@ public class QueueRepository {
         return getmPreferences(context).contains(KEY_PLAYING_QUEUE);
     }
 
+    public void setRating(RatingCompat rating, Context context) {
+        MediaMetadataCompat metadata = mPlayingQueue.get(mCurrentTrackIndex).metadata;
+        mPlayingQueue.get(mCurrentTrackIndex).metadata = new MediaMetadataCompat
+                .Builder(metadata)
+                .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING, rating)
+                .build();
 
-    public void setLiked(String musicId, boolean liked) {
-        // TODO implement
-    }
+        mQueueMetadataCallbackObserver.onMetadataChanged();
 
-
-    public boolean isLiked(MutableMediaMetadata mutableMediaMetadata) {
-// FIXME        return mutableMediaMetadata.metadata.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING).getRating().   ;
-        return false;
+        SongsRepository songsRepository = new SongsRepository(context);
+        //noinspection ResourceType
+        songsRepository.storeSongRating(metadata.getString(MutableMediaMetadata.CUSTOM_METADATA_KEY_TRACK_ID),
+                rating);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -216,19 +239,19 @@ public class QueueRepository {
         return mPreferences;
     }
 
-    public void setQueueCallbackObserver(QueueCallback queueCallbackObserver) {
-        mQueueCallbackObserver = queueCallbackObserver;
+    public void setmQueueMetadataCallbackObserver(QueueMetadataCallback queueMetadataCallback) {
+        mQueueMetadataCallbackObserver = queueMetadataCallback;
+    }
+
+    public int getCurrentIndex() {
+        return mCurrentTrackIndex;
     }
 
     public interface RepositoryInitializedCallback {
         void onRepositoryInitialized(boolean success);
     }
 
-    public interface QueueCallback {
-        void onIndexChanged();
-
+    public interface QueueMetadataCallback {
         void onMetadataChanged();
-
-//        void onQueueChanged(); TODO implement
     }
 }

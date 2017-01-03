@@ -34,5 +34,11 @@
         <!--</item>-->
     </style>
 
+    <style name="AppTheme.NoActionBar.PlayerScreen" parent="AppTheme.NoActionBar">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
 
 </resources>

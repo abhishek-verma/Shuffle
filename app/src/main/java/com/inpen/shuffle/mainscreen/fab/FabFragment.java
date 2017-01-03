@@ -4,12 +4,14 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -17,8 +19,8 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
@@ -26,8 +28,10 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.inpen.extendedfab.ExtendedFab;
 import com.inpen.shuffle.R;
 import com.inpen.shuffle.mainscreen.MainActivity;
+import com.inpen.shuffle.model.MutableMediaMetadata;
 import com.inpen.shuffle.utility.CustomTypes;
 import com.inpen.shuffle.utility.LogHelper;
+import com.inpen.shuffle.utility.ResourceHelper;
 
 /**
  * Created by Abhishek on 12/23/2016.
@@ -37,10 +41,15 @@ public class FabFragment extends Fragment implements FabContract.FabView {
     private static final int MAX_ART_WIDTH_ICON = 128;  // pixels
     private static final int MAX_ART_HEIGHT_ICON = 128;  // pixels
     String TAG = LogHelper.makeLogTag(FabFragment.class);
-    private ExtendedFab mExtendedFab;
-    private boolean expandedState;
-    private CustomTypes.FabMode mFabMode;
+    @CustomTypes.FabMode
+    int mFabMode;
     private FabContract.InteractionsListener mFabInteractionListener;
+    private ExtendedFab mExtendedFab;
+    private ImageButton mPlayPauseButton;
+    private TextView mShuffleAndPlayTextView;
+
+    private MediaMetadataCompat mMetadata;
+    private int mPlaybackState = PlaybackStateCompat.STATE_NONE;
 
     public static FabFragment newInstance() {
         return new FabFragment();
@@ -64,16 +73,12 @@ public class FabFragment extends Fragment implements FabContract.FabView {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        FrameLayout parentView = (FrameLayout) inflater.inflate(R.layout.fragment_fab, container, false);
-
-        mExtendedFab = new ExtendedFab(getContext());
+        mExtendedFab = (ExtendedFab) inflater.inflate(R.layout.fragment_fab, container, false);
         mExtendedFab.setVisibility(View.INVISIBLE);
 
         mFabMode = CustomTypes.FabMode.DISABLED;
 
-        parentView.addView(mExtendedFab);
-
-        return parentView;
+        return mExtendedFab;
     }
 
     @Override
@@ -91,76 +96,144 @@ public class FabFragment extends Fragment implements FabContract.FabView {
 
 
     @Override
-    public synchronized void showPlayer(MediaMetadataCompat metadata) {
+    public synchronized void showPlayer(final MediaMetadataCompat metadata, final PlaybackStateCompat playbackState) {
         boolean shouldReveal = false;
 
-        if (mFabMode.equals(CustomTypes.FabMode.PLAYER) || metadata == null) {
+        mMetadata = metadata;
+        mPlaybackState = (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) ?
+                PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
+
+        if (mFabMode == CustomTypes.FabMode.PLAYER) {
             LogHelper.d(TAG, "Player already shown, returning...");
             return;
-        } else if (mFabMode.equals(CustomTypes.FabMode.DISABLED)) {
+        } else if (mFabMode == CustomTypes.FabMode.DISABLED) {
             LogHelper.d(TAG, "Previously disabled! Showing Player...");
             shouldReveal = true;
         } else {
             LogHelper.d(TAG, "Must remove previous views before showing Player");
+            mShuffleAndPlayTextView = null;
             mExtendedFab.removeAllViews();
         }
 
-        mFabMode = CustomTypes.FabMode.ANIMATING;
+
+        //noinspection ResourceType
+        LogHelper.d(TAG, "SHOW PLAYER");
+        //noinspection ResourceType
+        LogHelper.d(TAG, "TITLE: " + mMetadata.getString(MutableMediaMetadata.CUSTOM_METADATA_KEY_TRACK_ID));
+        LogHelper.d(TAG, "ART URL: " + mMetadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI));
 
         if (shouldReveal) {
-            addPlayerViews(metadata, false);
+            addPlayerViews(metadata, playbackState);
             mExtendedFab.post(new ExtendedFabRevealTask(CustomTypes.FabMode.PLAYER));
         } else {
-            addPlayerViews(metadata, true);
+            addPlayerViews(metadata, playbackState);
             mFabMode = CustomTypes.FabMode.PLAYER;
         }
+    }
+
+
+    @Override
+    public synchronized void updatePlayer(MediaMetadataCompat metadata, PlaybackStateCompat playbackStateCompat) {
+
+        if (metadata == null || playbackStateCompat == null) {
+            return;
+        }
+
+        if (mFabMode != CustomTypes.FabMode.PLAYER) {
+            showPlayer(metadata, playbackStateCompat);
+            return;
+        }
+
+        LogHelper.d(TAG, "previous ID: " + metadata.getString(MutableMediaMetadata.CUSTOM_METADATA_KEY_TRACK_ID));
+        //noinspection ResourceType
+        if (mMetadata == null ||
+                !mMetadata.getString(MutableMediaMetadata.CUSTOM_METADATA_KEY_TRACK_ID)
+                        .equals(metadata.getString(MutableMediaMetadata.CUSTOM_METADATA_KEY_TRACK_ID))) {
+
+            mMetadata = metadata;
+
+            //noinspection ResourceType
+            LogHelper.d(TAG, "TITLE: " + metadata.getString(MutableMediaMetadata.CUSTOM_METADATA_KEY_TRACK_ID));
+            LogHelper.d(TAG, "ART URL: " + metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI));
+
+            // getting album art and setting
+            displayAlbumArt(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI));
+        }
+
+
+        int state = playbackStateCompat.getState() == PlaybackStateCompat.STATE_PLAYING ?
+                PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
+
+        if (mPlaybackState != state) {
+            mPlaybackState = state;
+
+            Drawable playPauseDrawable = getResources()
+                    .getDrawable(
+                            playbackStateCompat.getState() == PlaybackStateCompat.STATE_PLAYING ?
+                                    R.drawable.ic_pause_black_24dp :
+                                    R.drawable.ic_play_arrow_black_24dp
+                    );
+
+            //adding pause button
+            mPlayPauseButton.setImageDrawable(playPauseDrawable);
+        }
+    }
+
+    @Override
+    public void showLoading() {
+        mPlayPauseButton = null;
+        mShuffleAndPlayTextView = null;
+        mExtendedFab.removeAllViews();
+        mExtendedFab.setMainView(getResources().getDrawable(R.mipmap.ic_shuffle_btn), null);
     }
 
     @Override
     public synchronized void showShuffle() {
         boolean shouldReveal = false;
 
-        if (mFabMode.equals(CustomTypes.FabMode.SHUFFLE)) {
+        if (mFabMode == CustomTypes.FabMode.SHUFFLE) {
             LogHelper.d(TAG, "Shuffle already shown, returning...");
             return;
-        } else if (mFabMode.equals(CustomTypes.FabMode.DISABLED)) {
+        } else if (mFabMode == CustomTypes.FabMode.DISABLED) {
             LogHelper.d(TAG, "Previously disabled! Showing shuffle...");
             shouldReveal = true;
         } else {
             LogHelper.d(TAG, "Must remove previous views before showing shuffle");
+            mPlayPauseButton = null;
             mExtendedFab.removeAllViews();
         }
 
-        mFabMode = CustomTypes.FabMode.ANIMATING;
-
         if (shouldReveal) {
-            addShuffleViews(false);
+            addShuffleViews();
             mExtendedFab.post(new ExtendedFabRevealTask(CustomTypes.FabMode.SHUFFLE));
         } else {
-            addShuffleViews(true);
+            addShuffleViews();
             mFabMode = CustomTypes.FabMode.SHUFFLE;
         }
     }
 
-    @Override
-    public synchronized void showLoading() {
-        Toast.makeText(getContext(), "Loading Queue!", Toast.LENGTH_SHORT).show();
-    }
 
     @Override
     public synchronized void disable(boolean animate) {
+
+        mPlaybackState = PlaybackStateCompat.STATE_NONE;
+
+        mPlayPauseButton = null;
+        mShuffleAndPlayTextView = null;
+
         if (!animate) {
             mFabMode = CustomTypes.FabMode.DISABLED;
             mExtendedFab.setVisibility(View.INVISIBLE);
             mExtendedFab.removeAllViews();
+            return;
         }
 
-        if (mFabMode.equals(CustomTypes.FabMode.DISABLED) || mFabMode.equals(CustomTypes.FabMode.ANIMATING)) {
+        if (mFabMode == CustomTypes.FabMode.DISABLED) {
             return;
         }
 
         LogHelper.d(TAG, "Disabled, removing fab!");
-        mFabMode = CustomTypes.FabMode.ANIMATING;
+//        mFabMode = CustomTypes.FabMode.ANIMATING;
 
         mExtendedFab.post(new Runnable() {
             @Override
@@ -203,64 +276,145 @@ public class FabFragment extends Fragment implements FabContract.FabView {
 
     @Override
     public FragmentActivity getFragmentActivity() {
-        return null;
+        return getActivity();
     }
 
-    private void addPlayerViews(MediaMetadataCompat metadataCompat, boolean animate) {
+    private void addPlayerViews(MediaMetadataCompat metadataCompat, PlaybackStateCompat playbackState) {
+
+        LogHelper.d(TAG, "Adding player views");
 
         // getting album art and setting
+        displayAlbumArt(metadataCompat.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI));
+
+        boolean isPlaying = playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
+
+        Drawable playPauseDrawable = getResources()
+                .getDrawable(isPlaying ?
+                        R.drawable.ic_pause_black_24dp :
+                        R.drawable.ic_play_arrow_black_24dp
+                );
+
+        //adding pause button
+        if (mPlayPauseButton == null) {
+            mPlayPauseButton = getImageButton(playPauseDrawable,
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            mFabInteractionListener.playPausedClicked();
+                        }
+                    });
+        }
+
+        mExtendedFab.addRightView(mPlayPauseButton);
+
+    }
+
+    private synchronized void displayAlbumArt(String artUrl) {
+
+        LogHelper.d(TAG, "Displaying album art!");
+
         Glide
                 .with(getContext())
-                .load(metadataCompat.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI))
+                .load(artUrl)
                 .asBitmap()
+                .dontAnimate()
+                .error(getResources().getDrawable(R.drawable.ic_loading_circle, null))
                 .into(new SimpleTarget<Bitmap>(MAX_ART_WIDTH_ICON, MAX_ART_HEIGHT_ICON) {
+                    boolean handled = false;
+
                     @Override
                     public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+
+                        if (handled) {
+                            return;
+                        }
+
                         mExtendedFab
                                 .setMainView(
                                         new BitmapDrawable(getResources(), resource),
-                                        new View.OnClickListener() {
+                                        new Runnable() {
                                             @Override
-                                            public void onClick(View view) {
+                                            public void run() {
                                                 mFabInteractionListener
                                                         .playerIconClicked((AppCompatActivity) getActivity());
                                             }
                                         });
+
+                        handled = true;
+                    }
+
+                    @Override
+                    public void onLoadFailed(Exception e, Drawable errorDrawable) {
+                        super.onLoadFailed(e, errorDrawable);
+                        LogHelper.e(TAG, e);
+
+                        if (handled)
+                            return;
+
+                        mExtendedFab
+                                .setMainView(
+                                        getResources().getDrawable(R.drawable.ic_loading_circle),
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                mFabInteractionListener
+                                                        .playerIconClicked((AppCompatActivity) getActivity());
+                                            }
+                                        });
+
+                        handled = true;
+                    }
+                });
+    }
+
+    private ImageButton getImageButton(Drawable icon, View.OnClickListener listener) {
+        ImageButton btn = new ImageButton(getContext());
+
+        int padding = getResources().getDimensionPixelSize(R.dimen.exfab_borderless_btn_padding);
+        btn.setPadding(padding, padding, padding, padding);
+
+        btn.setImageDrawable(icon);
+        btn.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        btn.setBackgroundResource(ResourceHelper.getBorderlessButtonBackground(getActivity()));
+
+        btn.setOnClickListener(listener);
+
+        return btn;
+    }
+
+    private synchronized void addShuffleViews() {
+
+        // adding icon
+        mExtendedFab.setMainView(getResources().getDrawable(R.mipmap.ic_shuffle_btn),
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mFabInteractionListener.shuffleClicked((MainActivity) getActivity());
                     }
                 });
 
-    }
-
-    private void addShuffleViews(boolean animate) {
-
-        // adding icon
-        mExtendedFab.setMainView(getResources().getDrawable(R.mipmap.ic_shuffle_btn), new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mFabInteractionListener.shuffleClicked((MainActivity) getActivity());
-
-            }
-        });
-
         // adding tap to shuffle text
-        final TextView tv = new TextView(getContext());
-        tv.setText(getString(R.string.tap_to_shuffle));
-        tv.setMaxLines(2);
-        tv.setAlpha(0.7f);
-        int padding = getResources().getDimensionPixelSize(R.dimen.fab_child_padding);
-        tv.setPadding(padding, 0, padding, 0);
-        tv.setGravity(Gravity.RIGHT);
-        tv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        if (mShuffleAndPlayTextView == null) {
+            mShuffleAndPlayTextView = new TextView(getContext());
+            mShuffleAndPlayTextView.setText(getString(R.string.tap_to_shuffle));
+            mShuffleAndPlayTextView.setMaxLines(2);
+            mShuffleAndPlayTextView.setAlpha(0.7f);
+            int padding = getResources().getDimensionPixelSize(R.dimen.fab_child_padding);
+            mShuffleAndPlayTextView.setPadding(padding, 0, padding, 0);
+            mShuffleAndPlayTextView.setGravity(Gravity.RIGHT);
+            mShuffleAndPlayTextView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        mExtendedFab.addLeftView(tv, animate);
+            mExtendedFab.addLeftView(mShuffleAndPlayTextView);
+        }
     }
-
 
     private class ExtendedFabRevealTask implements Runnable {
 
-        private final CustomTypes.FabMode mFinalFabMode;
+        private final
+        @CustomTypes.FabMode
+        int mFinalFabMode;
 
-        public ExtendedFabRevealTask(CustomTypes.FabMode finalMode) {
+        ExtendedFabRevealTask(@CustomTypes.FabMode int finalMode) {
             mFinalFabMode = finalMode;
         }
 
@@ -268,6 +422,8 @@ public class FabFragment extends Fragment implements FabContract.FabView {
         public void run() {
             if (mExtendedFab == null)
                 return;
+
+            mFabMode = mFinalFabMode;
 
             int cx = mExtendedFab.getMeasuredWidth() / 2;
             int cy = mExtendedFab.getMeasuredHeight() / 2;
@@ -287,7 +443,6 @@ public class FabFragment extends Fragment implements FabContract.FabView {
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
 
-                    mFabMode = mFinalFabMode;
                 }
             });
 

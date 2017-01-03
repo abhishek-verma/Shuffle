@@ -44,17 +44,6 @@ public class MusicService extends Service
     private MediaNotificationManager mMediaNotificationManager;
     private QueueRepository mQueueRepository;
 
-    private QueueRepository.QueueCallback mQueueCallback = new QueueRepository.QueueCallback() {
-        @Override
-        public void onIndexChanged() {
-
-        }
-
-        @Override
-        public void onMetadataChanged() {
-
-        }
-    };
 
     @Override
     public void onCreate() {
@@ -67,10 +56,19 @@ public class MusicService extends Service
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
         mQueueRepository = QueueRepository.getInstance();
-        mQueueRepository.setQueueCallbackObserver(mQueueCallback);
+
+        // set metadatachangedobserver to to update session metadata
+        // to that session and hence other components to be informed when metadata is changed from queueRepo
+        // Such as when rating changed
+        mQueueRepository.setmQueueMetadataCallbackObserver(new QueueRepository.QueueMetadataCallback() {
+            @Override
+            public void onMetadataChanged() {
+                mMediaSession.setMetadata(mQueueRepository.getCurrentSong().metadata);
+            }
+        });
 
         // Create and initialize PlaybackManager
-        mPlaybackManager = new PlaybackManager(this, mQueueRepository, new Playback(this));
+        mPlaybackManager = new PlaybackManager(this, mQueueRepository, new Playback(this), this);
         mMediaSession.setCallback(mPlaybackManager.getMediaSessionCallback());
 
         try {
@@ -165,6 +163,7 @@ public class MusicService extends Service
     public void onPlaybackStateUpdated(PlaybackStateCompat newState) {
         mMediaSession.setPlaybackState(newState);
     }
+
 
     ///////////////////////////////////////////////////////////////////////////
     // public methods, to be called

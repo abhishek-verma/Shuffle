@@ -10,4 +10,8 @@
         <item quantity="one">%d Song </item>
         <item quantity="other">%d  Songs</item>
     </plurals>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="recommendations_title">Recommendations</string>
 </resources>
