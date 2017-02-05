@@ -56,13 +56,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
-        super.onStart();
         mActivityActionsListener = new MainPresenter(this);
         mActivityActionsListener.init(this);
 
         setupFabFragment();
 
         setupAdapterAndViewPager();
+        super.onStart();
     }
 
     @Override
@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                // Explain to the user why we need to read the contacts
+                // TODO Explain to the user why we need to read the contacts
             }
 
             ActivityCompat.requestPermissions(this,

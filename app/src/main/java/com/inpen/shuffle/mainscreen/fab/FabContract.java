@@ -5,9 +5,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v7.app.AppCompatActivity;
-
-import com.inpen.shuffle.mainscreen.MainActivity;
 
 /**
  * Created by Abhishek on 12/23/2016.
@@ -19,17 +16,18 @@ interface FabContract {
 
         void connectToMediaController();
 
-        void showPlayer(MediaMetadataCompat metadata, PlaybackStateCompat playbackState);
+        FragmentActivity getFragmentActivity();
+
+        void updatePlayer(MediaMetadataCompat metadata, PlaybackStateCompat stateCompat);
 
         void showShuffle();
 
-        void updatePlayer(MediaMetadataCompat metadata, PlaybackStateCompat playbackStateCompat);
+        void disableFAB();
 
-        void showLoading();
+        void showPlus();
 
-        void disable(boolean animate);
+        void removePlus();
 
-        FragmentActivity getFragmentActivity();
     }
 
     interface InteractionsListener {
@@ -42,15 +40,10 @@ interface FabContract {
 
         MediaControllerCompat.Callback getControllerCallback();
 
-        void shuffleClicked(MainActivity activity);
-
         void stop();
-
-        void playerIconClicked(AppCompatActivity activity);
 
         void setTransportControls(MediaControllerCompat.TransportControls transportControls);
 
-        void playPausedClicked();
     }
 
 }

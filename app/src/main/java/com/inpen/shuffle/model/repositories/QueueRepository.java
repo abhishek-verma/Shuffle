@@ -45,6 +45,9 @@ public class QueueRepository {
     int mCurrentState = CustomTypes.RepositoryState.NON_INITIALIZED;
     private QueueMetadataCallback mQueueMetadataCallbackObserver;
 
+    private QueueRepository() {
+    }
+
     public static synchronized QueueRepository getInstance() {
         if (mQueueRepositoryInstance == null)
             mQueueRepositoryInstance = new QueueRepository();
@@ -109,7 +112,7 @@ public class QueueRepository {
         if (!isInitialized())
             return null;
 
-        if (mCurrentTrackIndex < 0 && isInitialized())
+        if (mCurrentTrackIndex < 0)
             setCurrentQueueIndex(0);
 
         return mPlayingQueue.get(mCurrentTrackIndex);
@@ -198,7 +201,8 @@ public class QueueRepository {
 
         mCurrentTrackIndex = -1;
 
-        mCurrentState = INITIALIZED;
+        if (mPlayingQueue != null)
+            mCurrentState = INITIALIZED;
     }
 
     private void loadCachedQueue(Context context, final RepositoryInitializedCallback callback) {
@@ -239,7 +243,7 @@ public class QueueRepository {
         return mPreferences;
     }
 
-    public void setmQueueMetadataCallbackObserver(QueueMetadataCallback queueMetadataCallback) {
+    public void setmQueueMetadataCallbackObserver(@Nullable QueueMetadataCallback queueMetadataCallback) {
         mQueueMetadataCallbackObserver = queueMetadataCallback;
     }
 

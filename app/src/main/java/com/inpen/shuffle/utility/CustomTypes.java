@@ -56,12 +56,12 @@ public class CustomTypes {
         int NON_INITIALIZED = -1, INITIALIZING = 0, INITIALIZED = 1;
     }
 
-    @IntDef({FabMode.SHUFFLE, FabMode.LOADING, FabMode.PLAYER, FabMode.DISABLED})
+    @IntDef({FabMode.SHUFFLE, FabMode.PLAYER, FabMode.PLAYER_WITH_ADD, FabMode.DISABLED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FabMode {
         int SHUFFLE = 100,
-                LOADING = 110,
-                PLAYER = 120,
+                PLAYER = 110,
+                PLAYER_WITH_ADD = 120,
                 DISABLED = 130;
     }
 
