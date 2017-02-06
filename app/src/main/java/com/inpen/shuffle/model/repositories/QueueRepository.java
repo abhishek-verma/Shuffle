@@ -13,6 +13,8 @@ import com.inpen.shuffle.model.QueueProvider;
 import com.inpen.shuffle.utility.CustomTypes;
 import com.inpen.shuffle.utility.LogHelper;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.List;
 
 import static com.inpen.shuffle.utility.CustomTypes.RepositoryState.INITIALIZED;
@@ -148,8 +150,7 @@ public class QueueRepository {
     public void setCurrentQueueIndex(int index) {
         mCurrentTrackIndex = index;
 
-//        if (mQueueMetadataCallbackObserver != null)
-//            mQueueMetadataCallbackObserver.onIndexChanged(); TODO remove commect when index callback needed
+        EventBus.getDefault().post(new QueueIndexChanged());
     }
 
     public boolean isInitialized() {
@@ -257,5 +258,9 @@ public class QueueRepository {
 
     public interface QueueMetadataCallback {
         void onMetadataChanged();
+    }
+
+    public class QueueIndexChanged {
+
     }
 }

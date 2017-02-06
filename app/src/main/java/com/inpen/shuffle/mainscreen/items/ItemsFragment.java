@@ -99,7 +99,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.ItemsView {
 
         // Create a grid layout with two columns
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
-        layoutManager.supportsPredictiveItemAnimations(); //TODO this line is added so tha views animate on clearitems remove if dosent work
+        layoutManager.supportsPredictiveItemAnimations(); //TODO this line is added so tha views animate on clearitems, remove if dosent work
 
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(mItemsAdapter);

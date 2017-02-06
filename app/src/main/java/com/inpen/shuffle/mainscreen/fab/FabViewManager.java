@@ -95,6 +95,7 @@ public class FabViewManager {
         mShuffleTextView.setText(context.getString(R.string.tap_to_shuffle));
         mShuffleTextView.setMaxLines(2);
         mShuffleTextView.setAlpha(0.7f);
+        mShuffleTextView.setVisibility(View.GONE);
         int padding = context.getResources().getDimensionPixelSize(R.dimen.fab_child_padding);
         mShuffleTextView.setPadding(padding, 0, padding, 0);
         mShuffleTextView.setGravity(Gravity.RIGHT);
@@ -105,6 +106,10 @@ public class FabViewManager {
                 mFabManagerListener.shuffleClicked();
             }
         });
+
+        mExtendedFab.addLeftView(mShuffleTextView);
+        mExtendedFab.addLeftView(mAddButton);
+        mExtendedFab.addRightView(mPlayPauseButton);
     }
 
     private ImageButton getImageButton(Drawable icon, Context context, View.OnClickListener listener) {
@@ -117,6 +122,8 @@ public class FabViewManager {
         btn.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         btn.setBackgroundResource(ResourceHelper.getBorderlessButtonBackground(context));
 
+        btn.setVisibility(View.GONE);
+
         btn.setOnClickListener(listener);
 
         return btn;
@@ -126,34 +133,41 @@ public class FabViewManager {
         return mExtendedFab;
     }
 
-    void showShuffleView(final FragmentActivity activity) {
+    synchronized void showShuffleView(final FragmentActivity activity) {
 
-        final Runnable addShuffleViewsTask = new Runnable() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                mExtendedFab.setMainView(activity.getDrawable(R.mipmap.ic_shuffle_btn),
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                mFabManagerListener.shuffleClicked();
+                            }
+                        });
+            }
+        });
+
+        final Runnable addViewsTask = new Runnable() {
             @Override
             public void run() {
 
                 if (mFabMode != CustomTypes.FabMode.SHUFFLE
                         && mFabMode != CustomTypes.FabMode.DISABLED) {
-                    mExtendedFab.removeAllViews();
+                    hideAllViews();
                 }
 
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
 
-                        // setting icon
-                        mExtendedFab.setMainView(activity.getDrawable(R.mipmap.ic_shuffle_btn),
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mFabManagerListener.shuffleClicked();
-                                    }
-                                });
-
                         // adding text view
-                        mExtendedFab.addLeftView(mShuffleTextView);
+                        mShuffleTextView.setVisibility(View.VISIBLE);
                     }
                 });
+
+                mFabMode = CustomTypes.FabMode.SHUFFLE;
             }
         };
 
@@ -161,36 +175,51 @@ public class FabViewManager {
             @Override
             public void run() {
                 if (mFabMode == CustomTypes.FabMode.DISABLED) {
-                    enterReveal(CustomTypes.FabMode.SHUFFLE, activity);
+                    enterReveal(addViewsTask);
                 } else {
-                    mFabMode = CustomTypes.FabMode.SHUFFLE;
+                    mExecutorService.execute(addViewsTask);
                 }
             }
         };
 
-        mExecutorService.execute(addShuffleViewsTask);
         mExecutorService.execute(revealTask);
     }
 
-    void showPlayerView(MediaMetadataCompat metadata, FragmentActivity activity) {
-
-        if (!isPlayerMode()
-                && mFabMode != CustomTypes.FabMode.DISABLED) {
-            mExtendedFab.removeAllViews();
-        }
+    void showPlayerView(final MediaMetadataCompat metadata, final FragmentActivity activity) {
 
         // setting icon
-        displayAlbumArt(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI), activity);
+        displayAlbumArt(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI), activity); // todo put back inside runnable if no delay in icon display
 
-        // adding buttons
-        mExtendedFab.addRightView(mPlayPauseButton);
-//        mExtendedFab.addRightView(mClosePlayerButton);
+        Runnable addViewsRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (!isPlayerMode()
+                        && mFabMode != CustomTypes.FabMode.DISABLED) {
+                    hideAllViews();
+                }
 
+                // adding buttons
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPlayPauseButton.setVisibility(View.VISIBLE);
+//                      mExtendedFab.addRightView(mClosePlayerButton);
+                    }
+                });
+                mFabMode = CustomTypes.FabMode.PLAYER;
+            }
+        };
         if (mFabMode == CustomTypes.FabMode.DISABLED) {
-            enterReveal(CustomTypes.FabMode.PLAYER, activity);
+            enterReveal(addViewsRunnable);
         } else {
-            mFabMode = CustomTypes.FabMode.PLAYER;
+            mExecutorService.execute(addViewsRunnable);
         }
+    }
+
+    void hideAllViews() {
+        mPlayPauseButton.setVisibility(View.GONE);
+        mShuffleTextView.setVisibility(View.GONE);
+        mAddButton.setVisibility(View.GONE);
     }
 
     void updatePlayerMetadata(MediaMetadataCompat metadata, Context context) {
@@ -225,7 +254,7 @@ public class FabViewManager {
         mExecutorService.execute(new Runnable() {
             @Override
             public void run() {
-                mExtendedFab.addLeftView(mAddButton);
+                mAddButton.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -234,7 +263,7 @@ public class FabViewManager {
         mExecutorService.execute(new Runnable() {
             @Override
             public void run() {
-                mExtendedFab.removeLeftViews();
+                mAddButton.setVisibility(View.GONE);
             }
         });
     }
@@ -256,7 +285,6 @@ public class FabViewManager {
                 // create the animation (the final radius is zero)
                 final Animator anim =
                         ViewAnimationUtils.createCircularReveal(mExtendedFab, cx, cy, initialRadius, 0);
-                anim.setDuration(500);
 
                 // make the view invisible when the animation is done
                 anim.addListener(new AnimatorListenerAdapter() {
@@ -264,7 +292,7 @@ public class FabViewManager {
                     public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);
                         mExtendedFab.setVisibility(View.INVISIBLE);
-                        mExtendedFab.removeAllViews();
+                        hideAllViews();
                         mFabMode = CustomTypes.FabMode.DISABLED;
                     }
                 });
@@ -286,35 +314,33 @@ public class FabViewManager {
         mExecutorService.shutdownNow();
     }
 
-    private synchronized void enterReveal(@CustomTypes.FabMode final int finalFabMode, FragmentActivity activity) {
+    private synchronized void enterReveal(final Runnable postAnimationRunnable) {
         if (mExtendedFab == null)
             return;
 
-        //doing reveal animation
-        int cx = mExtendedFab.getMeasuredWidth() / 2;
-        int cy = mExtendedFab.getMeasuredHeight() / 2;
-
-        double hypt = Math.hypot(mExtendedFab.getMeasuredHeight(), mExtendedFab.getMeasuredWidth());
-        int finalRadius = (int) (hypt / 2);
-
-        LogHelper.i(TAG, "height: " + mExtendedFab.getHeight() + ", width: " + mExtendedFab.getWidth());
-        LogHelper.i(TAG, "measured height: " + mExtendedFab.getMeasuredHeight() + ", measured width: " + mExtendedFab.getMeasuredWidth());
-        LogHelper.i(TAG, "hypt: " + hypt);
-
-        final Animator animator = ViewAnimationUtils.createCircularReveal(mExtendedFab, cx, cy, 0, finalRadius);
-        animator.setDuration(500);
-
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                mFabMode = finalFabMode;
-            }
-        });
-
-        activity.runOnUiThread(new Runnable() {
+        mExtendedFab.post(new Runnable() {
             @Override
             public void run() {
+                //doing reveal animation
+                int cx = mExtendedFab.getMeasuredWidth() / 2;
+                int cy = mExtendedFab.getMeasuredHeight() / 2;
+
+                double hypt = Math.hypot(mExtendedFab.getMeasuredHeight(), mExtendedFab.getMeasuredWidth());
+                int finalRadius = (int) (hypt / 2);
+
+                LogHelper.i(TAG, "height: " + mExtendedFab.getHeight() + ", width: " + mExtendedFab.getWidth());
+                LogHelper.i(TAG, "measured height: " + mExtendedFab.getMeasuredHeight() + ", measured width: " + mExtendedFab.getMeasuredWidth());
+                LogHelper.i(TAG, "hypt: " + hypt);
+
+                final Animator animator = ViewAnimationUtils.createCircularReveal(mExtendedFab, cx, cy, 0, finalRadius);
+
+                animator.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        mExecutorService.execute(postAnimationRunnable);
+                    }
+                });
                 mExtendedFab.setVisibility(View.VISIBLE);
                 animator.start();
             }

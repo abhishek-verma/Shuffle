@@ -67,20 +67,19 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .remove(mFabFragment)
-                .commit();
-
-        mFabFragment.onDestroy();
-        mFabFragment = null;
-
         super.onSaveInstanceState(outState);
+
+//        getSupportFragmentManager()
+//                .beginTransaction()
+//                .remove(mFabFragment)
+//                .commitAllowingStateLoss();
+//
+//        mFabFragment.onDestroy();
+//        mFabFragment = null;
     }
 
     @Override
     protected void onStop() {
-
         mActivityActionsListener.stop(this);
         super.onStop();
     }
