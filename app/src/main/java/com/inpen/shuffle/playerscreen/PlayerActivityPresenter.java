@@ -144,7 +144,7 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
 
     @Override
     public void init(Context context) {
-        if (!QueueRepository.getInstance().isInitialized()
+        if (!mQueueRepository.isInitialized()
                 && mQueueRepository.isCatchEmpty(context)) {
 
             //launching main activity if queue empty
@@ -152,9 +152,11 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
             mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(mainActivityIntent);
+            return;
         }
 
         connectToService(context);
+
     }
 
     @Override

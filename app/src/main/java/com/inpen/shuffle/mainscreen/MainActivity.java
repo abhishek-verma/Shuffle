@@ -52,17 +52,19 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        if (savedInstanceState == null) {
+            setupFabFragment();
+        }
+
     }
 
     @Override
     protected void onStart() {
+        super.onStart();
         mActivityActionsListener = new MainPresenter(this);
         mActivityActionsListener.init(this);
 
-        setupFabFragment();
-
         setupAdapterAndViewPager();
-        super.onStart();
     }
 
     @Override

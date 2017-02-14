@@ -13,6 +13,10 @@ import com.inpen.shuffle.model.MutableMediaMetadata;
 import com.inpen.shuffle.model.repositories.QueueRepository;
 import com.inpen.shuffle.utility.LogHelper;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 /**
  * Created by Abhishek on 12/27/2016.
  */
@@ -44,7 +48,6 @@ public class MusicService extends Service
     private MediaNotificationManager mMediaNotificationManager;
     private QueueRepository mQueueRepository;
 
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -57,15 +60,7 @@ public class MusicService extends Service
 
         mQueueRepository = QueueRepository.getInstance();
 
-        // set metadatachangedobserver to to update session metadata
-        // to that session and hence other components to be informed when metadata is changed from queueRepo
-        // Such as when rating changed
-        mQueueRepository.setmQueueMetadataCallbackObserver(new QueueRepository.QueueMetadataCallback() {
-            @Override
-            public void onMetadataChanged() {
-                mMediaSession.setMetadata(mQueueRepository.getCurrentSong().metadata);
-            }
-        });
+        EventBus.getDefault().register(this);
 
         // Create and initialize PlaybackManager
         mPlaybackManager = new PlaybackManager(this, mQueueRepository, new Playback(this), this);
@@ -104,14 +99,26 @@ public class MusicService extends Service
         mPlaybackManager.handleStopRequest(null);
         mMediaNotificationManager.stopNotification();
 
+        EventBus.getDefault().unregister(this);
+
         mMediaSession.release();
     }
 
+    /**
+     * set metadatachangedobserver to to update session metadata
+     * to that session and hence other components to be informed when metadata is changed from queueRepo
+     * Such as when rating changed
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onQueueMetadataChanged(QueueRepository.QueueMetadataChangedEvent event) {
+        mMediaSession.setMetadata(mQueueRepository.getCurrentSong().metadata);
+    }
     ///////////////////////////////////////////////////////////////////////////
     // private methods
     ///////////////////////////////////////////////////////////////////////////
 
     private void updateSessionMetadata() {
+
         MutableMediaMetadata mutableMediaMetadata = mQueueRepository.getCurrentSong();
 
         if (mutableMediaMetadata == null) {

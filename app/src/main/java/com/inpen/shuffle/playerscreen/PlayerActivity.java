@@ -164,7 +164,7 @@ public class PlayerActivity extends AppCompatActivity
             public void run() {
 
                 int position = QueueRepository.getInstance().getCurrentIndex();
-                LogHelper.d(LOG_TAG, " QueueIndexChanged; QueuePosition: " + position +
+                LogHelper.d(LOG_TAG, " QueueIndexChangedEvent; QueuePosition: " + position +
                         " \nViewAdapterPosition: " + mPlayerViewPager.getCurrentItem());
                 mPlayerViewPager.setCurrentItem(position, false);
 
@@ -193,6 +193,12 @@ public class PlayerActivity extends AppCompatActivity
 
     @Override
     public void updatePlaybackStateViews(final PlaybackStateCompat playbackState) {
+
+        if (mLastPlaybackState != null)
+            LogHelper.i(LOG_TAG, "oldPlayBackState: " + mLastPlaybackState.getState());
+        if (playbackState != null)
+            LogHelper.i(LOG_TAG, ", newPlaybackState: " + playbackState.getState());
+
         mLastPlaybackState = playbackState;
 
         new Runnable() {

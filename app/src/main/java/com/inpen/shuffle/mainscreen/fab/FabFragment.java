@@ -50,7 +50,7 @@ public class FabFragment extends Fragment implements FabContract.FabView {
     @Override
     public void onStart() {
         super.onStart();
-
+        mFabManager.resume();
         mFabInteractionListener.init(this, getContext());
     }
 
@@ -69,6 +69,7 @@ public class FabFragment extends Fragment implements FabContract.FabView {
 
     @Override
     public void onStop() {
+        LogHelper.d(TAG, "onStop called!");
         mFabInteractionListener.stop();
         mFabManager.stop();
         super.onStop();
@@ -101,8 +102,9 @@ public class FabFragment extends Fragment implements FabContract.FabView {
                 mFabManager.updatePlayerMetadata(mMetadata, getContext());
             }
 
-            if (mPlaybackState != stateCompat // for if one of them is null
-                    || mPlaybackState.getState() != stateCompat.getState()) {
+            if (!(mPlaybackState == null && stateCompat == null) // not both null
+                    && (mPlaybackState != stateCompat // for if one of them is null
+                    || mPlaybackState.getState() != stateCompat.getState())) {
                 mPlaybackState = stateCompat;
 
                 if (mPlaybackState != null &&
@@ -116,8 +118,9 @@ public class FabFragment extends Fragment implements FabContract.FabView {
             mMetadata = metadata;
             mFabManager.showPlayerView(mMetadata, getActivity());
 
-            if (mPlaybackState != stateCompat // for if one of them is null
-                    || mPlaybackState.getState() != stateCompat.getState()) {
+            if (!(mPlaybackState == null && stateCompat == null) // not both null
+                    && (mPlaybackState != stateCompat // for if one of them is null
+                    || mPlaybackState.getState() != stateCompat.getState())) {
                 mPlaybackState = stateCompat;
 
                 if (mPlaybackState != null &&

@@ -45,7 +45,6 @@ public class QueueRepository {
     private volatile
     @CustomTypes.RepositoryState
     int mCurrentState = CustomTypes.RepositoryState.NON_INITIALIZED;
-    private QueueMetadataCallback mQueueMetadataCallbackObserver;
 
     private QueueRepository() {
     }
@@ -150,7 +149,7 @@ public class QueueRepository {
     public void setCurrentQueueIndex(int index) {
         mCurrentTrackIndex = index;
 
-        EventBus.getDefault().post(new QueueIndexChanged());
+        EventBus.getDefault().post(new QueueIndexChangedEvent());
     }
 
     public boolean isInitialized() {
@@ -179,7 +178,7 @@ public class QueueRepository {
                 .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING, rating)
                 .build();
 
-        mQueueMetadataCallbackObserver.onMetadataChanged();
+        EventBus.getDefault().post(new QueueMetadataChangedEvent());
 
         SongsRepository songsRepository = new SongsRepository(context);
         //noinspection ResourceType
@@ -244,10 +243,6 @@ public class QueueRepository {
         return mPreferences;
     }
 
-    public void setmQueueMetadataCallbackObserver(@Nullable QueueMetadataCallback queueMetadataCallback) {
-        mQueueMetadataCallbackObserver = queueMetadataCallback;
-    }
-
     public int getCurrentIndex() {
         return mCurrentTrackIndex;
     }
@@ -256,11 +251,10 @@ public class QueueRepository {
         void onRepositoryInitialized(boolean success);
     }
 
-    public interface QueueMetadataCallback {
-        void onMetadataChanged();
+    public class QueueMetadataChangedEvent {
     }
 
-    public class QueueIndexChanged {
+    public class QueueIndexChangedEvent {
 
     }
 }

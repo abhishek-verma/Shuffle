@@ -47,7 +47,7 @@ public class FabViewManager {
     private static final int MAX_ART_HEIGHT_ICON = 128;  // pixels
 
     private final FabViewManagerListener mFabManagerListener;
-    private final ExecutorService mExecutorService;
+    private ExecutorService mExecutorService;
     @CustomTypes.FabMode
     private int mFabMode = CustomTypes.FabMode.DISABLED;
     private ExtendedFab mExtendedFab;
@@ -60,6 +60,13 @@ public class FabViewManager {
     FabViewManager(FabViewManagerListener listener) {
         mFabManagerListener = listener;
         mExecutorService = Executors.newSingleThreadExecutor();
+    }
+
+    void resume() {
+        if (mExecutorService.isShutdown()) {
+            LogHelper.d(TAG, "ExecutorService is shutdown, restarting service.");
+            mExecutorService = Executors.newSingleThreadExecutor();
+        }
     }
 
     void initViews(LayoutInflater inflater, @Nullable ViewGroup container, Context context) {
@@ -153,21 +160,21 @@ public class FabViewManager {
             @Override
             public void run() {
 
-                if (mFabMode != CustomTypes.FabMode.SHUFFLE
-                        && mFabMode != CustomTypes.FabMode.DISABLED) {
-                    hideAllViews();
-                }
-
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
 
+                        if (mFabMode != CustomTypes.FabMode.SHUFFLE
+                                && mFabMode != CustomTypes.FabMode.DISABLED) {
+                            hideAllViews();
+                        }
+
                         // adding text view
                         mShuffleTextView.setVisibility(View.VISIBLE);
+
+                        mFabMode = CustomTypes.FabMode.SHUFFLE;
                     }
                 });
-
-                mFabMode = CustomTypes.FabMode.SHUFFLE;
             }
         };
 
@@ -187,26 +194,30 @@ public class FabViewManager {
 
     void showPlayerView(final MediaMetadataCompat metadata, final FragmentActivity activity) {
 
+
         // setting icon
-        displayAlbumArt(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI), activity); // todo put back inside runnable if no delay in icon display
+        displayAlbumArt(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI), activity);
 
         Runnable addViewsRunnable = new Runnable() {
             @Override
             public void run() {
-                if (!isPlayerMode()
-                        && mFabMode != CustomTypes.FabMode.DISABLED) {
-                    hideAllViews();
-                }
 
                 // adding buttons
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+
+                        if (!isPlayerMode()
+                                && mFabMode != CustomTypes.FabMode.DISABLED) {
+                            hideAllViews();
+                        }
+
                         mPlayPauseButton.setVisibility(View.VISIBLE);
 //                      mExtendedFab.addRightView(mClosePlayerButton);
+
+                        mFabMode = CustomTypes.FabMode.PLAYER;
                     }
                 });
-                mFabMode = CustomTypes.FabMode.PLAYER;
             }
         };
         if (mFabMode == CustomTypes.FabMode.DISABLED) {
@@ -234,8 +245,13 @@ public class FabViewManager {
         mExecutorService.execute(new Runnable() {
             @Override
             public void run() {
-                mPlayPauseButton
-                        .setImageDrawable(mPlayPauseButton.getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp, null));
+                mExtendedFab.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPlayPauseButton
+                                .setImageDrawable(mPlayPauseButton.getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp, null));
+                    }
+                });
             }
         });
     }
@@ -244,8 +260,13 @@ public class FabViewManager {
         mExecutorService.execute(new Runnable() {
             @Override
             public void run() {
-                mPlayPauseButton
-                        .setImageDrawable(mPlayPauseButton.getResources().getDrawable(R.drawable.ic_pause_black_24dp, null));
+                mExtendedFab.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPlayPauseButton
+                                .setImageDrawable(mPlayPauseButton.getResources().getDrawable(R.drawable.ic_pause_black_24dp, null));
+                    }
+                });
             }
         });
     }
@@ -254,7 +275,12 @@ public class FabViewManager {
         mExecutorService.execute(new Runnable() {
             @Override
             public void run() {
-                mAddButton.setVisibility(View.VISIBLE);
+                mExtendedFab.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAddButton.setVisibility(View.VISIBLE);
+                    }
+                });
             }
         });
     }
@@ -263,7 +289,12 @@ public class FabViewManager {
         mExecutorService.execute(new Runnable() {
             @Override
             public void run() {
-                mAddButton.setVisibility(View.GONE);
+                mExtendedFab.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAddButton.setVisibility(View.GONE);
+                    }
+                });
             }
         });
     }
@@ -307,7 +338,6 @@ public class FabViewManager {
         };
 
         mExecutorService.execute(exitRevealTask);
-
     }
 
     public void stop() {
@@ -349,6 +379,8 @@ public class FabViewManager {
 
     private synchronized void displayAlbumArt(String artUrl, final Context context) {
 
+        LogHelper.e("temp", "artUrl: " + artUrl);
+
         Glide
                 .with(context)
                 .load(artUrl)
@@ -361,7 +393,7 @@ public class FabViewManager {
                     @Override
                     public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
 
-                        if (handled || !isPlayerMode()) {
+                        if (handled) {
                             return;
                         }
 
@@ -383,7 +415,7 @@ public class FabViewManager {
                         super.onLoadFailed(e, errorDrawable);
                         LogHelper.e(TAG, e);
 
-                        if (handled || !isPlayerMode())
+                        if (handled)
                             return;
 
                         mExtendedFab

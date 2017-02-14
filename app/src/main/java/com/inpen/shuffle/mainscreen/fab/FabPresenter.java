@@ -49,19 +49,6 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
 
     };
 
-    QueueRepository.QueueMetadataCallback mQueueMetadataChangedCallback = new QueueRepository.QueueMetadataCallback() {
-        @Override
-        public void onMetadataChanged() {
-
-            MediaMetadataCompat metadata = QueueRepository.getInstance().getCurrentSong().metadata;
-
-            LogHelper.d(TAG, "Received metadata state change to mediaId=",
-                    metadata.getDescription().getMediaId(),
-                    " song=", metadata.getDescription().getTitle());
-            metadataChanged(metadata);
-        }
-    };
-
     public FabPresenter() {
         mQueueRepo = QueueRepository.getInstance();
         mSelectedItemsRepo = SelectedItemsRepository.getInstance();
@@ -74,8 +61,6 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
         mFabView.connectToMediaController(); // To register to controllerCallbacks
 
         EventBus.getDefault().register(this); // TO connect to selectedItemsRepo
-
-        mQueueRepo.setmQueueMetadataCallbackObserver(mQueueMetadataChangedCallback); // To connect to queueRepo
 
         if (mQueueRepo.isInitialized()) {
             updateFABFromInit();
@@ -98,9 +83,13 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
      * direct view methods should be called from everywhere else
      */
     private void updateFABFromInit() {
-        mMediaMetadata = mQueueRepo.getCurrentSong().metadata;
-
         if (mQueueRepo.getCurrentSong() != null) {
+            mMediaMetadata = mQueueRepo.getCurrentSong().metadata;
+        } else {
+            mMediaMetadata = null;
+        }
+
+        if (mMediaMetadata != null) {
             mFabView.updatePlayer(mMediaMetadata, mPlaybackState);
             if (!mSelectedItemsRepo.isEmpty()) {
                 // show + sign
@@ -147,12 +136,13 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
 
     @Override
     public void stop() {
+        LogHelper.d(TAG, "stop method called");
         // unregister listeners
-        mQueueRepo.setmQueueMetadataCallbackObserver(null); // To unregister from queueRepo
         EventBus.getDefault().unregister(this);
         MediaControllerCompat controller = mFabView.getFragmentActivity()
                 .getSupportMediaController();
         if (controller != null) {
+            LogHelper.d(TAG, "unregister controller callbacks");
             controller.unregisterCallback(getControllerCallback());
         }
 
@@ -187,6 +177,27 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
         mFabView.connectToMediaController();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onQueueIndexChanged(QueueRepository.QueueIndexChangedEvent event) {
+
+        MediaMetadataCompat metadata = QueueRepository.getInstance().getCurrentSong().metadata;
+
+        LogHelper.d(TAG, "Received metadata state change to mediaId=",
+                metadata.getDescription().getMediaId(),
+                " song=", metadata.getDescription().getTitle());
+        metadataChanged(metadata);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onQueueMetadataChanged(QueueRepository.QueueMetadataChangedEvent event) {
+
+        MediaMetadataCompat metadata = QueueRepository.getInstance().getCurrentSong().metadata;
+
+        LogHelper.d(TAG, "Received metadata state change to mediaId=",
+                metadata.getDescription().getMediaId(),
+                " song=", metadata.getDescription().getTitle());
+        metadataChanged(metadata);
+    }
     ///////////////////////////////////////////////////////////////////////////
     // Implementation methods for FabManagerListener
     ///////////////////////////////////////////////////////////////////////////
