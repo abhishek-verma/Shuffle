@@ -57,9 +57,6 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
     @Override
     public void init(FabContract.FabView fabView, Context context) {
         mFabView = checkNotNull(fabView);
-
-        mFabView.connectToMediaController(); // To register to controllerCallbacks
-
         EventBus.getDefault().register(this); // TO connect to selectedItemsRepo
 
         if (mQueueRepo.isInitialized()) {

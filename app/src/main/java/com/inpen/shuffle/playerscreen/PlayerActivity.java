@@ -121,6 +121,7 @@ public class PlayerActivity extends AppCompatActivity
         mPlayerAdapter = new PlayerViewPagerAdapter(getSupportFragmentManager());
         mPlayerViewPager.setAdapter(mPlayerAdapter);
         mPlayerViewPager.addOnPageChangeListener(mPlayerActivityPresenter.getPageChangeListener());
+        mPlayerViewPager.setCurrentItem(QueueRepository.getInstance().getCurrentIndex(), false);
     }
 
     @OnClick(R.id.playPauseBtn)
