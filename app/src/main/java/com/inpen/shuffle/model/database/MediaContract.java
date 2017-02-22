@@ -68,7 +68,7 @@ public class MediaContract {
         }
 
         public static String getFolderPathFromFullPath(String path) {
-            return new File(path).getParent();
+            return path != null ? new File(path).getParent() : "";
         }
     }
 

@@ -21,7 +21,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.inpen.shuffle.R;
-import com.inpen.shuffle.mainscreen.MainActivity;
+import com.inpen.shuffle.playerscreen.PlayerActivity;
 import com.inpen.shuffle.utility.LogHelper;
 
 /**
@@ -293,8 +293,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
     }
 
     private PendingIntent createContentIntent(MediaDescriptionCompat description) {
-        Intent openUI = new Intent(mMusicService, MainActivity.class);
-        openUI.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        Intent openUI = new Intent(mMusicService, PlayerActivity.class);
 //        openUI.putExtra(MusicPlayerActivity.EXTRA_START_FULLSCREEN, true);
 //        if (description != null) {
 //            openUI.putExtra(MusicPlayerActivity.EXTRA_CURRENT_MEDIA_DESCRIPTION, description);

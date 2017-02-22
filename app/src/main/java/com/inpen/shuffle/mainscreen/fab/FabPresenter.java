@@ -201,9 +201,7 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
 
     @Override
     public void shuffleClicked() {
-
-        QueueRepository mQueueRepository = QueueRepository.getInstance(); // hold reference to queue repository somehow
-        mQueueRepository.initialize(mFabView.getFragmentActivity(),
+        mQueueRepo.initialize(mFabView.getFragmentActivity(),
                 SelectedItemsRepository.getInstance(),
                 new QueueRepository.RepositoryInitializedCallback() {
                     @Override
@@ -228,7 +226,20 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
 
     @Override
     public void plusButtonClicked() {
-        // TODO implement
+        // add selected items to the queue
+        mQueueRepo.addItemsToQueue(mFabView.getFragmentActivity(),
+                SelectedItemsRepository.getInstance(),
+                new QueueRepository.RepositoryInitializedCallback() {
+                    @Override
+                    public void onRepositoryInitialized(boolean success) {
+                        if (success) {
+
+                            SelectedItemsRepository
+                                    .getInstance()
+                                    .clearItems(true); //TODO removed since it flickered the fab, do something else instead
+                        }
+                    }
+                });
     }
 
     @Override

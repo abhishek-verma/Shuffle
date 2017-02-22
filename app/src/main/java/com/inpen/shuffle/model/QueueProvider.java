@@ -1,6 +1,8 @@
 package com.inpen.shuffle.model;
 
 import android.content.Context;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.RatingCompat;
 
 import com.inpen.shuffle.model.repositories.SongsRepository;
 import com.inpen.shuffle.utility.CustomTypes;
@@ -19,8 +21,6 @@ public class QueueProvider {
 
     private final Context mContext;
 
-    private List<MutableMediaMetadata> mSongs, mLikedSongs, mDislikedSongs;
-
     public QueueProvider(Context context) {
         mContext = context;
     }
@@ -34,23 +34,21 @@ public class QueueProvider {
         SongsRepository songsRepository = new SongsRepository(mContext);
 
         // Get filtered song life from SongRepo
-        mSongs = songsRepository.getSongsMetadataByFilter(selectorItemIdList, itemType);
+        List<MutableMediaMetadata> songList = songsRepository.getSongsMetadataByFilter(selectorItemIdList, itemType);
 
         // get liked mSongs from songRepo
         List<String> playlistAsList = new ArrayList<>();
         playlistAsList.add(StaticStrings.PlAYLIST_NAME_LIKED);
-        mLikedSongs = songsRepository.getSongsMetadataByFilter(playlistAsList, CustomTypes.ItemType.PLAYLIST);
+        List<MutableMediaMetadata> likedSongs = songsRepository.getSongsMetadataByFilter(playlistAsList, CustomTypes.ItemType.PLAYLIST);
 
         // get disliked mSongs from songRepo
         playlistAsList.clear();
         playlistAsList.add(StaticStrings.PlAYLIST_NAME_DISLIKED);
-        mDislikedSongs = songsRepository.getSongsMetadataByFilter(playlistAsList, CustomTypes.ItemType.PLAYLIST);
+        List<MutableMediaMetadata> dislikedSongs = songsRepository.getSongsMetadataByFilter(playlistAsList, CustomTypes.ItemType.PLAYLIST);
 
-        setLikedAndDisliked();
+        setLikedAndDisliked(songList, likedSongs, dislikedSongs);
 
-        shuffle();
-
-        return mSongs;
+        return songList;
     }
 
     //    public List<String> generateShuffledQuequeId(List<String> selectorItemIdList, CustomTypes.ItemType itemType) {
@@ -74,38 +72,42 @@ public class QueueProvider {
 //        return mSongs;
 //    }
 
-    private void setLikedAndDisliked() {
-        for (MutableMediaMetadata song : mSongs) {
-            if (mLikedSongs.contains(song)) {
+    private void setLikedAndDisliked(List<MutableMediaMetadata> songList, List<MutableMediaMetadata> likedSongs, List<MutableMediaMetadata> dislikedSongs) {
+        for (MutableMediaMetadata song : songList) {
+            if (likedSongs.contains(song)) {
                 song.setLiked();
             }
 
-            if (mDislikedSongs.contains(song)) {
+            if (dislikedSongs.contains(song)) {
                 song.setDisliked();
             }
         }
     }
 
-    public void shuffle() {
-        Collections.shuffle(mSongs);
+    public void shuffle(List<MutableMediaMetadata> songList) {
+        Collections.shuffle(songList);
 
         //apply biased shuffle algo here
-        weightedShuffle();
+        weightedShuffle(songList);
     }
 
 
-    private void weightedShuffle() {
+    public void weightedShuffle(List<MutableMediaMetadata> songsList) {
 
         final double LIKED_PREF = 0.7/*very_often=0.8, often=0.7, normal= 0.6*/,
                 NORMAL_PREF = 0.6,
                 DISLIKED_PREF = 0.4/*normal=0.6, less_often=0.5, rarely=0.4, never=0*/;
 
+        RatingCompat rating;
         int i;
 
-        for (i = (int) (mSongs.size() * 0.5); i < mSongs.size(); i++) {
-            double pref = mLikedSongs.contains(mSongs.get(i)) ?
-                    LIKED_PREF :
-                    mDislikedSongs.contains(mSongs.get(i)) ? DISLIKED_PREF : NORMAL_PREF;
+        for (i = (int) (songsList.size() * 0.5); i < songsList.size(); i++) {
+            rating = songsList.get(i).metadata.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING);
+
+            double pref =
+                    (rating != null && rating.isRated()) ?
+                            rating.isThumbUp() ? LIKED_PREF : DISLIKED_PREF
+                            : NORMAL_PREF;
 
             double rand = Math.random();
 
@@ -117,18 +119,21 @@ public class QueueProvider {
 
                     int dest = (int) (
                             Math.random()
-                                    * (mSongs.size() * (1 - rand * pref))
+                                    * (songsList.size() * (1 - rand * pref))
                     );
 
-                    Collections.swap(mSongs, i, dest);
+                    Collections.swap(songsList, i, dest);
                 }
             }
         }
 
-        for (i = 0; i < (int) (mSongs.size() * 0.6); i++) {
-            double pref = mLikedSongs.contains(mSongs.get(i)) ?
-                    LIKED_PREF :
-                    mDislikedSongs.contains(mSongs.get(i)) ? DISLIKED_PREF : NORMAL_PREF;
+        for (i = 0; i < (int) (songsList.size() * 0.6); i++) {
+            rating = songsList.get(i).metadata.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING);
+
+            double pref =
+                    (rating != null && rating.isRated()) ?
+                            rating.isThumbUp() ? LIKED_PREF : DISLIKED_PREF
+                            : NORMAL_PREF;
 
             double rand = Math.random();
 
@@ -140,11 +145,11 @@ public class QueueProvider {
                     //ie (int)songs.size*(1-random*pref + random()*(random*pref))
 
                     int dest = (int) (
-                            mSongs.size()
+                            songsList.size()
                                     * (1 - rand * pref + Math.random() * (rand * pref))
                     );
 
-                    Collections.rotate(mSongs.subList(i, dest + 1), -1);
+                    Collections.rotate(songsList.subList(i, dest + 1), -1);
                     i--;//so that the counter does not skip the next song
                 }
             }

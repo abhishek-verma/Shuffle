@@ -195,6 +195,13 @@ public class PlayerActivity extends AppCompatActivity
     @Override
     public void updatePlaybackStateViews(final PlaybackStateCompat playbackState) {
 
+        //if swiped left right state and playbackState is not playing,
+        // then save state and return
+        //else if swiped left-right state and playbackState playing
+        // set swiped to false and continue
+
+        LogHelper.d(LOG_TAG, "isPLaying state: " + (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING));
+
         if (mLastPlaybackState != null)
             LogHelper.i(LOG_TAG, "oldPlayBackState: " + mLastPlaybackState.getState());
         if (playbackState != null)

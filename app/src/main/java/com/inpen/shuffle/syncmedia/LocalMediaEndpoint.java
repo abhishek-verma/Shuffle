@@ -4,11 +4,13 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.net.Uri;
 import android.provider.MediaStore;
 
 import com.inpen.shuffle.model.MutableMediaMetadata;
 import com.inpen.shuffle.model.database.MediaContract;
+import com.inpen.shuffle.utility.LogHelper;
 
 import java.util.Vector;
 
@@ -18,6 +20,7 @@ import java.util.Vector;
 
 public class LocalMediaEndpoint implements MediaEndpoint {
 
+    private static final String TAG = LogHelper.makeLogTag(LocalMediaEndpoint.class);
     Context mContext;
 
     public LocalMediaEndpoint(Context context) {
@@ -96,7 +99,13 @@ public class LocalMediaEndpoint implements MediaEndpoint {
         if (cvVector.size() > 0) {
             ContentValues[] cvArray = new ContentValues[cvVector.size()];
             cvVector.toArray(cvArray);
-            inserted = mContext.getContentResolver().bulkInsert(MediaContract.MediaEntry.CONTENT_URI, cvArray);
+            try {
+                inserted = mContext.getContentResolver().bulkInsert(MediaContract.MediaEntry.CONTENT_URI, cvArray);
+            } catch (SQLiteConstraintException exception) {
+                // FIXME since not all songs are being inserted [IMPORTANT}
+                // try removing this try-catch to find the error
+                LogHelper.e(TAG, "Cannot insert into database! ERROR: " + exception);
+            }
         }
 
         callback.onDataSynced(inserted);

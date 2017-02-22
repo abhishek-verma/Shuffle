@@ -15,6 +15,7 @@ import com.inpen.shuffle.utility.LogHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.inpen.shuffle.utility.CustomTypes.RepositoryState.INITIALIZED;
@@ -71,7 +72,10 @@ public class QueueRepository {
 
                     if (selectedItemsRepository != null) {
                         mCurrentState = CustomTypes.RepositoryState.INITIALIZING;
-                        retrieveQueue(context, selectedItemsRepository);
+                        mPlayingQueue = retrieveQueue(context, selectedItemsRepository);
+
+                        if (mPlayingQueue != null)
+                            mCurrentState = INITIALIZED;
 
                         // store playlist asynchronously
                         new Runnable() {
@@ -82,6 +86,61 @@ public class QueueRepository {
                         }.run();
                     } else if (mCurrentState == NON_INITIALIZED && !isCatchEmpty(context)) {
                         loadCachedQueue(context, repositoryInitializedCallback);
+                    }
+
+                } finally {
+                    if (mCurrentState != INITIALIZED) {
+                        // Something bad happened, so we reset state to NON_INITIALIZED to allow
+                        // retries (eg if the network connection is temporary unavailable)
+                        mCurrentState = CustomTypes.RepositoryState.NON_INITIALIZED;
+                    }
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+
+                if (repositoryInitializedCallback != null) {
+                    repositoryInitializedCallback.onRepositoryInitialized(isInitialized() && mPlayingQueue.size() > 0);
+                }
+            }
+        }.execute();
+
+    }
+
+    public synchronized void addItemsToQueue(@NonNull final Context context,
+                                             @Nullable final SelectedItemsRepository selectedItemsRepository,
+                                             @Nullable final RepositoryInitializedCallback repositoryInitializedCallback) {
+
+        // Asynchronously load the music catalog in a separate thread
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                try {
+
+                    if (mCurrentState == NON_INITIALIZED && !isCatchEmpty(context)) {
+                        loadCachedQueue(context, repositoryInitializedCallback);
+                    }
+
+                    if (selectedItemsRepository != null) {
+                        mCurrentState = CustomTypes.RepositoryState.INITIALIZING;
+
+                        addSongs(context, selectedItemsRepository);
+
+                        mCurrentState = INITIALIZED;
+
+                        // store playlist asynchronously
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                storeQueue(context);
+                            }
+                        }.run();
                     }
 
                 } finally {
@@ -190,19 +249,50 @@ public class QueueRepository {
     // Private methods
     ///////////////////////////////////////////////////////////////////////////
 
-    private void retrieveQueue(Context context, SelectedItemsRepository selectedItemsRepository) {
+    private List<MutableMediaMetadata> retrieveQueue(Context context, SelectedItemsRepository selectedItemsRepository) {
 
         QueueProvider queueProvider = new QueueProvider(context);
 
-        mPlayingQueue = queueProvider
+        List<MutableMediaMetadata> playingQueue = queueProvider
                 .generateShuffledQuequeMetadata(
                         selectedItemsRepository.getSelectedItemIdList(),
                         selectedItemsRepository.getItemType());
 
+        queueProvider.shuffle(playingQueue);
+
         mCurrentTrackIndex = -1;
 
-        if (mPlayingQueue != null)
-            mCurrentState = INITIALIZED;
+        return playingQueue;
+    }
+
+
+    private void addSongs(Context context, SelectedItemsRepository selectedItemsRepository) {
+
+        QueueProvider queueProvider = new QueueProvider(context);
+
+        List<MutableMediaMetadata> newQueue = queueProvider
+                .generateShuffledQuequeMetadata(
+                        selectedItemsRepository.getSelectedItemIdList(),
+                        selectedItemsRepository.getItemType());
+
+        MutableMediaMetadata[] queueArray = newQueue.toArray(new MutableMediaMetadata[newQueue.size()]);
+
+        for (MutableMediaMetadata queueItem : queueArray) {
+            if (mPlayingQueue.contains(queueItem)) {
+                newQueue.remove(queueItem);
+            }
+        }
+
+        List<MutableMediaMetadata> playedAndPlayingSongs = new ArrayList<>(mPlayingQueue.subList(0, mCurrentTrackIndex + 1));
+        List<MutableMediaMetadata> unplayedSongs = new ArrayList<>(mPlayingQueue.subList(mCurrentTrackIndex + 1, mPlayingQueue.size()));
+
+        unplayedSongs.addAll(newQueue);
+
+        queueProvider.shuffle(unplayedSongs);
+
+        playedAndPlayingSongs.addAll(unplayedSongs);
+
+        mPlayingQueue = playedAndPlayingSongs;
     }
 
     private void loadCachedQueue(Context context, final RepositoryInitializedCallback callback) {
