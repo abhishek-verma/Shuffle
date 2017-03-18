@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/Shuffle.iml" filepath="$PROJECT_DIR$/Shuffle.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/extendedfab/extendedfab.iml" filepath="$PROJECT_DIR$/extendedfab/extendedfab.iml" />
+      <module fileurl="file://$PROJECT_DIR$/playpausebutton/playpausebutton.iml" filepath="$PROJECT_DIR$/playpausebutton/playpausebutton.iml" />
     </modules>
   </component>
 </project>

@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="300dp"
+    android:viewportHeight="120"
+    android:viewportWidth="120">
+
+    <group
+        android:name="@string/play_pause_group"
+        android:pivotX="60"
+        android:pivotY="60">
+        <path
+            android:name="@string/pause_icon_name"
+            android:fillColor="#ffffff"
+            android:pathData="M 32 40 L 32 56  L 96 56 L 96 40 Z
+M 32 88 L 32 72 L 96 72 L 96 88 Z" />
+    </group>
+</vector>

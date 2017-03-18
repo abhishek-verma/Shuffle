@@ -2,15 +2,15 @@
 
 <com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:sothree="http://schemas.android.com/apk/com.inpen.shuffle"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/sliding_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_alignParentBottom="true"
     android:gravity="bottom"
-    sothree:panelHeight="68dp"
-    sothree:shadowHeight="4dp">
+    app:umanoPanelHeight="200dp"
+    app:umanoParallaxOffset="200dp"
+    app:umanoScrollableView="@+id/testScroll"
+    app:umanoShadowHeight="4dp">
 
     <RelativeLayout
         android:id="@+id/activity_player"
@@ -25,66 +25,11 @@
             android:layout_height="match_parent"
             android:layout_alignParentTop="true" />
 
-        <RelativeLayout
-            android:id="@+id/controlsParent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/playerViewpager"
-            android:alpha="0.8"
-            android:background="@color/controlViewBackgroundColor"
-            android:gravity="center_vertical"
-            android:padding="@dimen/controlsParentVerticalPadding"
-            android:theme="@style/Theme.AppCompat">
-
-            <ImageButton
-                android:id="@+id/playPauseBtn"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="@dimen/control_button_size"
-                android:layout_height="@dimen/control_button_size"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:adjustViewBounds="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="@dimen/control_button_padding"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_play_arrow_white_24dp" />
-
-            <ImageButton
-                android:id="@+id/likeButton"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="@dimen/control_button_size"
-                android:layout_height="@dimen/control_button_size"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:adjustViewBounds="true"
-                android:alpha="0.4"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="@dimen/control_button_padding"
-                android:paddingRight="@dimen/controlsParentVerticalPadding"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_thumb_up_white_24dp" />
-
-            <ImageButton
-                android:id="@+id/dislikeButton"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="@dimen/control_button_size"
-                android:layout_height="@dimen/control_button_size"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@id/likeButton"
-                android:adjustViewBounds="true"
-                android:alpha="0.4"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="@dimen/control_button_padding"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_thumb_down_white_24dp" />
-
-
-        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@id/controlsParent"
+            android:layout_alignParentBottom="true"
             android:background="@color/seekbar_bg_color"
             android:gravity="center"
             android:orientation="horizontal"
@@ -143,30 +88,130 @@
     </RelativeLayout>
 
 
+    <!-- SLIDING LAYOUT -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="false"
         android:gravity="top"
         android:orientation="vertical">
 
-        <com.inpen.shuffle.customviews.TypefacedTextView xmlns:typeface="http://schemas.android.com/apk/res/com.inpen.shuffle"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/suggestionViewHeight"
-            android:alpha="0.8"
-            android:background="@color/white"
-            android:gravity="start|center_vertical"
-            android:paddingLeft="?android:attr/listPreferredItemPaddingStart"
-            android:text="@string/recommendations_title"
-            android:textSize="24sp"
-            typeface:fontPath="fonts/PoiretOne-Regular.ttf" />
 
-        <TextView
+        <RelativeLayout
+            android:id="@+id/controlsParent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:gravity="center_horizontal"
-            android:text="No Recommendations Available!"
-            android:typeface="monospace" />
+            android:background="@color/controlViewBackgroundColor"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:elevation="1dp"
+            android:gravity="center_vertical"
+            android:padding="@dimen/controlsParentVerticalPadding">
+
+            <com.inpen.playpausebutton.PlayPauseAnimatedButton
+                android:id="@+id/playPauseBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center"
+                app:backgroundTint="@color/colorAccent"
+                app:elevation="0dp" />
+
+            <ImageButton
+                android:id="@+id/prevButton"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="@dimen/control_button_size"
+                android:layout_height="@dimen/control_button_size"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/playPauseBtn"
+                android:adjustViewBounds="true"
+                android:alpha="0.8"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/control_button_padding"
+                android:paddingRight="@dimen/controlsParentVerticalPadding"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_skip_previous_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/nextButton"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="@dimen/control_button_size"
+                android:layout_height="@dimen/control_button_size"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/playPauseBtn"
+                android:adjustViewBounds="true"
+                android:alpha="0.8"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/control_button_padding"
+                android:paddingRight="@dimen/controlsParentVerticalPadding"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_skip_next_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/likeButton"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="@dimen/control_button_size"
+                android:layout_height="@dimen/control_button_size"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:adjustViewBounds="true"
+                android:alpha="0.4"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/control_button_padding"
+                android:paddingRight="@dimen/controlsParentVerticalPadding"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_thumb_up_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/dislikeButton"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="@dimen/control_button_size"
+                android:layout_height="@dimen/control_button_size"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:adjustViewBounds="true"
+                android:alpha="0.4"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/control_button_padding"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_thumb_down_black_24dp" />
+
+
+        </RelativeLayout>
+
+        <ScrollView xmlns:typeface="http://schemas.android.com/apk/res/com.inpen.shuffle"
+            android:id="@id/testScroll"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:padding="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <com.inpen.shuffle.customviews.TypefacedTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Recommended"
+                    android:textSize="28sp"
+                    typeface:fontPath="fonts/PoiretOne-Regular.ttf" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a volutpat velit, sit amet malesuada elit. In sollicitudin feugiat ligula, et cursus tortor pulvinar vitae. Maecenas interdum magna quis libero porttitor, nec elementum lorem venenatis. Proin id consequat diam, id hendrerit turpis. Ut sed erat maximus, tincidunt augue eget, iaculis augue. Nam nec cursus tortor. Aenean semper placerat nunc id consectetur. Quisque eleifend lectus quis nisl facilisis, vel aliquam elit venenatis. Nunc erat lectus, euismod quis arcu nec, accumsan condimentum neque. Donec sit amet leo a sapien suscipit bibendum vel nec lacus. Ut euismod eleifend pharetra. Sed congue mollis posuere. Nunc semper velit ac neque faucibus, ac dapibus dui tempus. Fusce purus ante, feugiat quis augue et, viverra tristique ipsum. Duis id sapien sit amet leo pulvinar ultricies sed at tortor. Nam velit nulla, aliquam in nisl nec, venenatis efficitur ante.
+Cras consectetur ligula quis urna scelerisque malesuada. Morbi facilisis sapien dapibus lectus interdum, a mattis risus luctus. Vivamus suscipit risus quis dolor gravida, eget aliquam risus suscipit. Vestibulum vitae erat non ex iaculis eleifend. Nunc ullamcorper justo metus, vel volutpat metus egestas sed. Nam nec iaculis neque. Quisque ac tellus tortor. Proin vitae ipsum iaculis, molestie nibh eget, tristique dolor. Nullam non metus id lorem mattis rutrum quis in elit. Suspendisse id sem non sem imperdiet gravida. In id imperdiet dolor. Curabitur id porta metus, et mattis diam. Duis convallis purus nibh. Morbi sapien est, fermentum id lectus quis, gravida fermentum justo. Vivamus sed ante non sapien sollicitudin vulputate. In hac habitasse platea dictumst.
+
+Vestibulum eu tellus id ex suscipit ornare. Nam laoreet magna eget dolor blandit, a egestas diam euismod. Mauris sodales sapien quis mi tempus, ac pharetra turpis lacinia. Proin tempor, urna cursus faucibus dictum, nisl nunc placerat augue, eget varius sem risus vel justo. In convallis libero mi, ac iaculis nisl mattis vel. Interdum et malesuada fames ac ante ipsum primis in faucibus. In sit amet metus sed urna luctus imperdiet eu eget lacus. Vivamus dictum commodo enim, ac ultrices mauris aliquam consectetur. Nulla et consectetur ex. In eget ante eu diam maximus porttitor. Curabitur dictum facilisis quam, ac aliquet ipsum volutpat at. Fusce ultrices nibh at ipsum imperdiet, in venenatis nisi tristique. Nulla justo mi, sagittis eget leo ac, placerat mattis libero.
+Cras consectetur ligula quis urna scelerisque malesuada. Morbi facilisis sapien dapibus lectus interdum, a mattis risus luctus. Vivamus suscipit risus quis dolor gravida, eget aliquam risus suscipit. Vestibulum vitae erat non ex iaculis eleifend. Nunc ullamcorper justo metus, vel volutpat metus egestas sed. Nam nec iaculis neque. Quisque ac tellus tortor. Proin vitae ipsum iaculis, molestie nibh eget, tristique dolor. Nullam non metus id lorem mattis rutrum quis in elit. Suspendisse id sem non sem imperdiet gravida. In id imperdiet dolor. Curabitur id porta metus, et mattis diam. Duis convallis purus nibh. Morbi sapien est, fermentum i" />
+
+            </LinearLayout>
+        </ScrollView>
     </LinearLayout>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 

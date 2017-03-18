@@ -14,10 +14,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateUtils;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.inpen.playpausebutton.PlayPauseAnimatedButton;
 import com.inpen.shuffle.R;
 import com.inpen.shuffle.model.repositories.QueueRepository;
 import com.inpen.shuffle.playerscreen.player.PlayerViewPagerAdapter;
@@ -53,7 +57,11 @@ public class PlayerActivity extends AppCompatActivity
     @BindView(R.id.currentDuration)
     TextView mCurrentDurationView;
     @BindView(R.id.playPauseBtn)
-    ImageButton mPlayPauseBtn;
+    PlayPauseAnimatedButton mPlayPauseBtn;
+    @BindView(R.id.prevButton)
+    ImageButton mPrevButton;
+    @BindView(R.id.nextButton)
+    ImageButton mNextButton;
     @BindView(R.id.likeButton)
     ImageButton mLikeButton;
     @BindView(R.id.dislikeButton)
@@ -115,6 +123,21 @@ public class PlayerActivity extends AppCompatActivity
         super.onStop();
         mPlayerActivityPresenter.stop(this);
         mPlayerViewPager.removeOnPageChangeListener(mPlayerActivityPresenter.getPageChangeListener());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.player_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_playlist) {
+            mPlayerActivityPresenter.showPlaylistClicked(this);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setupAdapterAndViewPager() {
@@ -213,14 +236,14 @@ public class PlayerActivity extends AppCompatActivity
             @Override
             public void run() {
 
-                boolean isPLaying = (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING);
+                boolean isPlaying = (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING);
 
-                if (isPLaying) {
-                    mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_white_24dp));
+                if (isPlaying) {
+                    mPlayPauseBtn.playToPauseAnimation();
                     scheduleSeekbarUpdate();
 
                 } else {
-                    mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_arrow_white_24dp));
+                    mPlayPauseBtn.pauseToPlayAnimation();
                     stopSeekbarUpdate();
                 }
             }

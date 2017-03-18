@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.inpen.shuffle.R;
-import com.inpen.shuffle.utility.BlurTransformation;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -73,7 +72,6 @@ public class PlayerFragment extends Fragment implements PlayerFragmentContract.P
 
         Glide.with(getContext())
                 .load(albumArtUrl)
-                .transform(new BlurTransformation(getContext()))
                 .error(getResources().getDrawable(R.drawable.ic_loading_circle, null))
                 .into(mAlbumArtView);
     }

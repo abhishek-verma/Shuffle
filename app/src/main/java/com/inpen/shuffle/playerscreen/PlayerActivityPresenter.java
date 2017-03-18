@@ -13,6 +13,8 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import com.inpen.shuffle.mainscreen.MainActivity;
 import com.inpen.shuffle.model.repositories.QueueRepository;
@@ -97,11 +99,25 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
             mBound = false;
         }
     };
-    private ViewPager.OnPageChangeListener mPageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
-        @Override
-        public void onPageSelected(final int position) {
-            super.onPageSelected(position);
+    private ViewPager.OnPageChangeListener mPageChangeListener = new ViewPager.OnPageChangeListener() {
 
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            skipSong(position);
+
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+
+        private void skipSong(final int position) {
             new Runnable() {
                 @Override
                 public void run() {
@@ -119,7 +135,6 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
                 }
             }.run();
         }
-
     };
 
     public PlayerActivityPresenter(@NonNull PlayerActivityContract.PlayerActivityView playerActivityView) {
@@ -218,6 +233,12 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
             RatingCompat dislikedRating = RatingCompat.newThumbRating(false);
             mTransportControls.setRating(dislikedRating);
         }
+    }
+
+    @Override
+    public void showPlaylistClicked(AppCompatActivity activity) {
+        // TODO show playlist
+        Toast.makeText(activity, "PLaylist clicked!", Toast.LENGTH_SHORT).show();
     }
 
     private void connectToService(Context context) {

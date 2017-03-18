@@ -1,0 +1,9 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/play_icon">
+    <target
+        android:name="@string/play_icon_name"
+        android:animation="@animator/play_to_pause_animation" />
+    <target
+        android:name="@string/play_pause_group"
+        android:animation="@animator/rotate_90_animation" />
+</animated-vector>

@@ -1,0 +1,8 @@
+<resources>
+    <declare-styleable name="PlayPauseAnimatedButton">
+        <attr name="initialState" format="enum">
+            <enum name="playing" value="1" />
+            <enum name="paused" value="0" />
+        </attr>
+    </declare-styleable>
+</resources>
