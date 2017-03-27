@@ -66,8 +66,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
     public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ItemView v = new ItemView(parent.getContext());
 
-        ItemViewHolder vh = new ItemViewHolder(v);
-        return vh;
+        return new ItemViewHolder(v);
     }
 
     @Override
@@ -78,8 +77,6 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
     @Override
     public void onViewRecycled(ItemViewHolder holder) {
         super.onViewRecycled(holder);
-
-
     }
 
     private boolean toggleSelectionForItem(Item item) {

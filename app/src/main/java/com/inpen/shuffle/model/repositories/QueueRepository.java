@@ -199,16 +199,18 @@ public class QueueRepository {
         setCurrentQueueIndex(index);
     }
 
-    public void setCurrentQueueItem(MutableMediaMetadata mutableMediaMetadata) {
-        if (mPlayingQueue != null)
-            setCurrentQueueIndex(mPlayingQueue.indexOf(mutableMediaMetadata));
-
-    }
-
     public void setCurrentQueueIndex(int index) {
         mCurrentTrackIndex = index;
-
         EventBus.getDefault().post(new QueueIndexChangedEvent());
+    }
+
+    public int getCurrentIndex() {
+        return mCurrentTrackIndex;
+    }
+
+    public void removeItemAtIndex(int position) {
+        mPlayingQueue.remove(position);
+        EventBus.getDefault().post(new QueueContentsChangedEvent());
     }
 
     public boolean isInitialized() {
@@ -333,9 +335,6 @@ public class QueueRepository {
         return mPreferences;
     }
 
-    public int getCurrentIndex() {
-        return mCurrentTrackIndex;
-    }
 
     public interface RepositoryInitializedCallback {
         void onRepositoryInitialized(boolean success);
@@ -344,7 +343,9 @@ public class QueueRepository {
     public class QueueMetadataChangedEvent {
     }
 
-    public class QueueIndexChangedEvent {
+    public class QueueContentsChangedEvent {
+    }
 
+    public class QueueIndexChangedEvent {
     }
 }

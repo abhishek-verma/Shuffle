@@ -1,6 +1,6 @@
 package com.inpen.shuffle.playerscreen.playingqueue;
 
-import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.app.FragmentActivity;
 
 import java.util.List;
 
@@ -11,15 +11,18 @@ import java.util.List;
 public interface PlayingQueueContract {
 
     interface PlayingQueueView {
-        void updateView(List<MediaMetadataCompat> metadataCompatList);
+
+        void updateView(List<PlayingQueueItem> itemList);
+
+        void updateCurrentIndex(int position);
+
+        FragmentActivity getFragmentActivity();
     }
 
     interface PlayingQueueListener {
         void init();
 
-        void onItemClicked(int position);
-
-        void onItemRemoved(int position);
+        void stop();
     }
 
 }

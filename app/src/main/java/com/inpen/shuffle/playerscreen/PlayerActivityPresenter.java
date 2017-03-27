@@ -13,8 +13,6 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 import com.inpen.shuffle.mainscreen.MainActivity;
 import com.inpen.shuffle.model.repositories.QueueRepository;
@@ -236,9 +234,8 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
     }
 
     @Override
-    public void showPlaylistClicked(AppCompatActivity activity) {
-        // TODO show playlist
-        Toast.makeText(activity, "PLaylist clicked!", Toast.LENGTH_SHORT).show();
+    public void showPlaylistClicked() {
+        mPlayerActivityView.togglePlaylistVisibility();
     }
 
     private void connectToService(Context context) {

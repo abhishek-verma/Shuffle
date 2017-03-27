@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -17,6 +19,7 @@ import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -25,6 +28,7 @@ import com.inpen.playpausebutton.PlayPauseAnimatedButton;
 import com.inpen.shuffle.R;
 import com.inpen.shuffle.model.repositories.QueueRepository;
 import com.inpen.shuffle.playerscreen.player.PlayerViewPagerAdapter;
+import com.inpen.shuffle.playerscreen.playingqueue.PlayingQueueFragment;
 import com.inpen.shuffle.utility.LogHelper;
 
 import java.util.concurrent.Executors;
@@ -70,13 +74,13 @@ public class PlayerActivity extends AppCompatActivity
     private PlayerViewPagerAdapter mPlayerAdapter;
     private ScheduledFuture<?> mScheduleFuture;
     private PlaybackStateCompat mLastPlaybackState;
-
     private final Runnable mUpdateProgressTask = new Runnable() {
         @Override
         public void run() {
             updateProgress();
         }
     };
+    private Fragment mPlayingQueueFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +119,7 @@ public class PlayerActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
 
+        setupFragments();
         setupAdapterAndViewPager();
     }
 
@@ -135,9 +140,20 @@ public class PlayerActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_playlist) {
-            mPlayerActivityPresenter.showPlaylistClicked(this);
+            mPlayerActivityPresenter.showPlaylistClicked();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setupFragments() {
+        mPlayingQueueFragment = new PlayingQueueFragment();
+
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+        ft.add(R.id.playingQueueContainer, mPlayingQueueFragment);
+        ft.hide(mPlayingQueueFragment);
+        ft.commit();
+
     }
 
     private void setupAdapterAndViewPager() {
@@ -248,6 +264,27 @@ public class PlayerActivity extends AppCompatActivity
                 }
             }
         }.run();
+    }
+
+    @Override
+    public void togglePlaylistVisibility() {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+        ft.setCustomAnimations(android.R.anim.fade_in,
+                android.R.anim.fade_out);
+
+        if (mPlayingQueueFragment.isHidden()) {
+            ft.show(mPlayingQueueFragment);
+            Window window = getWindow();
+
+            getSupportActionBar().setBackgroundDrawable(getDrawable(R.drawable.appbar_black_bg));
+        } else {
+            ft.hide(mPlayingQueueFragment);
+
+            getSupportActionBar().setBackgroundDrawable(getDrawable(R.drawable.appbar_trans_bg));
+        }
+
+        ft.commit();
     }
 
     private void updateProgress() {

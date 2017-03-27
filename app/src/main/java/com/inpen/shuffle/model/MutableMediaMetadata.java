@@ -29,8 +29,8 @@ public class MutableMediaMetadata {
     public static String CUSTOM_METADATA_KEY_TRACK_SOURCE = "__SOURCE__";
     public static String CUSTOM_METADATA_KEY_TRACK_ID = "__ID__";
     public static String CUSTOM_METADATA_KEY_FOLDER_PATH = "__FOLDER_PATH__";
-    public static String CUSTOM_METADATA_KEY_ARTIST_KEY = "__FOLDER_PATH__";
-    public static String CUSTOM_METADATA_KEY_ALBUM_KEY = "__FOLDER_PATH__";
+    public static String CUSTOM_METADATA_KEY_ARTIST_KEY = "__ARTIST_KEY__";
+    public static String CUSTOM_METADATA_KEY_ALBUM_KEY = "__ALBUM_KEY__";
     public final String trackId;
     public MediaMetadataCompat metadata;
 

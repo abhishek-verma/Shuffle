@@ -1,6 +1,7 @@
 package com.inpen.shuffle.playback;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -16,6 +17,8 @@ import com.inpen.shuffle.utility.LogHelper;
 
 public class PlaybackManager implements Playback.Callback {
 
+    public static final String SKIP_TO_ITEM_ACTION = "SKIP_TO_ITEM";
+    public static final String SKIP_TO_ITEM_INDEX = "ITEM_INDEX";
     ///////////////////////////////////////////////////////////////////////////
     // Static variables and methods
     ///////////////////////////////////////////////////////////////////////////
@@ -24,7 +27,6 @@ public class PlaybackManager implements Playback.Callback {
     ///////////////////////////////////////////////////////////////////////////
     // Regular fields and methods
     ///////////////////////////////////////////////////////////////////////////
-
     private final Context mContext;
     private final PlaybackServiceCallback mServiceCallback;
     private final Playback mPlayback;
@@ -67,6 +69,15 @@ public class PlaybackManager implements Playback.Callback {
         @Override
         public void onSetRating(RatingCompat rating) {
             setRating(rating);
+        }
+
+        @Override
+        public void onCustomAction(String action, Bundle extras) {
+            super.onCustomAction(action, extras);
+            if (action.equals(SKIP_TO_ITEM_ACTION)) {
+                int index = extras.getInt(SKIP_TO_ITEM_INDEX);
+                playItem(index);
+            }
         }
     };
 
@@ -127,6 +138,11 @@ public class PlaybackManager implements Playback.Callback {
         handlePlayRequest();
     }
 
+    private void playItem(int index) {
+        mQueueRepository.setCurrentQueueIndex(index);
+        handlePlayRequest();
+    }
+
     private void setRating(RatingCompat rating) {
         mQueueRepository.setRating(rating, mContext);
     }
@@ -175,7 +191,7 @@ public class PlaybackManager implements Playback.Callback {
         stateBuilder.setState(state, position, 1.0f, SystemClock.elapsedRealtime());
 
         // Set the activeQueueItemId if the current index is valid.
-//        MediaSessionCompat.QueueItem currentMusic = mQueueManager.getCurrentMusic();
+//        MediaSessionCompat.PlayingQueueItem currentMusic = mQueueManager.getCurrentMusic();
 //        if (currentMusic != null) {
 //            stateBuilder.setActiveQueueItemId(currentMusic.getQueueId());
 //        }

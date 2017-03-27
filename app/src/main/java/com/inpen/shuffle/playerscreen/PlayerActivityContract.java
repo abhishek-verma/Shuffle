@@ -7,7 +7,6 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 
 /**
  * Created by Abhishek on 12/28/2016.
@@ -23,6 +22,7 @@ public interface PlayerActivityContract {
 
         void updatePlaybackStateViews(PlaybackStateCompat playbackState);
 
+        void togglePlaylistVisibility();
     }
 
     interface PlayerActivityListener {
@@ -47,6 +47,6 @@ public interface PlayerActivityContract {
 
         ViewPager.OnPageChangeListener getPageChangeListener();
 
-        void showPlaylistClicked(AppCompatActivity activity);
+        void showPlaylistClicked();
     }
 }

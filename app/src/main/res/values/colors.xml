@@ -22,5 +22,7 @@
     <color name="controlViewBackgroundColor">#fff</color>
     <color name="playerSongDetailTextColor">#fff</color>
     <color name="seekbar_bg_color">#6fff</color>
+    <color name="translucent_white">#afff</color>
+    <color name="appbar_overlay_color">#bb1d1d20</color>
 
 </resources>

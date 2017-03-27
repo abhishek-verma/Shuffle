@@ -65,4 +65,22 @@ public class CustomTypes {
                 DISABLED = 130;
     }
 
+    @IntDef({PlayingQueueEventType.CLICKED, PlayingQueueEventType.SWIPED, PlayingQueueEventType.MOVED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface PlayingQueueEventType {
+        int CLICKED = 100,
+                SWIPED = 110,
+                MOVED = 120;
+    }
+
+    @IntDef({PlayingQueueItemPlayingState.PLAYED,
+            PlayingQueueItemPlayingState.PLAYING,
+            PlayingQueueItemPlayingState.UNPLAYED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface PlayingQueueItemPlayingState {
+        int PLAYED = 1,
+                PLAYING = 2,
+                UNPLAYED = 3;
+    }
+
 }
