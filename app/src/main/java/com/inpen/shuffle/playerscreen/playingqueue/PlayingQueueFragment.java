@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.inpen.shuffle.R;
+import com.inpen.shuffle.model.repositories.QueueRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,8 +68,22 @@ public class PlayingQueueFragment extends Fragment implements PlayingQueueContra
     }
 
     @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+
+        if (!hidden) {
+            mRecyclerView.scrollToPosition(QueueRepository.getInstance().getCurrentIndex());
+        }
+    }
+
+    @Override
     public FragmentActivity getFragmentActivity() {
         return getActivity();
+    }
+
+    @Override
+    public void refreshViews() {
+        mPlayingQueueAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -76,8 +91,4 @@ public class PlayingQueueFragment extends Fragment implements PlayingQueueContra
         mPlayingQueueAdapter.updateData(itemList);
     }
 
-    @Override
-    public void updateCurrentIndex(int position) {
-        mPlayingQueueAdapter.updatePlayingIndex(position);
-    }
 }

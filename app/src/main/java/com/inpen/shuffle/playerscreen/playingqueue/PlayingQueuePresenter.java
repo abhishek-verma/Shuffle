@@ -35,7 +35,7 @@ public class PlayingQueuePresenter implements PlayingQueueContract.PlayingQueueL
     public void init() {
         EventBus.getDefault().register(this);
 
-        updateView();
+        updateContents();
     }
 
     @Override
@@ -56,6 +56,11 @@ public class PlayingQueuePresenter implements PlayingQueueContract.PlayingQueueL
             case CustomTypes.PlayingQueueEventType.MOVED:
                 onItemMoved(event.positions[0], event.positions[1]);
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onQueueIndexChanged(QueueRepository.QueueIndexChangedEvent event) {
+        mplayingQueueView.refreshViews();
     }
 
     public void onItemClicked(int position) {
@@ -80,7 +85,7 @@ public class PlayingQueuePresenter implements PlayingQueueContract.PlayingQueueL
         LogHelper.d(LOG_TAG, "item at position " + positionInit + " moved to " + positionFinal);
     }
 
-    private void updateView() {
+    private void updateContents() {
 
         new AsyncTask<Void, Void, List<PlayingQueueItem>>() {
 

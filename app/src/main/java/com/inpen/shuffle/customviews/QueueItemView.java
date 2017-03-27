@@ -79,6 +79,20 @@ public class QueueItemView extends FrameLayout {
 
     public void setPlayedState(@CustomTypes.PlayingQueueItemPlayingState int playingState) {
 
+        switch (playingState) {
+            case CustomTypes.PlayingQueueItemPlayingState.PLAYING:
+                mMaskView.setVisibility(VISIBLE);
+                setAlpha(1f);
+                break;
+            case CustomTypes.PlayingQueueItemPlayingState.PLAYED:
+                mMaskView.setVisibility(INVISIBLE);
+                setAlpha(0.4f);
+                break;
+            case CustomTypes.PlayingQueueItemPlayingState.UNPLAYED:
+                mMaskView.setVisibility(INVISIBLE);
+                setAlpha(1f);
+
+        }
     }
 }
 

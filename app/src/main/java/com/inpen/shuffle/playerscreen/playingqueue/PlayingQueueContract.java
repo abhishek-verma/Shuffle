@@ -14,9 +14,9 @@ public interface PlayingQueueContract {
 
         void updateView(List<PlayingQueueItem> itemList);
 
-        void updateCurrentIndex(int position);
-
         FragmentActivity getFragmentActivity();
+
+        void refreshViews();
     }
 
     interface PlayingQueueListener {

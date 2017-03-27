@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.inpen.shuffle.customviews.QueueItemView;
+import com.inpen.shuffle.model.repositories.QueueRepository;
 import com.inpen.shuffle.utility.CustomTypes;
 import com.inpen.shuffle.utility.LogHelper;
 
@@ -26,17 +27,11 @@ public class PlayingQueueAdapter
     private static final String LOG_TAG = LogHelper.makeLogTag(PlayingQueueAdapter.class);
 
     private List<PlayingQueueItem> mPlayingQueueItemList;
-    private int mCurrentIndex;
 
     public PlayingQueueAdapter(@NonNull List<PlayingQueueItem> itemList) {
         mPlayingQueueItemList = checkNotNull(itemList);
 
         setHasStableIds(true);
-    }
-
-    public void updatePlayingIndex(int index) {
-        mCurrentIndex = index;
-        notifyDataSetChanged();
     }
 
     public void updateData(List<PlayingQueueItem> tasks) {
@@ -64,8 +59,10 @@ public class PlayingQueueAdapter
     public void onBindViewHolder(final QueueItemViewHolder holder, int position) {
         @CustomTypes.PlayingQueueItemPlayingState int playingState;
 
-        playingState = (mCurrentIndex <= position) ?
-                (mCurrentIndex == position) ? CustomTypes.PlayingQueueItemPlayingState.PLAYING
+        int currentIndex = QueueRepository.getInstance().getCurrentIndex();
+
+        playingState = (position <= currentIndex) ?
+                (currentIndex == position) ? CustomTypes.PlayingQueueItemPlayingState.PLAYING
                         : CustomTypes.PlayingQueueItemPlayingState.PLAYED
                 : CustomTypes.PlayingQueueItemPlayingState.UNPLAYED;
 
