@@ -78,18 +78,12 @@ public class ItemsPresenter
     }
 
     /**
-     * Called when {@link SelectedItemsRepository#mItemType} from {@link SelectedItemsRepository} changes.
+     * Called when {@link SelectedItemsRepository} all items deselected.
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onItemTypeChangedEvent(SelectedItemsRepository.ItemTypeChangedEvent obs) {
-        if (mSelectedItemsRepository.getItemType() == null) {
+    public void onSelectedItesEmptyStateChanged(SelectedItemsRepository.RepositoryEmptyStateChangedEvent event) {
+        if (event.isEmpty)
             mItemsView.clearSelection();
-        } else if (mSelectedItemsRepository.getItemType().equals(mItemType)) {
-            mActive = true;
-        } else if (mActive && !mSelectedItemsRepository.getItemType().equals(mItemType)) {
-            mItemsView.clearSelection();
-            mActive = false;
-        }
     }
 
     @Override
@@ -98,6 +92,13 @@ public class ItemsPresenter
 
         String selection;
         switch (mItemType) {
+            case SONG:
+                selection = MediaContract.MediaEntry.COLUMN_TITLE + " NOT NULL ;intended;";
+                return new CursorLoader(mContext,
+                        MediaContract.MediaEntry.CONTENT_URI,
+                        SONGS_QUERY_CURSOR_COLUMNS,
+                        selection,
+                        null, null);
             case ALBUM_KEY:
                 selection = MediaContract.MediaEntry.COLUMN_ALBUM_KEY + " NOT NULL GROUP BY " + MediaContract.MediaEntry.COLUMN_ALBUM_KEY;
                 return new CursorLoader(mContext,
@@ -135,15 +136,25 @@ public class ItemsPresenter
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
         if (data == null || !data.moveToFirst()) {
-            mItemsView.showItems(new ArrayList<Item>());
+            mItemsView.showItems(new ArrayList<BaseItem>());
             return;
         }
 
         data.moveToFirst();
 
-        List<Item> itemList = new ArrayList<>();
+        List<BaseItem> itemList = new ArrayList<>();
 
         switch (mItemType) {
+            case SONG:
+                do {
+                    SongItem item = new SongItem(
+                            data.getString(0),//song id
+                            data.getString(1),//track name
+                            data.getString(2),//Album art
+                            data.getString(3));
+                    itemList.add(item);
+                } while (data.moveToNext());
+                break;
             case ALBUM_KEY:
                 do {
                     Item item = new Item(
@@ -189,7 +200,6 @@ public class ItemsPresenter
         Collections.sort(itemList);
 
         mItemsView.showItems(itemList);
-
     }
 
     @Override

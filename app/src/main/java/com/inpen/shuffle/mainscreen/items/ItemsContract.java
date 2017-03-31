@@ -17,13 +17,20 @@ class ItemsContract {
 
         void setProgressIndicator(boolean active);
 
-        void showItems(@Nullable List<Item> itemList);
+        void showItems(@Nullable List<BaseItem> itemList);
 
         void clearSelection();
 
     }
 
     interface ItemsFragmentListener {
+
+        String[] SONGS_QUERY_CURSOR_COLUMNS = {
+                MediaContract.MediaEntry.TABLE_NAME + "." + MediaContract.MediaEntry.COLUMN_SONG_ID,
+                MediaContract.MediaEntry.TABLE_NAME + "." + MediaContract.MediaEntry.COLUMN_TITLE,
+                MediaContract.MediaEntry.TABLE_NAME + "." + MediaContract.MediaEntry.COLUMN_ALBUM_ART,
+                MediaContract.MediaEntry.TABLE_NAME + "." + MediaContract.MediaEntry.COLUMN_ARTIST
+        };
 
         String[] ALBUMS_QUERY_CURSOR_COLUMNS = {
                 MediaContract.MediaEntry.TABLE_NAME + "." + MediaContract.MediaEntry.COLUMN_ALBUM_KEY,

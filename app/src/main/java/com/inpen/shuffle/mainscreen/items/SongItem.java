@@ -6,13 +6,12 @@ import android.text.TextUtils;
  * Created by Abhishek on 10/27/2016.
  */
 
-public class Item extends BaseItem {
+public class SongItem extends BaseItem {
+    public String artist;
 
-    public int count;
-
-    public Item(String id, String title, String imagePath, int count) {
+    public SongItem(String id, String title, String imagePath, String artist) {
         super(id, title, imagePath);
-        this.count = count;
+        this.artist = artist;
     }
 
     @Override
@@ -25,11 +24,11 @@ public class Item extends BaseItem {
         if (this == o) {
             return true;
         }
-        if (o == null || o.getClass() != Item.class) {
+        if (o == null || o.getClass() != SongItem.class) {
             return false;
         }
 
-        Item that = (Item) o;
+        SongItem that = (SongItem) o;
 
         return TextUtils.equals(id, that.id);
     }

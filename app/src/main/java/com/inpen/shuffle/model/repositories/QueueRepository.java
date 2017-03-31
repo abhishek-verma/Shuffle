@@ -256,9 +256,8 @@ public class QueueRepository {
         QueueProvider queueProvider = new QueueProvider(context);
 
         List<MutableMediaMetadata> playingQueue = queueProvider
-                .generateShuffledQuequeMetadata(
-                        selectedItemsRepository.getSelectedItemIdList(),
-                        selectedItemsRepository.getItemType());
+                .generateShuffledQuequeMetadata(selectedItemsRepository);
+
 
         queueProvider.shuffle(playingQueue);
 
@@ -273,9 +272,7 @@ public class QueueRepository {
         QueueProvider queueProvider = new QueueProvider(context);
 
         List<MutableMediaMetadata> newQueue = queueProvider
-                .generateShuffledQuequeMetadata(
-                        selectedItemsRepository.getSelectedItemIdList(),
-                        selectedItemsRepository.getItemType());
+                .generateShuffledQuequeMetadata(selectedItemsRepository);
 
         MutableMediaMetadata[] queueArray = newQueue.toArray(new MutableMediaMetadata[newQueue.size()]);
 

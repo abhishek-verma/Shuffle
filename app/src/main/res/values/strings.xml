@@ -26,4 +26,5 @@
     <string name="play_icon_top_path_name">playIconTopPath</string>
     <string name="play_icon_group_bottom">playIconBottomGroup</string>
     <string name="play_icon_bottom_path_name">playIconBottomPath</string>
+    <string name="options">Options</string>
 </resources>

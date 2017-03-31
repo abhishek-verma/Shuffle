@@ -231,18 +231,21 @@ public class MediaNotificationManager extends BroadcastReceiver {
         }
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(mMusicService);
-        int playPauseButtonPosition = 0;
+        int skipToPreviousButtonoPosition = 0, playPauseButtonPosition = 0, skipToNextButtonPosition = 0;
 
         // If skip to previous action is enabled
         if ((mPlaybackState.getActions() & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) != 0) {
             notificationBuilder.addAction(R.drawable.ic_skip_previous_white_24dp,
                     mMusicService.getString(R.string.label_previous), mPreviousIntent);
 
+            skipToPreviousButtonoPosition = 0;
             // If there is a "skip to previous" button, the play/pause button will
             // be the second one. We need to keep track of it, because the MediaStyle notification
             // requires to specify the index of the buttons (actions) that should be visible
             // when in compact view.
             playPauseButtonPosition = 1;
+
+            skipToNextButtonPosition = 2;
         }
 
         addPlayPauseAction(notificationBuilder);
@@ -273,13 +276,15 @@ public class MediaNotificationManager extends BroadcastReceiver {
         notificationBuilder
                 .setStyle(new NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(
-                                new int[]{playPauseButtonPosition})  // show only play/pause in compact view
+                                new int[]{skipToPreviousButtonoPosition,
+                                        playPauseButtonPosition,
+                                        skipToNextButtonPosition})  // show only play/pause in compact view
                         .setMediaSession(mSessionToken))
                 .setColor(mNotificationColor)
                 .setSmallIcon(R.drawable.ic_shuffle_black_24dp)
                 .setLargeIcon(art)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setUsesChronometer(true)
+                .setUsesChronometer(false)
                 .setContentIntent(createContentIntent(description))
                 .setContentTitle(description.getTitle())
                 .setContentText(description.getSubtitle());

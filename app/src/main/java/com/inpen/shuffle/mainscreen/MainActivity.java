@@ -19,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import com.inpen.shuffle.R;
 import com.inpen.shuffle.mainscreen.fab.FabFragment;
 import com.inpen.shuffle.mainscreen.items.ItemsFragment;
+import com.inpen.shuffle.mainscreen.items.SongItemsFragment;
 import com.inpen.shuffle.utility.CustomTypes;
 
 import butterknife.BindView;
@@ -162,7 +163,6 @@ public class MainActivity extends AppCompatActivity
         public Fragment getItem(int position) {
 
             CustomTypes.ItemType itemType;
-//            = CustomTypes.ItemType.ALBUM_ID;
 
             switch (position) {
                 case 0:
@@ -172,9 +172,12 @@ public class MainActivity extends AppCompatActivity
                     itemType = CustomTypes.ItemType.ARTIST_KEY;
                     break;
                 case 2:
+                    //For song
+                    return SongItemsFragment.newInstance();
+                case 3:
                     itemType = CustomTypes.ItemType.FOLDER;
                     break;
-                case 3:
+                case 4:
                     itemType = CustomTypes.ItemType.PLAYLIST;
                     break;
                 default:
@@ -186,7 +189,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public int getCount() {
-            return 4;
+            return 5;
         }
 
         @Override
@@ -201,13 +204,16 @@ public class MainActivity extends AppCompatActivity
                     title = "Artists";
                     break;
                 case 2:
-                    title = "Folders";
+                    title = "Songs";
                     break;
                 case 3:
+                    title = "Folders";
+                    break;
+                case 4:
                     title = "Playlist";
                     break;
                 default:
-                    title = "Albums";
+                    title = "Error";
             }
 
             return title;

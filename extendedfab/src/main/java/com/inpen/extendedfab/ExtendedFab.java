@@ -93,8 +93,8 @@ public class ExtendedFab extends LinearLayout {
                 CircularImageView circularImageView = new CircularImageView(getContext());
 
                 // Set Border
-                circularImageView.setBorderColor(getResources().getColor(R.color.icon_black));
-                circularImageView.setBorderWidth(1f);
+//                circularImageView.setBorderColor(getResources().getColor(R.color.icon_black));
+                circularImageView.setBorderWidth(0);
 
                 circularImageView.setLayoutParams(new ImageSwitcher.LayoutParams(
                         LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));

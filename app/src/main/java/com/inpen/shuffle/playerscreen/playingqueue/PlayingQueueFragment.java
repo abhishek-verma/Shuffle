@@ -1,5 +1,6 @@
 package com.inpen.shuffle.playerscreen.playingqueue;
 
+import android.animation.Animator;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -9,7 +10,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.inpen.shuffle.R;
 import com.inpen.shuffle.model.repositories.QueueRepository;
@@ -28,6 +31,8 @@ public class PlayingQueueFragment extends Fragment implements PlayingQueueContra
 
     public PlayingQueueAdapter mPlayingQueueAdapter;
     PlayingQueueContract.PlayingQueueListener mActionsListener;
+    @BindView(R.id.playingQueueParent)
+    RelativeLayout mParentView;
     @BindView(R.id.playingQueueRecyclerView)
     RecyclerView mRecyclerView;
 
@@ -72,7 +77,48 @@ public class PlayingQueueFragment extends Fragment implements PlayingQueueContra
         super.onHiddenChanged(hidden);
 
         if (!hidden) {
-            mRecyclerView.scrollToPosition(QueueRepository.getInstance().getCurrentIndex());
+            showReveal();
+            mRecyclerView.smoothScrollToPosition(QueueRepository.getInstance().getCurrentIndex());
+        } else {
+            hideReveal();
+        }
+    }
+
+    public void showReveal() {
+        //doing reveal animation
+        int cx = (int) (mParentView.getMeasuredWidth() * 0.90f);
+        int cy = 0;
+
+        double hypt = Math.hypot(mParentView.getMeasuredHeight(), mParentView.getMeasuredWidth());
+        int finalRadius = (int) (hypt);
+
+        mParentView.setVisibility(View.VISIBLE);
+
+        try {
+            final Animator animator = ViewAnimationUtils.createCircularReveal(mParentView, cx, cy, 0, finalRadius);
+            animator.setDuration(400);
+            animator.start();
+        } catch (IllegalStateException e) {
+
+        }
+    }
+
+    public void hideReveal() {
+        //doing reveal animation
+        int cx = (int) (mParentView.getMeasuredWidth() * 0.90f);
+        int cy = 0;
+
+        double hypt = Math.hypot(mParentView.getMeasuredHeight(), mParentView.getMeasuredWidth());
+        int initialRadius = (int) (hypt);
+
+        mParentView.setVisibility(View.INVISIBLE);
+
+        try {
+            final Animator animator = ViewAnimationUtils.createCircularReveal(mParentView, cx, cy, initialRadius, 0);
+            animator.setDuration(400);
+            animator.start();
+        } catch (IllegalStateException e) {
+
         }
     }
 

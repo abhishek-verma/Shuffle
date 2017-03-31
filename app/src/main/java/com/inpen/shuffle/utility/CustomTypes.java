@@ -13,20 +13,22 @@ public class CustomTypes {
      */
 
     public enum ItemType {
-        ALBUM_KEY, ARTIST_KEY, PLAYLIST, GENRE, FOLDER;
+        SONG, ALBUM_KEY, ARTIST_KEY, PLAYLIST, GENRE, FOLDER;
 
         public static int toInt(ItemType it) {
             switch (it) {
-                case ALBUM_KEY:
+                case SONG:
                     return 0;
-                case ARTIST_KEY:
+                case ALBUM_KEY:
                     return 1;
-                case PLAYLIST:
+                case ARTIST_KEY:
                     return 2;
-                case GENRE:
+                case PLAYLIST:
                     return 3;
-                case FOLDER:
+                case GENRE:
                     return 4;
+                case FOLDER:
+                    return 5;
                 default:
                     return -1;
             }
@@ -35,14 +37,16 @@ public class CustomTypes {
         public static ItemType fromInt(int i) {
             switch (i) {
                 case 0:
-                    return ALBUM_KEY;
+                    return SONG;
                 case 1:
-                    return ARTIST_KEY;
+                    return ALBUM_KEY;
                 case 2:
-                    return PLAYLIST;
+                    return ARTIST_KEY;
                 case 3:
-                    return GENRE;
+                    return PLAYLIST;
                 case 4:
+                    return GENRE;
+                case 5:
                     return FOLDER;
                 default:
                     return null;

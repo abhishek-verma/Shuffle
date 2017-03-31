@@ -31,6 +31,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static android.view.View.GONE;
+
 /**
  * Used to manipulate fab
  * this class has no logic (any view is displayed, visible etc)
@@ -48,14 +50,17 @@ public class FabViewManager {
     private static final int MAX_ART_HEIGHT_ICON = 128;  // pixels
 
     private final FabViewManagerListener mFabManagerListener;
+    TextView mSelectedItemCountTextView;
     private ExecutorService mExecutorService;
     @CustomTypes.FabMode
     private int mFabMode = CustomTypes.FabMode.DISABLED;
     private ExtendedFab mExtendedFab;
+    private ImageButton mShuffleDeselectButton;
+    private TextView mShuffleTextView;
+    private View mBarView;
     private ImageButton mPlayPauseButton;
     private ImageButton mAddButton;
-    //    private ImageButton mClosePlayerButton;
-    private TextView mShuffleTextView;
+    private ImageButton mClosePlayerButton;
 
 
     FabViewManager(FabViewManagerListener listener) {
@@ -90,20 +95,28 @@ public class FabViewManager {
                         mFabManagerListener.plusButtonClicked();
                     }
                 });
-//        mClosePlayerButton = getImageButton(context.getDrawable(R.drawable.ic_clear_black_24dp),
-//                context,
-//                new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        mFabManagerListener.closePlayerClicked();
-//                    }
-//                });
+        mClosePlayerButton = getImageButton(context.getDrawable(R.drawable.ic_stop_black_24dp),
+                context,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mFabManagerListener.closePlayerClicked();
+                    }
+                });
+        mShuffleDeselectButton = getImageButton(context.getDrawable(R.drawable.ic_clear_black_24dp),
+                context,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mFabManagerListener.deselectButtonClicked();
+                    }
+                });
 
         mShuffleTextView = new TextView(context);
         mShuffleTextView.setText(context.getString(R.string.tap_to_shuffle));
         mShuffleTextView.setMaxLines(2);
         mShuffleTextView.setAlpha(0.7f);
-        mShuffleTextView.setVisibility(View.GONE);
+        mShuffleTextView.setVisibility(GONE);
         int padding = context.getResources().getDimensionPixelSize(R.dimen.fab_child_padding);
         mShuffleTextView.setPadding(padding, 0, padding, 0);
         mShuffleTextView.setGravity(Gravity.RIGHT);
@@ -115,9 +128,42 @@ public class FabViewManager {
             }
         });
 
+        mSelectedItemCountTextView = new TextView(context);
+        mSelectedItemCountTextView
+                .setTextSize(context
+                        .getResources()
+                        .getDimension(R.dimen.selected_count_text_size));
+        mSelectedItemCountTextView.setText("0");
+        mSelectedItemCountTextView.setTextColor(context
+                .getResources()
+                .getColor(R.color.black));
+        mSelectedItemCountTextView.setSingleLine();
+        mSelectedItemCountTextView.setVisibility(GONE);
+        mSelectedItemCountTextView.setPadding(padding, 0, padding, 0);
+        mSelectedItemCountTextView.setGravity(Gravity.CENTER);
+        mSelectedItemCountTextView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        mSelectedItemCountTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mFabManagerListener.deselectButtonClicked();
+            }
+        });
+
+        mBarView = new View(context);
+        mBarView.setLayoutParams(new FrameLayout.LayoutParams(
+                (int) context.getResources().getDimension(R.dimen.h_bar_width),
+                (int) context.getResources().getDimension(R.dimen.h_bar_height)));
+        mBarView.setBackgroundColor(context.getResources().getColor(R.color.h_bar_black));
+        mBarView.setVisibility(GONE);
+
+        mExtendedFab.addLeftView(mShuffleDeselectButton);
+        mExtendedFab.addLeftView(mSelectedItemCountTextView);
+        mExtendedFab.addLeftView(mBarView);
         mExtendedFab.addLeftView(mShuffleTextView);
         mExtendedFab.addLeftView(mAddButton);
+
         mExtendedFab.addRightView(mPlayPauseButton);
+        mExtendedFab.addRightView(mClosePlayerButton);
     }
 
     private ImageButton getImageButton(Drawable icon, Context context, View.OnClickListener listener) {
@@ -130,7 +176,7 @@ public class FabViewManager {
         btn.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         btn.setBackgroundResource(ResourceHelper.getBorderlessButtonBackground(context));
 
-        btn.setVisibility(View.GONE);
+        btn.setVisibility(GONE);
 
         btn.setOnClickListener(listener);
 
@@ -171,6 +217,9 @@ public class FabViewManager {
                         }
 
                         // adding text view
+                        mSelectedItemCountTextView.setVisibility(View.VISIBLE);
+                        mShuffleDeselectButton.setVisibility(View.VISIBLE);
+                        mBarView.setVisibility(View.VISIBLE);
                         mShuffleTextView.setVisibility(View.VISIBLE);
 
                         mFabMode = CustomTypes.FabMode.SHUFFLE;
@@ -195,7 +244,6 @@ public class FabViewManager {
 
     void showPlayerView(final MediaMetadataCompat metadata, final FragmentActivity activity) {
 
-
         // setting icon
         displayAlbumArt(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI), activity);
 
@@ -214,7 +262,7 @@ public class FabViewManager {
                         }
 
                         mPlayPauseButton.setVisibility(View.VISIBLE);
-//                      mExtendedFab.addRightView(mClosePlayerButton);
+                        mClosePlayerButton.setVisibility(View.VISIBLE);
 
                         mFabMode = CustomTypes.FabMode.PLAYER;
                     }
@@ -229,9 +277,13 @@ public class FabViewManager {
     }
 
     void hideAllViews() {
-        mPlayPauseButton.setVisibility(View.GONE);
-        mShuffleTextView.setVisibility(View.GONE);
-        mAddButton.setVisibility(View.GONE);
+        mSelectedItemCountTextView.setVisibility(GONE);
+        mShuffleDeselectButton.setVisibility(GONE);
+        mBarView.setVisibility(GONE);
+        mShuffleTextView.setVisibility(GONE);
+        mPlayPauseButton.setVisibility(GONE);
+        mAddButton.setVisibility(GONE);
+        mClosePlayerButton.setVisibility(GONE);
     }
 
     void updatePlayerMetadata(MediaMetadataCompat metadata, Context context) {
@@ -279,6 +331,9 @@ public class FabViewManager {
                 mExtendedFab.post(new Runnable() {
                     @Override
                     public void run() {
+                        mSelectedItemCountTextView.setVisibility(View.VISIBLE);
+                        mShuffleDeselectButton.setVisibility(View.VISIBLE);
+                        mBarView.setVisibility(View.VISIBLE);
                         mAddButton.setVisibility(View.VISIBLE);
                     }
                 });
@@ -293,7 +348,10 @@ public class FabViewManager {
                 mExtendedFab.post(new Runnable() {
                     @Override
                     public void run() {
-                        mAddButton.setVisibility(View.GONE);
+                        mSelectedItemCountTextView.setVisibility(GONE);
+                        mShuffleDeselectButton.setVisibility(GONE);
+                        mBarView.setVisibility(GONE);
+                        mAddButton.setVisibility(GONE);
                     }
                 });
             }
@@ -468,6 +526,7 @@ public class FabViewManager {
 
         void closePlayerClicked();
 
+        void deselectButtonClicked();
     }
 
 }

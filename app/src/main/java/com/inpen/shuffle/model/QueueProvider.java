@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 
+import com.inpen.shuffle.model.repositories.SelectedItemsRepository;
 import com.inpen.shuffle.model.repositories.SongsRepository;
 import com.inpen.shuffle.utility.CustomTypes;
 import com.inpen.shuffle.utility.StaticStrings;
@@ -30,11 +31,30 @@ public class QueueProvider {
      * Use generateShuffledQueueIds instead
      */
     @Deprecated
-    public List<MutableMediaMetadata> generateShuffledQuequeMetadata(List<String> selectorItemIdList, CustomTypes.ItemType itemType) {
+    public List<MutableMediaMetadata> generateShuffledQuequeMetadata(SelectedItemsRepository selectedItemsRepository) {
         SongsRepository songsRepository = new SongsRepository(mContext);
 
         // Get filtered song life from SongRepo
-        List<MutableMediaMetadata> songList = songsRepository.getSongsMetadataByFilter(selectorItemIdList, itemType);
+
+        List<MutableMediaMetadata> songList = songsRepository.getSongsMetadataByFilter(
+                selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.SONG),
+                CustomTypes.ItemType.SONG);
+        songList.addAll(songsRepository.getSongsMetadataByFilter(
+                selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.ALBUM_KEY),
+                CustomTypes.ItemType.ALBUM_KEY
+        ));
+        songList.addAll(songsRepository.getSongsMetadataByFilter(
+                selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.ARTIST_KEY),
+                CustomTypes.ItemType.ARTIST_KEY
+        ));
+        songList.addAll(songsRepository.getSongsMetadataByFilter(
+                selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.FOLDER),
+                CustomTypes.ItemType.FOLDER
+        ));
+        songList.addAll(songsRepository.getSongsMetadataByFilter(
+                selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.PLAYLIST),
+                CustomTypes.ItemType.PLAYLIST
+        ));
 
         // get liked mSongs from songRepo
         List<String> playlistAsList = new ArrayList<>();

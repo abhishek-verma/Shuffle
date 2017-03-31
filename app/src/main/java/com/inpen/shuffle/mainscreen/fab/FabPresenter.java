@@ -170,12 +170,20 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSelectedItemCountChanged(SelectedItemsRepository.SelectedItemCountChanged event) {
+        mFabView.updateSelectedItemCount(mSelectedItemsRepo.getSelectedItemCount());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMusicPlayerConnected(MainPresenter.MusicServiceConnectedEvent event) {
         mFabView.connectToMediaController();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onQueueIndexChanged(QueueRepository.QueueIndexChangedEvent event) {
+
+        if (!QueueRepository.getInstance().isInitialized())
+            return;
 
         MediaMetadataCompat metadata = QueueRepository.getInstance().getCurrentSong().metadata;
 
@@ -211,7 +219,7 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
 
                             SelectedItemsRepository
                                     .getInstance()
-                                    .clearItems(true); //TODO removed since it flickered the fab, do something else instead
+                                    .clearItems(); //TODO removed since it flickered the fab, do something else instead
                         }
                     }
                 });
@@ -236,7 +244,7 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
 
                             SelectedItemsRepository
                                     .getInstance()
-                                    .clearItems(true); //TODO removed since it flickered the fab, do something else instead
+                                    .clearItems(); //TODO removed since it flickered the fab, do something else instead
                         }
                     }
                 });
@@ -254,5 +262,22 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
     @Override
     public void closePlayerClicked() {
 
+        if (!mSelectedItemsRepo.isEmpty()) {
+            // show shuffle fab
+            mFabView.showShuffle();
+        } else {
+            // hide fab
+            mFabView.disableFAB();
+        }
+
+        mMediaMetadata = null;
+        mPlaybackState = null;
+        mTransportControls.stop();
+        mQueueRepo.clearQueue(mFabView.getFragmentActivity());
+    }
+
+    @Override
+    public void deselectButtonClicked() {
+        mSelectedItemsRepo.clearItems();
     }
 }

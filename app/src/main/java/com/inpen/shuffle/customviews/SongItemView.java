@@ -11,7 +11,7 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.inpen.shuffle.R;
-import com.inpen.shuffle.mainscreen.items.Item;
+import com.inpen.shuffle.mainscreen.items.SongItem;
 import com.inpen.shuffle.utility.LogHelper;
 
 import butterknife.BindView;
@@ -21,8 +21,8 @@ import butterknife.ButterKnife;
  * Created by Abhishek on 11/2/2016.
  */
 
-public class ItemView extends FrameLayout {
-    private static final String TAG = LogHelper.makeLogTag(ItemView.class);
+public class SongItemView extends FrameLayout {
+    private static final String TAG = LogHelper.makeLogTag(SongItemView.class);
     private static final int ANIMATION_DURATION = 275;
 
     @BindView(R.id.albumArt)
@@ -31,35 +31,35 @@ public class ItemView extends FrameLayout {
     public FixedRatioImageView mMaskView;
     @BindView(R.id.itemTitle)
     public TextView mTitleTextView;
-    @BindView(R.id.itemSongCount)
-    public TextView mCountView;
-    private Item mItem;
+    @BindView(R.id.songArtist)
+    public TextView mArtistView;
+    private SongItem mItem;
     private boolean mIsSelected = false;
 
-    public ItemView(Context context) {
+    public SongItemView(Context context) {
         super(context);
 
         initView(context);
     }
 
     private void initView(Context context) {
-        View.inflate(context, R.layout.item_view_layout, this);
+        View.inflate(context, R.layout.song_item_view_layout, this);
 
         ButterKnife.bind(this);
     }
 
-    public Item getItem() {
+    public SongItem getItem() {
         return mItem;
     }
 
-    public void setItem(Item item, boolean selected) {
+    public void setItem(SongItem item, boolean selected) {
         mItem = item;
 
         if (mTitleTextView != null)
             mTitleTextView.setText(mItem.title);
 
-        if (mCountView != null) {
-            mCountView.setText(getResources().getQuantityString(R.plurals.song_count, mItem.count, mItem.count));
+        if (mArtistView != null) {
+            mArtistView.setText(mItem.artist);
         }
 
         if (mAlbumArtView != null) {

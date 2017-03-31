@@ -133,6 +133,7 @@ public class FabFragment extends Fragment implements FabContract.FabView {
         }
     }
 
+
     @Override
     public void showShuffle() {
         mFabManager.showShuffleView(getActivity());
@@ -157,6 +158,9 @@ public class FabFragment extends Fragment implements FabContract.FabView {
         }
     }
 
-
+    @Override
+    public void updateSelectedItemCount(int count) {
+        mFabManager.mSelectedItemCountTextView.setText(Integer.toString(count));
+    }
 }
 

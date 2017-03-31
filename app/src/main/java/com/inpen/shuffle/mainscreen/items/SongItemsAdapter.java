@@ -5,7 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.inpen.shuffle.customviews.ItemView;
+import com.inpen.shuffle.customviews.SongItemView;
 import com.inpen.shuffle.model.repositories.SelectedItemsRepository;
 import com.inpen.shuffle.utility.CustomTypes;
 import com.inpen.shuffle.utility.LogHelper;
@@ -17,17 +17,17 @@ import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 /**
  * Created by Abhishek on 11/1/2016.
  */
-public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHolder> {
+public class SongItemsAdapter extends RecyclerView.Adapter<SongItemsAdapter.ItemViewHolder> {
 
-    private static final String LOG_TAG = LogHelper.makeLogTag(ItemsAdapter.class);
+    private static final String LOG_TAG = LogHelper.makeLogTag(SongItemsAdapter.class);
 
     private final SelectedItemsRepository mSelectedItemsRepository;
-    private List<Item> mItemList;
+    private List<SongItem> mItemList;
     private CustomTypes.ItemType mItemType;
 
-    public ItemsAdapter(@NonNull List<Item> itemList,
-                        @NonNull SelectedItemsRepository selectedItemsRepository,
-                        @NonNull CustomTypes.ItemType itemType) {
+    public SongItemsAdapter(@NonNull List<SongItem> itemList,
+                            @NonNull SelectedItemsRepository selectedItemsRepository,
+                            @NonNull CustomTypes.ItemType itemType) {
         mItemList = checkNotNull(itemList);
         mSelectedItemsRepository = checkNotNull(selectedItemsRepository);
         mItemType = checkNotNull(itemType);
@@ -44,18 +44,19 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
         notifyDataSetChanged();
     }
 
-    private void selectItem(Item item) {
+    private void selectItem(SongItem item) {
         // select item using selctedItemRepo
         mSelectedItemsRepository.addItem(item.id, mItemType);
     }
 
-    private void deselectItem(Item item) {
+    private void deselectItem(SongItem item) {
         mSelectedItemsRepository.removeItem(item.id, mItemType);
     }
 
     @SuppressWarnings("unchecked")
     private void setList(List<BaseItem> tasks) {
-        mItemList = (List<Item>) (Object) tasks;
+        mItemList = (List<SongItem>) (Object) tasks;
+
     }
 
     @Override
@@ -65,7 +66,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
 
     @Override
     public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        ItemView v = new ItemView(parent.getContext());
+        SongItemView v = new SongItemView(parent.getContext());
 
         return new ItemViewHolder(v);
     }
@@ -80,7 +81,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
         super.onViewRecycled(holder);
     }
 
-    private boolean toggleSelectionForItem(Item item) {
+    private boolean toggleSelectionForItem(SongItem item) {
 //        LogHelper.v(LOG_TAG, "toggleSelectionForItem- title: " + item.title);
 
         boolean selected = mSelectedItemsRepository.hasItem(item.id, mItemType);
@@ -102,17 +103,17 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
 
     public class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        ItemView mItemView;
+        SongItemView mItemView;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
-            mItemView = (ItemView) itemView;
+            mItemView = (SongItemView) itemView;
         }
 
         @Override
         public void onClick(View view) {
 
-            ItemView itemView = (ItemView) view;
+            SongItemView itemView = (SongItemView) view;
 
 //            LogHelper.v(LOG_TAG, "view with itemId: " + itemView.getItem().id + " clicked! ");
 
@@ -120,7 +121,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
             itemView.setSelected(select);
         }
 
-        public void bind(Item item) {
+        public void bind(SongItem item) {
             mItemView.setItem(item, mSelectedItemsRepository.hasItem(item.id, mItemType));
             mItemView.setOnClickListener(this);
         }

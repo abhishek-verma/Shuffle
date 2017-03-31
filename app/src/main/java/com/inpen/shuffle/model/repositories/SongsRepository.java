@@ -164,6 +164,17 @@ public class SongsRepository {
         Cursor songsDataCursor = null;
 
         switch (itemType) {
+            case SONG:
+                songsDataCursor = mContext.getContentResolver()
+                        .query(MediaContract.MediaEntry.CONTENT_URI,
+                                projection,
+                                MediaContract.MediaEntry.COLUMN_SONG_ID
+                                        + " IN ("
+                                        + getStringFromSelectorItems(filterItems)
+                                        + ")",
+                                null, null
+                        );
+                break;
             case ALBUM_KEY:
                 songsDataCursor = mContext.getContentResolver()
                         .query(MediaContract.MediaEntry.CONTENT_URI,

@@ -33,7 +33,7 @@ public class MediaContract {
 
         // Column names
         public static final String COLUMN_SONG_ID = "song_id";
-        public static final String COLUMN_TITLE = "title";
+        public static final String COLUMN_TITLE = "title"; //song title
         public static final String COLUMN_ALBUM = "album";
         public static final String COLUMN_ALBUM_KEY = "album_id";
         public static final String COLUMN_ARTIST = "artist";

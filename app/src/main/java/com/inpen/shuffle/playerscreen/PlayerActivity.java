@@ -1,5 +1,6 @@
 package com.inpen.shuffle.playerscreen;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -19,7 +20,8 @@ import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.Window;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -143,6 +145,32 @@ public class PlayerActivity extends AppCompatActivity
             mPlayerActivityPresenter.showPlaylistClicked();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            LogHelper.d(LOG_TAG, "x: " + event.getX() + ", y: " + event.getY());
+            if (!mPlayingQueueFragment.isHidden()) {
+
+                Rect rect = new Rect();
+                View fragmentView = mPlayingQueueFragment.getView();
+                fragmentView.getHitRect(rect);
+
+                rect.left = 0;
+                rect.top = 0;
+                rect.right = rect.left + fragmentView.getWidth();
+                rect.bottom = (int) (rect.top + fragmentView.getHeight() * 1.5f);
+
+                LogHelper.d(LOG_TAG, "left: " + rect.left + ", right: " + rect.right + ", top: " + rect.top + ", bottom: " + rect.bottom);
+
+                LogHelper.d(LOG_TAG, "is inside fragment: " + rect.contains((int) event.getX(), (int) event.getY()));
+                if (!rect.contains((int) event.getX(), (int) event.getY())) {
+                    togglePlaylistVisibility();
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event);
     }
 
     private void setupFragments() {
@@ -275,13 +303,12 @@ public class PlayerActivity extends AppCompatActivity
 
         if (mPlayingQueueFragment.isHidden()) {
             ft.show(mPlayingQueueFragment);
-            Window window = getWindow();
 
-            getSupportActionBar().setBackgroundDrawable(getDrawable(R.drawable.appbar_black_bg));
+//            getSupportActionBar().setBackgroundDrawable(getDrawable(R.drawable.appbar_black_bg));
         } else {
             ft.hide(mPlayingQueueFragment);
 
-            getSupportActionBar().setBackgroundDrawable(getDrawable(R.drawable.appbar_trans_bg));
+//            getSupportActionBar().setBackgroundDrawable(getDrawable(R.drawable.appbar_trans_bg));
         }
 
         ft.commit();

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:background="@color/white"
+    android:clipToPadding="false"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingBottom="5dp"
+        android:paddingStart="16dp"
+        android:paddingTop="5dp">
+
+        <com.inpen.shuffle.customviews.FixedRatioImageView
+            android:id="@+id/albumArt"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:background="@drawable/album_art_bg"
+            android:foreground="?attr/selectableItemBackground"
+            android:scaleType="centerCrop" />
+
+        <com.inpen.shuffle.customviews.FixedRatioImageView
+            android:id="@+id/mask"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:alpha="0"
+            android:background="@drawable/mask_bg"
+            android:scaleType="center"
+            android:src="@drawable/ic_selected_24dp" />
+    </FrameLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:paddingEnd="16dp"
+        android:paddingStart="16dp">
+
+        <TextView
+            android:id="@+id/itemTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/songItemOptionBtn"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Song Title"
+            android:textColor="@color/lt_black"
+            android:textSize="@dimen/item_view_title_text_size" />
+
+        <TextView
+            android:id="@+id/songArtist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/itemTitle"
+            android:layout_toStartOf="@id/songItemOptionBtn"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Singer Name"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/item_view_count_text_size" />
+
+        <ImageButton
+            android:id="@+id/songItemOptionBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="@string/options"
+            android:padding="12dp"
+            android:src="@drawable/ic_more_vert_black_24dp" />
+    </RelativeLayout>
+
+</LinearLayout>

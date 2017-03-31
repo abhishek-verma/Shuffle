@@ -1,10 +1,9 @@
 package com.inpen.shuffle.mainscreen.items;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,32 +20,24 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
-
-public class ItemsFragment extends Fragment implements ItemsContract.ItemsView {
+public class SongItemsFragment extends Fragment implements ItemsContract.ItemsView {
 
     private static final String EXTRA_INT_ITEM_TYPE = "item_type";
-    public ItemsAdapter mItemsAdapter;
+    public SongItemsAdapter mItemsAdapter;
     ItemsContract.ItemsFragmentListener mActionsListener;
     @BindView(R.id.itemRecyclerView)
     RecyclerView mRecyclerView;
     @BindView(R.id.emptyView)
     TextView mEmptyView;
-    private CustomTypes.ItemType mItemType;
+    private CustomTypes.ItemType mItemType = CustomTypes.ItemType.SONG;
 
-    public ItemsFragment() {
+    public SongItemsFragment() {
         // Required empty public constructor
     }
 
-    public static ItemsFragment newInstance(@NonNull CustomTypes.ItemType itemType) {
+    public static SongItemsFragment newInstance() {
 
-        ItemsFragment f = new ItemsFragment();
-        Bundle args = new Bundle();
-        args.putInt(EXTRA_INT_ITEM_TYPE, checkNotNull(CustomTypes.ItemType.toInt(itemType)));
-
-        f.setArguments(args);
-        f.setRetainInstance(true);
-
+        SongItemsFragment f = new SongItemsFragment();
         return f;
     }
 
@@ -54,14 +45,11 @@ public class ItemsFragment extends Fragment implements ItemsContract.ItemsView {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        handleArguments();
-
         mActionsListener = new ItemsPresenter(getLoaderManager(),
                 getContext(),
                 this,
                 mItemType,
                 SelectedItemsRepository.getInstance());
-
     }
 
     @Override
@@ -71,25 +59,13 @@ public class ItemsFragment extends Fragment implements ItemsContract.ItemsView {
         mActionsListener.initialize();
     }
 
-    private void handleArguments() {
-
-        Bundle b = getArguments();
-
-        if (b != null) {
-            mItemType = CustomTypes.ItemType.fromInt(getArguments().getInt(EXTRA_INT_ITEM_TYPE));
-        } else {
-            mItemType = CustomTypes.ItemType.ALBUM_KEY;
-        }
-
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_items, container, false);
+        View view = inflater.inflate(R.layout.fragment_song_items, container, false);
 
-        mItemsAdapter = new ItemsAdapter(new ArrayList<Item>(0), SelectedItemsRepository.getInstance(), mItemType);
+        mItemsAdapter = new SongItemsAdapter(new ArrayList<SongItem>(0), SelectedItemsRepository.getInstance(), mItemType);
 
         ButterKnife.bind(this, view);
 
@@ -98,7 +74,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.ItemsView {
         mRecyclerView.setHasFixedSize(true);
 
         // Create a grid layout with two columns
-        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.supportsPredictiveItemAnimations(); //TODO this line is added so tha views animate on clearitems, remove if dosent work
 
         mRecyclerView.setLayoutManager(layoutManager);

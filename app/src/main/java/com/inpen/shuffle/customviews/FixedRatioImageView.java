@@ -1,14 +1,14 @@
 package com.inpen.shuffle.customviews;
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 
 /**
  * Created by Abhishek on 12/20/2016.
  */
 
-public class FixedRatioImageView extends ImageView {
+public class FixedRatioImageView extends AppCompatImageView {
     private static float HEIGHT_TO_WIDTH_RATIO = 1; // height/width
 
     public FixedRatioImageView(Context context) {
@@ -21,10 +21,6 @@ public class FixedRatioImageView extends ImageView {
 
     public FixedRatioImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-    }
-
-    public FixedRatioImageView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
     }
 
     @Override

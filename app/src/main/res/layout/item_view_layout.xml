@@ -32,9 +32,9 @@
             android:layout_height="wrap_content"
             android:alpha="0"
             android:background="@drawable/mask_bg"
-            android:elevation="4dp"
+            android:elevation="5dp"
             android:scaleType="center"
-            android:src="@drawable/ic_selected_white_24dp" />
+            android:src="@drawable/ic_selected_24dp" />
     </FrameLayout>
 
     <TextView

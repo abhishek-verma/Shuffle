@@ -28,6 +28,8 @@ interface FabContract {
 
         void removePlus();
 
+        void updateSelectedItemCount(int count);
+
     }
 
     interface InteractionsListener {
