@@ -207,7 +207,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
             mSessionToken = freshToken;
             if (mSessionToken != null) {
                 mController = new MediaControllerCompat(mMusicService, mSessionToken);
-                mTransportControls = mController.getTransportControls();
+                 mTransportControls = mController.getTransportControls();
                 if (mStarted) {
                     mController.registerCallback(mControllerCallback);
                 }
@@ -302,7 +302,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
 //        openUI.putExtra(MusicPlayerActivity.EXTRA_START_FULLSCREEN, true);
 //        if (description != null) {
 //            openUI.putExtra(MusicPlayerActivity.EXTRA_CURRENT_MEDIA_DESCRIPTION, description);
-//        }
+//        } ```````
         return PendingIntent.getActivity(mMusicService, REQUEST_CODE, openUI,
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }

@@ -1,6 +1,7 @@
 package com.inpen.shuffle.model;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 
@@ -31,30 +32,35 @@ public class QueueProvider {
      * Use generateShuffledQueueIds instead
      */
     @Deprecated
-    public List<MutableMediaMetadata> generateShuffledQuequeMetadata(SelectedItemsRepository selectedItemsRepository) {
+    public List<MutableMediaMetadata> generateShuffledQueueMetadata(@Nullable SelectedItemsRepository selectedItemsRepository) {
         SongsRepository songsRepository = new SongsRepository(mContext);
 
-        // Get filtered song life from SongRepo
+        List<MutableMediaMetadata> songList;
 
-        List<MutableMediaMetadata> songList = songsRepository.getSongsMetadataByFilter(
-                selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.SONG),
-                CustomTypes.ItemType.SONG);
-        songList.addAll(songsRepository.getSongsMetadataByFilter(
-                selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.ALBUM_KEY),
-                CustomTypes.ItemType.ALBUM_KEY
-        ));
-        songList.addAll(songsRepository.getSongsMetadataByFilter(
-                selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.ARTIST_KEY),
-                CustomTypes.ItemType.ARTIST_KEY
-        ));
-        songList.addAll(songsRepository.getSongsMetadataByFilter(
-                selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.FOLDER),
-                CustomTypes.ItemType.FOLDER
-        ));
-        songList.addAll(songsRepository.getSongsMetadataByFilter(
-                selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.PLAYLIST),
-                CustomTypes.ItemType.PLAYLIST
-        ));
+        if(selectedItemsRepository != null) {
+            // Get filtered song life from SongRepo
+            songList = songsRepository.getSongsMetadataByFilter(
+                    selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.SONG),
+                    CustomTypes.ItemType.SONG);
+            songList.addAll(songsRepository.getSongsMetadataByFilter(
+                    selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.ALBUM_KEY),
+                    CustomTypes.ItemType.ALBUM_KEY
+            ));
+            songList.addAll(songsRepository.getSongsMetadataByFilter(
+                    selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.ARTIST_KEY),
+                    CustomTypes.ItemType.ARTIST_KEY
+            ));
+            songList.addAll(songsRepository.getSongsMetadataByFilter(
+                    selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.FOLDER),
+                    CustomTypes.ItemType.FOLDER
+            ));
+            songList.addAll(songsRepository.getSongsMetadataByFilter(
+                    selectedItemsRepository.getSelectedItemList(CustomTypes.ItemType.PLAYLIST),
+                    CustomTypes.ItemType.PLAYLIST
+            ));
+        } else {
+            songList = songsRepository.getAllSongs();
+        }
 
         // get liked mSongs from songRepo
         List<String> playlistAsList = new ArrayList<>();

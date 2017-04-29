@@ -1,11 +1,14 @@
 package com.inpen.shuffle.playback;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.telephony.TelephonyManager;
+import android.view.KeyEvent;
 
 import com.inpen.shuffle.model.MutableMediaMetadata;
 import com.inpen.shuffle.model.repositories.QueueRepository;
@@ -33,6 +36,30 @@ public class PlaybackManager implements Playback.Callback {
     private QueueRepository mQueueRepository;
 
     private MediaSessionCompat.Callback mMediaSessionCallback = new MediaSessionCompat.Callback() {
+
+        private long lastClick;
+
+        @Override
+        public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
+            KeyEvent ke = mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+
+            switch (ke.getKeyCode()) {
+                case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                case KeyEvent.KEYCODE_HEADSETHOOK:
+                    if (ke.getAction() == KeyEvent.ACTION_DOWN) {
+                        long eventtime = ke.getEventTime();
+                        if ((eventtime - lastClick) < 300) {
+                            onSkipToNext();
+                            lastClick = 0;
+                        } else {
+                            lastClick = eventtime;
+                        }
+                    }
+                    break;
+            }
+            return super.onMediaButtonEvent(mediaButtonEvent);
+        }
+
         @Override
         public void onPlay() {
             super.onPlay();

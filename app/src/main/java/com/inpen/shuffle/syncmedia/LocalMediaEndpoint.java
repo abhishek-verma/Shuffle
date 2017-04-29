@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.inpen.shuffle.model.MutableMediaMetadata;
 import com.inpen.shuffle.model.database.MediaContract;
@@ -31,7 +32,9 @@ public class LocalMediaEndpoint implements MediaEndpoint {
     public void syncMedia(Callback callback) {
 
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";
+        String selection = MediaStore.Audio.Media.IS_MUSIC + "!=0" +
+                " and " +
+                MediaStore.Audio.Media.DATA + "<> ''";
         String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
 
         final int COL_INDEX_ID = 0;
@@ -72,6 +75,12 @@ public class LocalMediaEndpoint implements MediaEndpoint {
                 String artistKey = cur.getString(COL_INDEX_ARTIST_KEY).replaceAll("[^\\w\\s\\-_]", "");
                 String albumArt = getAlbumArtForAlbum(cur.getInt(COL_INDEX_ALBUM_ID));
 
+
+                if(path.equals("")) {
+                    LogHelper.e(TAG, "path is empty for item: " + title);
+                    continue;
+                }
+
                 cv = new ContentValues();
                 cv.put(MediaContract.MediaEntry._ID, id);
                 cv.put(MediaContract.MediaEntry.COLUMN_SONG_ID, MutableMediaMetadata.generateTrackID(title, artist, duration));
@@ -84,6 +93,7 @@ public class LocalMediaEndpoint implements MediaEndpoint {
                 cv.put(MediaContract.MediaEntry.COLUMN_DURATION, Long.toString(duration));
                 cv.put(MediaContract.MediaEntry.COLUMN_FOLDER_PATH, MediaContract.MediaEntry.getFolderPathFromFullPath(path));
                 cv.put(MediaContract.MediaEntry.COLUMN_ALBUM_ART, albumArt);
+
                 cvVector.add(cv);
             } while (cur.moveToNext());
         }
@@ -93,8 +103,6 @@ public class LocalMediaEndpoint implements MediaEndpoint {
 
         int inserted = 0;
 
-        // removing all previous items
-//        mContext.getContentResolver().delete(MediaContract.MediaEntry.CONTENT_URI, null, null);
         // adding to db
         if (cvVector.size() > 0) {
             ContentValues[] cvArray = new ContentValues[cvVector.size()];
@@ -102,7 +110,6 @@ public class LocalMediaEndpoint implements MediaEndpoint {
             try {
                 inserted = mContext.getContentResolver().bulkInsert(MediaContract.MediaEntry.CONTENT_URI, cvArray);
             } catch (SQLiteConstraintException exception) {
-                // FIXME since not all songs are being inserted [IMPORTANT}
                 // try removing this try-catch to find the error
                 LogHelper.e(TAG, "Cannot insert into database! ERROR: " + exception);
             }

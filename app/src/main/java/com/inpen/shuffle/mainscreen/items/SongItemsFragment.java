@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.inpen.shuffle.R;
@@ -19,6 +20,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class SongItemsFragment extends Fragment implements ItemsContract.ItemsView {
 
@@ -29,6 +31,8 @@ public class SongItemsFragment extends Fragment implements ItemsContract.ItemsVi
     RecyclerView mRecyclerView;
     @BindView(R.id.emptyView)
     TextView mEmptyView;
+    @BindView(R.id.shuffleAllParent)
+    ViewGroup mShuffleAllParent;
     private CustomTypes.ItemType mItemType = CustomTypes.ItemType.SONG;
 
     public SongItemsFragment() {
@@ -107,12 +111,17 @@ public class SongItemsFragment extends Fragment implements ItemsContract.ItemsVi
         mItemsAdapter.replaceData(itemList);
 
         if (itemList == null || itemList.size() == 0) {
-            mRecyclerView.setVisibility(View.GONE);
+            mShuffleAllParent.setVisibility(View.GONE);
             mEmptyView.setVisibility(View.VISIBLE);
         } else {
-            mRecyclerView.setVisibility(View.VISIBLE);
+            mShuffleAllParent.setVisibility(View.VISIBLE);
             mEmptyView.setVisibility(View.GONE);
         }
+    }
+
+    @OnClick(R.id.shuffleAllParent)
+    public void onShuffleAllClicked() {
+        mActionsListener.shuffleAllClicked(getActivity());
     }
 
     @Override

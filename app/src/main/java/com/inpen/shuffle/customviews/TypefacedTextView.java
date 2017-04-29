@@ -58,4 +58,9 @@ public class TypefacedTextView extends TextView {
 
         }
     }
+
+    public void applyTypeface(String fontPath) {
+        Typeface tf = FontCache.getInstance().getTypeface(fontPath, getContext());
+        setTypeface(tf);
+    }
 }

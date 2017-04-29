@@ -1,30 +1,69 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/itemFragmentParent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/dr_white">
 
-    <FrameLayout
+    <TextView
+        android:id="@+id/emptyView"
+        style="@style/EmptyView"
+        android:text="@string/no_items_message" />
+
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/songListParent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginEnd="10dp"
         android:layout_marginStart="10dp"
         android:background="@color/white"
-        android:elevation="4dp">
+        android:elevation="2dp">
 
-        <TextView
-            android:id="@+id/emptyView"
-            style="@style/EmptyView"
-            android:text="@string/no_items_message" />
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/song_list_item_height"
+            android:background="@drawable/bottom_border_bg"
+            app:elevation="0dp"
+            app:layout_scrollFlags="scroll">
+
+            <RelativeLayout
+                android:id="@+id/shuffleAllParent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:foreground="?android:selectableItemBackground"
+                app:layout_scrollFlags="scroll">
+
+                <ImageView
+                    android:id="@+id/shuffle_all_icon"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="16dp"
+                    android:src="@drawable/ic_shuffle_black_24dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@id/shuffle_all_icon"
+                    android:paddingEnd="16dp"
+                    android:paddingStart="16dp"
+                    android:text="@string/shuffle_all"
+                    android:textColor="@color/lt_black"
+                    android:textSize="@dimen/song_item_title_text_size" />
+            </RelativeLayout>
+        </android.support.design.widget.AppBarLayout>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/itemRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingTop="8dp"
-            android:scrollbars="vertical" />
-    </FrameLayout>
+            android:scrollbars="vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+    </android.support.design.widget.CoordinatorLayout>
 
 
 </FrameLayout>

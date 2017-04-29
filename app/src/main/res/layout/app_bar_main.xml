@@ -1,58 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="com.inpen.shuffle.mainscreen.MainActivity">
+    android:layout_height="wrap_content">
 
-    <android.support.design.widget.AppBarLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <!--to remove a white space during guillotine bounce animation-->
+        <View
+            android:layout_gravity="top"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/guillotine_actionbar_background_view_height"
+            android:background="@color/guillotine_background"
+            />
 
         <android.support.v7.widget.Toolbar
+            android:layout_gravity="top"
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary">
+            android:background="?attr/colorAccent"
+            app:contentInsetStart="0dp">
 
-            <TextView
-                android:id="@+id/toolbar_title"
+            <ImageView
+                android:id="@+id/content_hamburger"
+                style="@style/ImageView.Hamburger"
+                android:src="@drawable/ic_menu_90" />
+
+            <com.inpen.shuffle.customviews.CanaroTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:letterSpacing="0.6"
-                android:text="@string/choose_from"
-                android:textColor="@color/chooseFromTextColor"
-                android:textSize="@dimen/choose_from_text_size"
-                android:textStyle="bold"
-                android:typeface="monospace" />
+                android:textColor="@color/white"
+                android:text="@string/shuffle"
+                android:textSize="@dimen/guillotine_item_text_size" />
         </android.support.v7.widget.Toolbar>
+    </FrameLayout>
 
-        <com.inpen.shuffle.customviews.CustomTabLayout
-            android:id="@+id/tab_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:foregroundGravity="center"
-            app:tabGravity="center"
-            app:tabIndicatorHeight="0dp"
-            app:tabMode="scrollable"
-            app:tabSelectedTextColor="@color/selectedTabTextColor"
-            app:tabTextAppearance="@style/CustomTab.Text"
-            app:tabTextColor="@color/tabTextColor" />
-
-    </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/content_main" />
-
-    <FrameLayout
-        android:id="@+id/fabFragmentContainer"
-        android:layout_width="match_parent"
+    <com.inpen.shuffle.customviews.CustomTabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:clipToPadding="false" />
+        android:layout_gravity="center"
+        android:foregroundGravity="center"
+        app:tabGravity="center"
+        app:tabIndicatorHeight="0dp"
+        app:tabMode="scrollable"
+        app:tabSelectedTextColor="@color/selectedTabTextColor"
+        app:tabTextAppearance="@style/CustomTab.Text"
+        app:tabTextColor="@color/tabTextColor" />
 
-
-</android.support.design.widget.CoordinatorLayout>
+</android.support.design.widget.AppBarLayout>

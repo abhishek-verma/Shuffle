@@ -2,7 +2,7 @@
     <string name="app_name">Shuffle</string>
 
     <string name="no_items_message">No Items Available</string>
-    <string name="choose_from">CHOOSE FROM</string>
+    <string name="shuffle">SHUFFLE</string>
     <string name="tap_to_shuffle">\"Tap to shuffle\nand play!\"</string>
 
 
@@ -26,5 +26,14 @@
     <string name="play_icon_top_path_name">playIconTopPath</string>
     <string name="play_icon_group_bottom">playIconBottomGroup</string>
     <string name="play_icon_bottom_path_name">playIconBottomPath</string>
+
+
     <string name="options">Options</string>
+
+
+    <string name="profile">PROFILE</string>
+    <string name="home">HOME</string>
+    <string name="timer">TIMER</string>
+    <string name="settings">SETTINGS</string>
+    <string name="shuffle_all">SHUFFLE ALL SONGS</string>
 </resources>

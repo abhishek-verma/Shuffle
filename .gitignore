@@ -3,7 +3,11 @@
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries
+/.idea/misc.xml
 .DS_Store
 /build
 /captures
 .externalNativeBuild
+app/libs/
+extendedfab/libs/
+playpausebutton/libs/

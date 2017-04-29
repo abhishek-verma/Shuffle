@@ -100,11 +100,11 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
     }
 
 
-    public class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ItemView mItemView;
 
-        public ItemViewHolder(View itemView) {
+        ItemViewHolder(View itemView) {
             super(itemView);
             mItemView = (ItemView) itemView;
         }

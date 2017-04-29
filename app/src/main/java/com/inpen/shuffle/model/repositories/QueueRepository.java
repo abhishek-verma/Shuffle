@@ -57,6 +57,62 @@ public class QueueRepository {
         return mQueueRepositoryInstance;
     }
 
+    public void initializeShuffleAll(final Context context, @Nullable final RepositoryInitializedCallback repositoryInitializedCallback) {
+
+        // Asynchronously load the music catalog in a separate thread
+        new AsyncTask<Void, Void, Integer>() {
+
+            @Override
+            protected Integer doInBackground(Void... voids) {
+
+                try {
+
+                    mCurrentState = CustomTypes.RepositoryState.INITIALIZING;
+
+                    QueueProvider queueProvider = new QueueProvider(context);
+
+                    mPlayingQueue = queueProvider
+                            .generateShuffledQueueMetadata(null);
+
+
+                    queueProvider.shuffle(mPlayingQueue);
+
+                    mCurrentTrackIndex = -1;
+
+                    if (mPlayingQueue != null)
+                        mCurrentState = INITIALIZED;
+
+//                    // store playlist asynchronously
+//                    new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            storeQueue(context);
+//                        }
+//                    }.run();
+
+                } catch (Exception e) {
+
+                    if (mCurrentState != INITIALIZED) {
+                        // Something bad happened, so we reset state to NON_INITIALIZED to allow
+                        // retries (eg if the network connection is temporary unavailable)
+                        mCurrentState = CustomTypes.RepositoryState.NON_INITIALIZED;
+                    }
+                }
+
+                return mCurrentState;
+            }
+
+            @Override
+            protected void onPostExecute(Integer repoState) {
+                super.onPostExecute(repoState);
+
+                if (repositoryInitializedCallback != null) {
+                    repositoryInitializedCallback.onRepositoryInitialized(isInitialized() && mPlayingQueue.size() > 0);
+                }
+            }
+        }.execute();
+    }
+
     public synchronized void initialize(@NonNull final Context context,
                                         @Nullable final SelectedItemsRepository selectedItemsRepository,
                                         @Nullable final RepositoryInitializedCallback repositoryInitializedCallback) {
@@ -256,7 +312,7 @@ public class QueueRepository {
         QueueProvider queueProvider = new QueueProvider(context);
 
         List<MutableMediaMetadata> playingQueue = queueProvider
-                .generateShuffledQuequeMetadata(selectedItemsRepository);
+                .generateShuffledQueueMetadata(selectedItemsRepository);
 
 
         queueProvider.shuffle(playingQueue);
@@ -272,7 +328,7 @@ public class QueueRepository {
         QueueProvider queueProvider = new QueueProvider(context);
 
         List<MutableMediaMetadata> newQueue = queueProvider
-                .generateShuffledQuequeMetadata(selectedItemsRepository);
+                .generateShuffledQueueMetadata(selectedItemsRepository);
 
         MutableMediaMetadata[] queueArray = newQueue.toArray(new MutableMediaMetadata[newQueue.size()]);
 

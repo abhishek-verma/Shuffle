@@ -4,11 +4,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
 import com.inpen.shuffle.model.database.MediaContract;
+import com.inpen.shuffle.model.repositories.QueueRepository;
 import com.inpen.shuffle.model.repositories.SelectedItemsRepository;
 import com.inpen.shuffle.utility.CustomTypes;
 
@@ -77,6 +79,27 @@ public class ItemsPresenter
 
     }
 
+    @Override
+    public void shuffleAllClicked(final FragmentActivity activity) {
+        // Play all songs
+        QueueRepository.getInstance().initializeShuffleAll(mContext,
+                new QueueRepository.RepositoryInitializedCallback() {
+                    @Override
+                    public void onRepositoryInitialized(boolean success) {
+                        if (success) {
+                            activity
+                                    .getSupportMediaController()
+                                    .getTransportControls()
+                                    .play();
+
+                            SelectedItemsRepository
+                                    .getInstance()
+                                    .clearItems(); //TODO removed since it flickered the fab, do something else instead
+                        }
+                    }
+                });
+    }
+
     /**
      * Called when {@link SelectedItemsRepository} all items deselected.
      */
@@ -93,7 +116,7 @@ public class ItemsPresenter
         String selection;
         switch (mItemType) {
             case SONG:
-                selection = MediaContract.MediaEntry.COLUMN_TITLE + " NOT NULL ;intended;";
+                selection = MediaContract.MediaEntry.COLUMN_TITLE + " NOT NULL";
                 return new CursorLoader(mContext,
                         MediaContract.MediaEntry.CONTENT_URI,
                         SONGS_QUERY_CURSOR_COLUMNS,

@@ -1,13 +1,20 @@
 package com.inpen.shuffle.playback;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.telephony.TelephonyManager;
+import android.view.KeyEvent;
 
 import com.inpen.shuffle.model.MutableMediaMetadata;
 import com.inpen.shuffle.model.repositories.QueueRepository;
@@ -53,7 +60,7 @@ public class MusicService extends Service
         super.onCreate();
 
         mMediaSession = new MediaSessionCompat(this,
-                MusicService.class.getSimpleName()); // TODO use other constructor for mediabuttonreciever {@Link "https://www.youtube.com/watch?v=FBC1FgWe5X4" }
+                MusicService.class.getSimpleName()); // constructor using for mediaButtonReciever {@Link "https://www.youtube.com/watch?v=FBC1FgWe5X4" }
 
         mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
@@ -83,7 +90,7 @@ public class MusicService extends Service
                 mPlaybackManager.handlePlayRequest();
             }
         } else {
-            // Try to handle the intent as a media button event wrapped by MediaButtonReceiver
+            // Try to handle the intent as a media button event wrapped by CustomMediaButtonReceiver
             MediaButtonReceiver.handleIntent(mMediaSession, startIntent);
         }
 
@@ -204,5 +211,4 @@ public class MusicService extends Service
             return MusicService.this;
         }
     }
-
 }

@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -15,12 +16,16 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.FrameLayout;
 
 import com.inpen.shuffle.R;
 import com.inpen.shuffle.mainscreen.fab.FabFragment;
 import com.inpen.shuffle.mainscreen.items.ItemsFragment;
 import com.inpen.shuffle.mainscreen.items.SongItemsFragment;
 import com.inpen.shuffle.utility.CustomTypes;
+import com.yalantis.guillotine.animation.GuillotineAnimation;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,16 +34,21 @@ public class MainActivity extends AppCompatActivity
         implements MainScreenContract.MainView {
 
     private static final int PERMISSION_REQUEST_CODE = 0;
+    private static final long RIPPLE_DURATION = 250;
 
 
     MainScreenContract.ActivityActionsListener mActivityActionsListener;
 
+    @BindView(R.id.root)
+    FrameLayout mRootView;
     @BindView(R.id.viewpager)
     ViewPager mViewPager;
     @BindView(R.id.tab_layout)
     TabLayout mTabLayout;
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
+    @BindView(R.id.content_hamburger)
+    View contentHamburger;
 
     private MyPagerAdapter mFragmentAdapter;
     private FabFragment mFabFragment;
@@ -66,6 +76,7 @@ public class MainActivity extends AppCompatActivity
         mActivityActionsListener.init(this);
 
         setupAdapterAndViewPager();
+        setupGuillotineMenu();
     }
 
     @Override
@@ -95,6 +106,18 @@ public class MainActivity extends AppCompatActivity
 
         //Set up the Tablayout
         mTabLayout.setupWithViewPager(mViewPager);
+    }
+
+    private void setupGuillotineMenu() {
+
+        View guillotineMenu = LayoutInflater.from(this).inflate(R.layout.guillotine, null);
+        mRootView.addView(guillotineMenu);
+
+        new GuillotineAnimation.GuillotineBuilder(guillotineMenu, guillotineMenu.findViewById(R.id.guillotine_hamburger), contentHamburger)
+                .setStartDelay(RIPPLE_DURATION)
+                .setActionBarViewForAnimation(mToolbar)
+                .setClosedOnStart(true)
+                .build();
     }
 
     private void setupFabFragment() {

@@ -1,6 +1,7 @@
 package com.inpen.shuffle.mainscreen.items;
 
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 
 import com.inpen.shuffle.model.database.MediaContract;
 
@@ -65,6 +66,8 @@ class ItemsContract {
         void itemClicked(Item item);
 
         void stop();
+
+        void shuffleAllClicked(FragmentActivity activity);
     }
 
 }

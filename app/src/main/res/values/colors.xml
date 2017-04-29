@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#fff</color>
-    <color name="colorPrimaryDark">#b6b6b6</color>
+    <color name="colorPrimaryDark">#4885ed</color>
     <color name="colorAccent">#4885ed</color>
 
     <color name="colorAccentFaded">#774885ed</color>
@@ -27,4 +27,7 @@
     <color name="appbar_overlay_color">#bb1d1d20</color>
     <color name="h_bar_black">#44000000</color>
 
+    <color name="guillotine_background">@color/colorAccent</color>
+    <color name="guillotine_background_dark">#0d48ae</color>
+    <color name="selected_item_color">#ffffff</color>
 </resources>
