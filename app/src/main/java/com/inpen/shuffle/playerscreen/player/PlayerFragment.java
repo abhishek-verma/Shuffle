@@ -72,7 +72,7 @@ public class PlayerFragment extends Fragment implements PlayerFragmentContract.P
 
         Glide.with(getContext())
                 .load(albumArtUrl)
-                .error(getResources().getDrawable(R.drawable.ic_loading_circle, null))
+                .error(getResources().getDrawable(R.drawable.shuffle_bg, null))
                 .into(mAlbumArtView);
     }
 

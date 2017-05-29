@@ -86,15 +86,13 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
             mMediaMetadata = null;
         }
 
-        if (mMediaMetadata != null) {
-            mFabView.updatePlayer(mMediaMetadata, mPlaybackState);
-            if (!mSelectedItemsRepo.isEmpty()) {
-                // show + sign
-                mFabView.showPlus();
+        if (mSelectedItemsRepo.isEmpty()) {
+            if (mMediaMetadata != null) {
+                mFabView.updatePlayer(mMediaMetadata, mPlaybackState);
             }
         } else if (!mSelectedItemsRepo.isEmpty()) {
             // show shuffle fab
-            mFabView.showShuffle(false);
+            mFabView.showShuffle(mMediaMetadata != null);
         } else {
             // hide fab
             mFabView.disableFAB();
@@ -105,7 +103,7 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
     public void playbackStateChanged(PlaybackStateCompat state) {
         mPlaybackState = state;
 
-        if (mMediaMetadata != null)
+        if (mMediaMetadata != null && mSelectedItemsRepo.isEmpty())
             mFabView.updatePlayer(mMediaMetadata, mPlaybackState);
     }
 
@@ -120,7 +118,7 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
             } else {// hide player view if not
                 mFabView.disableFAB();
             }
-        } else {
+        } else if (mSelectedItemsRepo.isEmpty()) {
             // update player
             mFabView.updatePlayer(mMediaMetadata, mPlaybackState);
         }

@@ -466,7 +466,7 @@ public class FabViewManager {
                 .load(artUrl)
                 .asBitmap()
                 .dontAnimate()
-                .error(context.getDrawable(R.drawable.ic_loading_circle))
+                .error(context.getDrawable(R.drawable.shuffle_bg))
                 .into(new SimpleTarget<Bitmap>(MAX_ART_WIDTH_ICON, MAX_ART_HEIGHT_ICON) {
                     boolean handled = false;
 
@@ -500,7 +500,7 @@ public class FabViewManager {
 
                         mExtendedFab
                                 .setMainView(
-                                        context.getDrawable(R.drawable.ic_loading_circle),
+                                        context.getDrawable(R.drawable.shuffle_bg),
                                         new Runnable() {
                                             @Override
                                             public void run() {

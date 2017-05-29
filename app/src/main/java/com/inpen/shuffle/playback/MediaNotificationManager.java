@@ -207,7 +207,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
             mSessionToken = freshToken;
             if (mSessionToken != null) {
                 mController = new MediaControllerCompat(mMusicService, mSessionToken);
-                 mTransportControls = mController.getTransportControls();
+                mTransportControls = mController.getTransportControls();
                 if (mStarted) {
                     mController.registerCallback(mControllerCallback);
                 }
@@ -270,7 +270,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
 
         // use a placeholder art while the remote art is being downloaded
         art = BitmapFactory.decodeResource(mMusicService.getResources(),
-                R.drawable.transparent_icon);
+                R.drawable.shuffle_bg);
 
 
         notificationBuilder
@@ -362,6 +362,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 .with(mMusicService)
                 .load(artUrl)
                 .asBitmap()
+                .error(mMusicService.getDrawable(R.drawable.shuffle_bg))
                 .into(new SimpleTarget<Bitmap>(MAX_ART_WIDTH_ICON, MAX_ART_HEIGHT_ICON) {
                     @Override
                     public void onResourceReady(Bitmap bitmap, GlideAnimation glideAnimation) {
