@@ -99,6 +99,8 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
     };
     private ViewPager.OnPageChangeListener mPageChangeListener = new ViewPager.OnPageChangeListener() {
 
+        int selectedPage = -1;
+
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -106,13 +108,14 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
 
         @Override
         public void onPageSelected(int position) {
-            skipSong(position);
-
+            selectedPage = position;
         }
 
         @Override
         public void onPageScrollStateChanged(int state) {
-
+            if (ViewPager.SCROLL_STATE_IDLE == state && selectedPage != -1) { //Scrolling finished.
+                skipSong(selectedPage);
+            }
         }
 
         private void skipSong(final int position) {
@@ -217,6 +220,16 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
             RatingCompat likedRating = RatingCompat.newThumbRating(true);
             mTransportControls.setRating(likedRating);
         }
+    }
+
+    @Override
+    public void prevButtonClicked() {
+        mTransportControls.skipToPrevious();
+    }
+
+    @Override
+    public void nextButtonClicked() {
+        mTransportControls.skipToNext();
     }
 
     @Override
