@@ -135,8 +135,8 @@ public class FabFragment extends Fragment implements FabContract.FabView {
 
 
     @Override
-    public void showShuffle() {
-        mFabManager.showShuffleView(getActivity());
+    public void showShuffle(boolean showPlus) {
+        mFabManager.showShuffleView(getActivity(), showPlus);
     }
 
     @Override
@@ -146,16 +146,12 @@ public class FabFragment extends Fragment implements FabContract.FabView {
 
     @Override
     public void showPlus() {
-        if (mFabManager.isPlayerMode()) {
-            mFabManager.showPlusButton();
-        }
+        mFabManager.showPlusButton();
     }
 
     @Override
     public void removePlus() {
-        if (mFabManager.isPlayerMode()) {
-            mFabManager.hidePlusButton();
-        }
+        mFabManager.hidePlusButton();
     }
 
     @Override

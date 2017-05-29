@@ -20,7 +20,7 @@ interface FabContract {
 
         void updatePlayer(MediaMetadataCompat metadata, PlaybackStateCompat stateCompat);
 
-        void showShuffle();
+        void showShuffle(boolean showPlus);
 
         void disableFAB();
 

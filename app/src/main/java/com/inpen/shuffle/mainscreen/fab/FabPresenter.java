@@ -94,7 +94,7 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
             }
         } else if (!mSelectedItemsRepo.isEmpty()) {
             // show shuffle fab
-            mFabView.showShuffle();
+            mFabView.showShuffle(false);
         } else {
             // hide fab
             mFabView.disableFAB();
@@ -116,7 +116,7 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
         if (mMediaMetadata == null) {
             // show shuffle if selected repo non empty
             if (!mSelectedItemsRepo.isEmpty()) {
-                mFabView.showShuffle();
+                mFabView.removePlus();
             } else {// hide player view if not
                 mFabView.disableFAB();
             }
@@ -142,8 +142,7 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
             LogHelper.d(TAG, "unregister controller callbacks");
             controller.unregisterCallback(getControllerCallback());
         }
-
-        // TODO remove fab
+        //TODO remove fab
     }
 
     @Override
@@ -154,16 +153,16 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onRepositoryEmptyStateChanged(SelectedItemsRepository.RepositoryEmptyStateChangedEvent event) {
-        if (!event.isEmpty) {
-            if (mQueueRepo.isInitialized()) {
-                mFabView.showPlus();
-            } else {
-                mFabView.showShuffle();
+        if (!event.isEmpty) { // selected
+            if (mQueueRepo.isInitialized()) { // playing
+                mFabView.showShuffle(true);
+            } else { // not playing
+                mFabView.showShuffle(false);
             }
-        } else {
-            if (mQueueRepo.isInitialized()) {
-                mFabView.removePlus();
-            } else {
+        } else { // deselected
+            if (mQueueRepo.isInitialized()) { // playing
+                mFabView.updatePlayer(mMediaMetadata, mPlaybackState);
+            } else { // not playing
                 mFabView.disableFAB();
             }
         }
@@ -264,7 +263,7 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
 
         if (!mSelectedItemsRepo.isEmpty()) {
             // show shuffle fab
-            mFabView.showShuffle();
+            mFabView.showShuffle(false);
         } else {
             // hide fab
             mFabView.disableFAB();

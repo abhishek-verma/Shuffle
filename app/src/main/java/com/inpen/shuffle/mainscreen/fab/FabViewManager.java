@@ -95,7 +95,7 @@ public class FabViewManager {
                         mFabManagerListener.plusButtonClicked();
                     }
                 });
-        mClosePlayerButton = getImageButton(context.getDrawable(R.drawable.ic_stop_black_24dp),
+        mClosePlayerButton = getImageButton(context.getDrawable(R.drawable.ic_clear_black_24dp),
                 context,
                 new View.OnClickListener() {
                     @Override
@@ -158,9 +158,9 @@ public class FabViewManager {
 
         mExtendedFab.addLeftView(mShuffleDeselectButton);
         mExtendedFab.addLeftView(mSelectedItemCountTextView);
+        mExtendedFab.addLeftView(mAddButton);
         mExtendedFab.addLeftView(mBarView);
         mExtendedFab.addLeftView(mShuffleTextView);
-        mExtendedFab.addLeftView(mAddButton);
 
         mExtendedFab.addRightView(mPlayPauseButton);
         mExtendedFab.addRightView(mClosePlayerButton);
@@ -187,7 +187,7 @@ public class FabViewManager {
         return mExtendedFab;
     }
 
-    synchronized void showShuffleView(final FragmentActivity activity) {
+    synchronized void showShuffleView(final FragmentActivity activity, final boolean showPlus) {
 
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -221,6 +221,8 @@ public class FabViewManager {
                         mShuffleDeselectButton.setVisibility(View.VISIBLE);
                         mBarView.setVisibility(View.VISIBLE);
                         mShuffleTextView.setVisibility(View.VISIBLE);
+                        if (showPlus)
+                            mAddButton.setVisibility(View.VISIBLE);
 
                         mFabMode = CustomTypes.FabMode.SHUFFLE;
                     }
@@ -243,6 +245,13 @@ public class FabViewManager {
     }
 
     void showPlayerView(final MediaMetadataCompat metadata, final FragmentActivity activity) {
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mExtendedFab.removeMainViewListener();
+            }
+        });
 
         // setting icon
         displayAlbumArt(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI), activity);
@@ -331,9 +340,6 @@ public class FabViewManager {
                 mExtendedFab.post(new Runnable() {
                     @Override
                     public void run() {
-                        mSelectedItemCountTextView.setVisibility(View.VISIBLE);
-                        mShuffleDeselectButton.setVisibility(View.VISIBLE);
-                        mBarView.setVisibility(View.VISIBLE);
                         mAddButton.setVisibility(View.VISIBLE);
                     }
                 });
@@ -348,9 +354,6 @@ public class FabViewManager {
                 mExtendedFab.post(new Runnable() {
                     @Override
                     public void run() {
-                        mSelectedItemCountTextView.setVisibility(GONE);
-                        mShuffleDeselectButton.setVisibility(GONE);
-                        mBarView.setVisibility(GONE);
                         mAddButton.setVisibility(GONE);
                     }
                 });

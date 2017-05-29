@@ -123,6 +123,10 @@ public class ExtendedFab extends LinearLayout {
         });
     }
 
+    public synchronized void removeMainViewListener() {
+        mMainFabImageSwitcher.setOnTouchListener(null);
+    }
+
     public synchronized void addLeftView(View view) {
         addView(view, indexOfChild(mMainFabImageSwitcher));
         mLeftViewList.add(view);
