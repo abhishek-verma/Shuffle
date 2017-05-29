@@ -206,6 +206,16 @@ public class PlayerActivity extends AppCompatActivity
         mPlayerActivityPresenter.dislikeButtonClicked();
     }
 
+    @OnClick(R.id.nextButton)
+    public void onNextButtonClicked() {
+        mPlayerActivityPresenter.nextButtonClicked();
+    }
+
+    @OnClick(R.id.prevButton)
+    public void onPrevButtonClicked() {
+        mPlayerActivityPresenter.prevButtonClicked();
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Methods from PlayerActivityView interface
     ///////////////////////////////////////////////////////////////////////////

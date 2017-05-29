@@ -37,6 +37,10 @@ public interface PlayerActivityContract {
 
         void playPauseButtonClicked();
 
+        void prevButtonClicked();
+
+        void nextButtonClicked();
+
         void likeButtonClicked();
 
         void dislikeButtonClicked();
