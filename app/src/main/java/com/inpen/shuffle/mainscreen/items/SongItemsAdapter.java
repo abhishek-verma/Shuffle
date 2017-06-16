@@ -4,12 +4,15 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 
 import com.inpen.shuffle.customviews.SongItemView;
 import com.inpen.shuffle.model.repositories.SelectedItemsRepository;
 import com.inpen.shuffle.utility.CustomTypes;
 import com.inpen.shuffle.utility.LogHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
@@ -17,12 +20,13 @@ import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 /**
  * Created by Abhishek on 11/1/2016.
  */
-public class SongItemsAdapter extends RecyclerView.Adapter<SongItemsAdapter.ItemViewHolder> {
+public class SongItemsAdapter extends RecyclerView.Adapter<SongItemsAdapter.ItemViewHolder> implements Filterable {
 
     private static final String LOG_TAG = LogHelper.makeLogTag(SongItemsAdapter.class);
 
     private final SelectedItemsRepository mSelectedItemsRepository;
     private List<SongItem> mItemList;
+    private List<SongItem> mFilteredList;
     private CustomTypes.ItemType mItemType;
 
     public SongItemsAdapter(@NonNull List<SongItem> itemList,
@@ -31,6 +35,7 @@ public class SongItemsAdapter extends RecyclerView.Adapter<SongItemsAdapter.Item
         mItemList = checkNotNull(itemList);
         mSelectedItemsRepository = checkNotNull(selectedItemsRepository);
         mItemType = checkNotNull(itemType);
+        mFilteredList = mItemList;
 
         setHasStableIds(true);
     }
@@ -56,12 +61,12 @@ public class SongItemsAdapter extends RecyclerView.Adapter<SongItemsAdapter.Item
     @SuppressWarnings("unchecked")
     private void setList(List<BaseItem> tasks) {
         mItemList = (List<SongItem>) (Object) tasks;
-
+        getFilter().filter("");
     }
 
     @Override
     public long getItemId(int position) {
-        return mItemList.get(position).id.hashCode();
+        return mFilteredList.get(position).id.hashCode();
     }
 
     @Override
@@ -73,7 +78,7 @@ public class SongItemsAdapter extends RecyclerView.Adapter<SongItemsAdapter.Item
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, int position) {
-        holder.bind(mItemList.get(position));
+        holder.bind(mFilteredList.get(position));
     }
 
     @Override
@@ -97,7 +102,43 @@ public class SongItemsAdapter extends RecyclerView.Adapter<SongItemsAdapter.Item
 
     @Override
     public int getItemCount() {
-        return mItemList.size();
+        return mFilteredList.size();
+    }
+
+    @Override
+    public Filter getFilter() {
+
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+
+                if (charSequence.length() == 0) {
+                    mFilteredList = mItemList;
+                } else {
+
+                    ArrayList<SongItem> filteredList = new ArrayList<>();
+
+                    for (SongItem item : mItemList) {
+
+                        if (item.title.toLowerCase().contains(charSequence)) {
+                            filteredList.add(item);
+                        }
+                    }
+
+                    mFilteredList = filteredList;
+                }
+
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = mFilteredList;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                mFilteredList = (ArrayList<SongItem>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 
 

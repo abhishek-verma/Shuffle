@@ -56,13 +56,19 @@ public class PlayerFragment extends Fragment implements PlayerFragmentContract.P
 
         ButterKnife.bind(this, parentView);
 
-        mListener.init();
+        new Runnable() {
+            @Override
+            public void run() {
+                mListener.init();
+            }
+        }.run();
 
         return parentView;
     }
 
     @Override
     public void initView(MediaMetadataCompat metadata) {
+
         String title = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
         String artist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
         String albumArtUrl = metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI);

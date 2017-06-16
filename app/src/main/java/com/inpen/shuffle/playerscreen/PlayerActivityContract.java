@@ -20,7 +20,7 @@ public interface PlayerActivityContract {
 
         void updateMetadataViews(MediaMetadataCompat metadata);
 
-        void updatePlaybackStateViews(PlaybackStateCompat playbackState);
+        void updatePlaybackStateViews(PlaybackStateCompat playbackState, boolean changeState);
 
         void togglePlaylistVisibility();
     }

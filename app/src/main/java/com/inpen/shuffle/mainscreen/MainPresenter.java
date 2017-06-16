@@ -1,5 +1,6 @@
 package com.inpen.shuffle.mainscreen;
 
+import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -8,13 +9,19 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuItem;
 
+import com.inpen.shuffle.R;
+import com.inpen.shuffle.model.repositories.SearchRepositiory;
 import com.inpen.shuffle.playback.MusicService;
 import com.inpen.shuffle.syncmedia.SyncMediaIntentService;
 import com.inpen.shuffle.utility.LogHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
+import static android.content.Context.SEARCH_SERVICE;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 /**
@@ -27,6 +34,7 @@ public class MainPresenter implements MainScreenContract.ActivityActionsListener
     private MainScreenContract.MainView mMainView;
 
     private boolean mBound;
+    private SearchRepositiory mSearchRepo;
     /**
      * Defines callbacks for service binding, passed to bindService()
      */
@@ -101,6 +109,23 @@ public class MainPresenter implements MainScreenContract.ActivityActionsListener
             SyncMediaIntentService.syncMedia(context);
         else
             mMainView.getPermissions();
+    }
+
+    @Override
+    public void setupSearch(Menu menu) {
+
+        SearchManager searchManager = (SearchManager) mMainView
+                .getActivityContext()
+                .getSystemService(SEARCH_SERVICE);
+        MenuItem searchMenuItem = menu.findItem(R.id.search);
+        SearchView searchView = (SearchView) searchMenuItem.getActionView();
+        searchView.setSearchableInfo(searchManager
+                .getSearchableInfo(mMainView.getActivityContext().getComponentName()));
+
+        if (mSearchRepo == null) mSearchRepo = SearchRepositiory.getInstance();
+
+        mSearchRepo.setSearchView(searchView);
+
     }
 
     public class MusicServiceConnectedEvent {

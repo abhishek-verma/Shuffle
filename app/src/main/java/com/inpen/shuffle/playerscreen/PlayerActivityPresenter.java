@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
@@ -43,6 +44,11 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
 
     private PlaybackStateCompat mPlaybackState;
     private MediaMetadataCompat mMediaMetadata;
+
+    // if player viewPager is swiped, this saves the event
+    // this variable is consumed in #playbackStateChanged() to know if it was due to the swipe
+    private boolean mSwiped = false;
+
     // Receive callbacks from the MediaController. Here we update our state such as which queue
     // is being shown, the current title and description and the PlaybackState.
     MediaControllerCompat.Callback mControllerCallback = new MediaControllerCompat.Callback() {
@@ -119,22 +125,25 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
         }
 
         private void skipSong(final int position) {
-            new Runnable() {
-                @Override
-                public void run() {
 
+            new AsyncTask<Void, Void, Void>() {
+
+                @Override
+                protected Void doInBackground(Void... voids) {
                     int prevPosition = mQueueRepository.getCurrentIndex();
 
-                    LogHelper.d(LOG_TAG, " ViewAdapter Page Changed; pageposition: " + position +
-                            " \nQueuePosition: " + prevPosition);
+                    if (prevPosition != position) {
+                        mSwiped = true;
+                    }
 
                     if (prevPosition < position) {
                         mTransportControls.skipToNext();
                     } else if (prevPosition > position) {
                         mTransportControls.skipToPrevious();
                     }
+                    return null;
                 }
-            }.run();
+            }.execute();
         }
     };
 
@@ -189,8 +198,34 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
 
     @Override
     public void playbackStateChanged(PlaybackStateCompat state) {
-        mPlaybackState = state;
-        mPlayerActivityView.updatePlaybackStateViews(state);
+        boolean shouldChangeViews = true;
+
+
+        if (mPlaybackState != null)
+            LogHelper.e(LOG_TAG, "last Playback state: " + mPlaybackState.getState());
+        LogHelper.e(LOG_TAG, "current Playback state: " + state.getState());
+
+        //When pager is swiped, this condition is use to avoid updating the UI, if the last state was also PLAYING,
+        // it also only sets mSwiped to false on the last call, that is PLAYING
+        if (mSwiped) {
+            shouldChangeViews = false;
+            //since several playbackStateChanged are called, only save the state on the last call,
+            //that is PLAYING
+            if (state.getState() == PlaybackStateCompat.STATE_PLAYING) {
+
+                // if last state was not PLAYING, then update views
+                if (mPlaybackState == null || mPlaybackState.getState() != PlaybackStateCompat.STATE_PLAYING)
+                    shouldChangeViews = true;
+
+                mSwiped = false;
+                mPlaybackState = state;
+            }
+        } else {
+            mPlaybackState = state;
+        }
+
+        LogHelper.e(LOG_TAG, "should change views: " + shouldChangeViews);
+        mPlayerActivityView.updatePlaybackStateViews(state, shouldChangeViews);
     }
 
     @Override

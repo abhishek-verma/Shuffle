@@ -78,6 +78,7 @@ public class PlayingQueueFragment extends Fragment implements PlayingQueueContra
 
         if (!hidden) {
             showReveal();
+            refreshViews();
             mRecyclerView.smoothScrollToPosition(QueueRepository.getInstance().getCurrentIndex());
         } else {
             hideReveal();
@@ -129,7 +130,8 @@ public class PlayingQueueFragment extends Fragment implements PlayingQueueContra
 
     @Override
     public void refreshViews() {
-        mPlayingQueueAdapter.notifyDataSetChanged();
+        if (!isHidden())
+            mPlayingQueueAdapter.notifyDataSetChanged();
     }
 
     @Override

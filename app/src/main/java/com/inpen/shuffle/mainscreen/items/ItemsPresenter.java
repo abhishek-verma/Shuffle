@@ -11,6 +11,7 @@ import android.support.v4.content.Loader;
 
 import com.inpen.shuffle.model.database.MediaContract;
 import com.inpen.shuffle.model.repositories.QueueRepository;
+import com.inpen.shuffle.model.repositories.SearchRepositiory;
 import com.inpen.shuffle.model.repositories.SelectedItemsRepository;
 import com.inpen.shuffle.utility.CustomTypes;
 
@@ -77,6 +78,7 @@ public class ItemsPresenter
     @Override
     public void stop() {
 
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -228,5 +230,10 @@ public class ItemsPresenter
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSearchQueryChanged(SearchRepositiory.SearchQueryChangedEvent event) {
+        mItemsView.filterItems(event.searchTerm);
     }
 }

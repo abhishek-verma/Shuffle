@@ -22,6 +22,7 @@ class ItemsContract {
 
         void clearSelection();
 
+        void filterItems(String searchTerm);
     }
 
     interface ItemsFragmentListener {

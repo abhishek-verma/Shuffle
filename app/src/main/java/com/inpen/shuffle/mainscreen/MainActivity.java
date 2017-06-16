@@ -5,7 +5,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -17,6 +16,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -77,6 +77,13 @@ public class MainActivity extends AppCompatActivity
 
         setupAdapterAndViewPager();
         setupGuillotineMenu();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(final Menu menu) {
+        getMenuInflater().inflate(R.menu.main_screen_menu, menu);
+        mActivityActionsListener.setupSearch(menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

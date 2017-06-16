@@ -48,7 +48,7 @@ public class PlayerActivity extends AppCompatActivity
     private static final String LOG_TAG = LogHelper.makeLogTag(PlayerActivity.class);
 
     private static final long PROGRESS_UPDATE_INTERNAL = 1000;
-    private static final long PROGRESS_UPDATE_INITIAL_INTERVAL = 100;
+    private static final long PROGRESS_UPDATE_INITIAL_INTERVAL = 1000; //WAS 100, changed it to 1000
     private final ScheduledExecutorService mExecutorService =
             Executors.newSingleThreadScheduledExecutor();
     private final Handler mHandler = new Handler();
@@ -186,6 +186,7 @@ public class PlayerActivity extends AppCompatActivity
 
     private void setupAdapterAndViewPager() {
         mPlayerAdapter = new PlayerViewPagerAdapter(getSupportFragmentManager());
+        mPlayerViewPager.setOffscreenPageLimit(10);
         mPlayerViewPager.setAdapter(mPlayerAdapter);
         mPlayerViewPager.addOnPageChangeListener(mPlayerActivityPresenter.getPageChangeListener());
         mPlayerViewPager.setCurrentItem(QueueRepository.getInstance().getCurrentIndex(), false);
@@ -270,21 +271,12 @@ public class PlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void updatePlaybackStateViews(final PlaybackStateCompat playbackState) {
-
-        //if swiped left right state and playbackState is not playing,
-        // then save state and return
-        //else if swiped left-right state and playbackState playing
-        // set swiped to false and continue
-
-        LogHelper.d(LOG_TAG, "isPLaying state: " + (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING));
-
-        if (mLastPlaybackState != null)
-            LogHelper.i(LOG_TAG, "oldPlayBackState: " + mLastPlaybackState.getState());
-        if (playbackState != null)
-            LogHelper.i(LOG_TAG, ", newPlaybackState: " + playbackState.getState());
+    public void updatePlaybackStateViews(final PlaybackStateCompat playbackState, boolean changeViews) {
 
         mLastPlaybackState = playbackState;
+
+        if (!changeViews)
+            return;
 
         new Runnable() {
             @Override

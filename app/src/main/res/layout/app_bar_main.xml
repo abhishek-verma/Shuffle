@@ -9,18 +9,18 @@
         android:layout_height="wrap_content">
         <!--to remove a white space during guillotine bounce animation-->
         <View
-            android:layout_gravity="top"
             android:layout_width="match_parent"
             android:layout_height="@dimen/guillotine_actionbar_background_view_height"
-            android:background="@color/guillotine_background"
-            />
+            android:layout_gravity="top"
+            android:background="@color/guillotine_background" />
 
         <android.support.v7.widget.Toolbar
-            android:layout_gravity="top"
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:layout_gravity="top"
             android:background="?attr/colorAccent"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:contentInsetStart="0dp">
 
             <ImageView
@@ -32,10 +32,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:textColor="@color/white"
                 android:text="@string/shuffle"
+                android:textColor="@color/white"
                 android:textSize="@dimen/guillotine_item_text_size" />
+
+            <!--<SearchView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:animateLayoutChanges="true"-->
+            <!--android:layout_gravity="right"-->
+            <!--android:theme="@android:style/Theme.Material" />-->
         </android.support.v7.widget.Toolbar>
+
+
     </FrameLayout>
 
     <com.inpen.shuffle.customviews.CustomTabLayout

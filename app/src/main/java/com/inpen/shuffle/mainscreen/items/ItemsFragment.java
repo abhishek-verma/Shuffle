@@ -146,4 +146,8 @@ public class ItemsFragment extends Fragment implements ItemsContract.ItemsView {
         }
     }
 
+    @Override
+    public void filterItems(String searchTerm) {
+        mItemsAdapter.getFilter().filter(searchTerm);
+    }
 }
