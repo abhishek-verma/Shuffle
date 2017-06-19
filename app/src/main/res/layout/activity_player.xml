@@ -7,9 +7,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
+    app:umanoDragView="@+id/recommendedTextView"
     app:umanoPanelHeight="200dp"
     app:umanoParallaxOffset="200dp"
-    app:umanoScrollableView="@+id/testScroll"
     app:umanoShadowHeight="4dp">
 
     <RelativeLayout
@@ -185,10 +185,38 @@
                 android:src="@drawable/ic_thumb_down_black_24dp" />
         </RelativeLayout>
 
-        <FrameLayout
-            android:id="@+id/recommendationsContainer"
+        <ScrollView
+            android:id="@+id/scrollableView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="24dp"
+            android:paddingTop="24dp">
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:typeface="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.inpen.shuffle.customviews.TypefacedTextView
+                    android:id="@+id/recommendedTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="20dp"
+                    android:paddingEnd="28dp"
+                    android:paddingStart="28dp"
+                    android:paddingTop="10dp"
+                    android:text="@string/recommended"
+                    android:textSize="28sp"
+                    typeface:fontPath="fonts/PoiretOne-Regular.ttf" />
+
+                <FrameLayout
+                    android:id="@+id/recommendationsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </ScrollView>
     </LinearLayout>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
