@@ -37,4 +37,8 @@
     <string name="settings">SETTINGS</string>
     <string name="shuffle_all">SHUFFLE ALL SONGS</string>
     <string name="search">Search</string>
+    <string name="recommended">Recommended</string>
+    <string name="play_now">Play Now</string>
+    <string name="play_next">Play Next</string>
+    <string name="add_to_queue">Add To Queue</string>
 </resources>

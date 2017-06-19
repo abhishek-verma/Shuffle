@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 
 import com.inpen.shuffle.model.database.MediaContract;
+import com.inpen.shuffle.utility.BaseItem;
 
 import java.util.List;
 

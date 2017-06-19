@@ -31,7 +31,7 @@ public class BaseItem implements Comparable<BaseItem> {
         if (this == o) {
             return true;
         }
-        if (o == null || o.getClass() != MutableMediaMetadata.class) {
+        if (o == null || o.getClass() != BaseItem.class) {
             return false;
         }
 

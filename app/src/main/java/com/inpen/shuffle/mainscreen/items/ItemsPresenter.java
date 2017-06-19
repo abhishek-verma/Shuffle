@@ -13,6 +13,7 @@ import com.inpen.shuffle.model.database.MediaContract;
 import com.inpen.shuffle.model.repositories.QueueRepository;
 import com.inpen.shuffle.model.repositories.SearchRepositiory;
 import com.inpen.shuffle.model.repositories.SelectedItemsRepository;
+import com.inpen.shuffle.utility.BaseItem;
 import com.inpen.shuffle.utility.CustomTypes;
 
 import org.greenrobot.eventbus.EventBus;

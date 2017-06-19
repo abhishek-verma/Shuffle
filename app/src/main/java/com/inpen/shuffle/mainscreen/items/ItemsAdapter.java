@@ -9,6 +9,7 @@ import android.widget.Filterable;
 
 import com.inpen.shuffle.customviews.ItemView;
 import com.inpen.shuffle.model.repositories.SelectedItemsRepository;
+import com.inpen.shuffle.utility.BaseItem;
 import com.inpen.shuffle.utility.CustomTypes;
 import com.inpen.shuffle.utility.LogHelper;
 

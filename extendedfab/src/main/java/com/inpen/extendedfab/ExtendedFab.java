@@ -69,7 +69,6 @@ public class ExtendedFab extends LinearLayout {
 
 
     private void applyLayoutChangesAnimation() {
-
         setLayoutTransition(new LayoutTransition());
         LayoutTransition layoutTransition = getLayoutTransition();
         layoutTransition.enableTransitionType(LayoutTransition.CHANGING);

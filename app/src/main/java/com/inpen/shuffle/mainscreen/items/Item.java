@@ -2,6 +2,8 @@ package com.inpen.shuffle.mainscreen.items;
 
 import android.text.TextUtils;
 
+import com.inpen.shuffle.utility.BaseItem;
+
 /**
  * Created by Abhishek on 10/27/2016.
  */

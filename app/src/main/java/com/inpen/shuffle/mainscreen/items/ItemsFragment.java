@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.inpen.shuffle.R;
 import com.inpen.shuffle.model.repositories.SelectedItemsRepository;
+import com.inpen.shuffle.utility.BaseItem;
 import com.inpen.shuffle.utility.CustomTypes;
 
 import java.util.ArrayList;

@@ -96,7 +96,8 @@
     <!-- SLIDING LAYOUT -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginTop="25dp"
         android:clickable="true"
         android:focusable="false"
         android:gravity="top"
@@ -182,41 +183,12 @@
                 android:padding="@dimen/control_button_padding"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_thumb_down_black_24dp" />
-
-
         </RelativeLayout>
 
-        <ScrollView xmlns:typeface="http://schemas.android.com/apk/res/com.inpen.shuffle"
-            android:id="@id/testScroll"
+        <FrameLayout
+            android:id="@+id/recommendationsContainer"
             android:layout_width="match_parent"
-            android:layout_height="400dp"
-            android:padding="24dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <com.inpen.shuffle.customviews.TypefacedTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="20dp"
-                    android:layout_marginTop="10dp"
-                    android:text="Recommended"
-                    android:textSize="28sp"
-                    typeface:fontPath="fonts/PoiretOne-Regular.ttf" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a volutpat velit, sit amet malesuada elit. In sollicitudin feugiat ligula, et cursus tortor pulvinar vitae. Maecenas interdum magna quis libero porttitor, nec elementum lorem venenatis. Proin id consequat diam, id hendrerit turpis. Ut sed erat maximus, tincidunt augue eget, iaculis augue. Nam nec cursus tortor. Aenean semper placerat nunc id consectetur. Quisque eleifend lectus quis nisl facilisis, vel aliquam elit venenatis. Nunc erat lectus, euismod quis arcu nec, accumsan condimentum neque. Donec sit amet leo a sapien suscipit bibendum vel nec lacus. Ut euismod eleifend pharetra. Sed congue mollis posuere. Nunc semper velit ac neque faucibus, ac dapibus dui tempus. Fusce purus ante, feugiat quis augue et, viverra tristique ipsum. Duis id sapien sit amet leo pulvinar ultricies sed at tortor. Nam velit nulla, aliquam in nisl nec, venenatis efficitur ante.
-Cras consectetur ligula quis urna scelerisque malesuada. Morbi facilisis sapien dapibus lectus interdum, a mattis risus luctus. Vivamus suscipit risus quis dolor gravida, eget aliquam risus suscipit. Vestibulum vitae erat non ex iaculis eleifend. Nunc ullamcorper justo metus, vel volutpat metus egestas sed. Nam nec iaculis neque. Quisque ac tellus tortor. Proin vitae ipsum iaculis, molestie nibh eget, tristique dolor. Nullam non metus id lorem mattis rutrum quis in elit. Suspendisse id sem non sem imperdiet gravida. In id imperdiet dolor. Curabitur id porta metus, et mattis diam. Duis convallis purus nibh. Morbi sapien est, fermentum id lectus quis, gravida fermentum justo. Vivamus sed ante non sapien sollicitudin vulputate. In hac habitasse platea dictumst.
-
-Vestibulum eu tellus id ex suscipit ornare. Nam laoreet magna eget dolor blandit, a egestas diam euismod. Mauris sodales sapien quis mi tempus, ac pharetra turpis lacinia. Proin tempor, urna cursus faucibus dictum, nisl nunc placerat augue, eget varius sem risus vel justo. In convallis libero mi, ac iaculis nisl mattis vel. Interdum et malesuada fames ac ante ipsum primis in faucibus. In sit amet metus sed urna luctus imperdiet eu eget lacus. Vivamus dictum commodo enim, ac ultrices mauris aliquam consectetur. Nulla et consectetur ex. In eget ante eu diam maximus porttitor. Curabitur dictum facilisis quam, ac aliquet ipsum volutpat at. Fusce ultrices nibh at ipsum imperdiet, in venenatis nisi tristique. Nulla justo mi, sagittis eget leo ac, placerat mattis libero.
-Cras consectetur ligula quis urna scelerisque malesuada. Morbi facilisis sapien dapibus lectus interdum, a mattis risus luctus. Vivamus suscipit risus quis dolor gravida, eget aliquam risus suscipit. Vestibulum vitae erat non ex iaculis eleifend. Nunc ullamcorper justo metus, vel volutpat metus egestas sed. Nam nec iaculis neque. Quisque ac tellus tortor. Proin vitae ipsum iaculis, molestie nibh eget, tristique dolor. Nullam non metus id lorem mattis rutrum quis in elit. Suspendisse id sem non sem imperdiet gravida. In id imperdiet dolor. Curabitur id porta metus, et mattis diam. Duis convallis purus nibh. Morbi sapien est, fermentum i" />
-
-            </LinearLayout>
-        </ScrollView>
+            android:layout_height="match_parent"/>
     </LinearLayout>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 

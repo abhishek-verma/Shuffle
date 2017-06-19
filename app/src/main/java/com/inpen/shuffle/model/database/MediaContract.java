@@ -32,7 +32,7 @@ public class MediaContract {
         public static final String TABLE_NAME = "songs";
 
         // Column names
-        public static final String COLUMN_SONG_ID = "song_id";
+        public static final String COLUMN_SONG_ID = "song_id"; //custom generated song id, system provided id is stored in _ID column
         public static final String COLUMN_TITLE = "title"; //song title
         public static final String COLUMN_ALBUM = "album";
         public static final String COLUMN_ALBUM_KEY = "album_id";

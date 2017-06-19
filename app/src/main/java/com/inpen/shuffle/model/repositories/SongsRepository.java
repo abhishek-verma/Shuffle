@@ -3,12 +3,15 @@ package com.inpen.shuffle.model.repositories;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 
 import com.inpen.shuffle.model.MutableMediaMetadata;
 import com.inpen.shuffle.model.database.MediaContract;
 import com.inpen.shuffle.utility.CustomTypes;
+import com.inpen.shuffle.utility.LogHelper;
 import com.inpen.shuffle.utility.StaticStrings;
 
 import java.util.ArrayList;
@@ -19,10 +22,7 @@ import java.util.List;
  */
 
 public class SongsRepository {
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Regular fields and methods
-    ///////////////////////////////////////////////////////////////////////////
+    private static final String LOG_TAG = LogHelper.makeLogTag(SongsRepository.class);
 
     private final static int COL_INDEX_ID = 0;
     private final static int COL_INDEX_SONG_ID = 1;
@@ -34,8 +34,8 @@ public class SongsRepository {
     private final static int COL_INDEX_ARTIST_KEY = 7;
     private final static int COL_INDEX_DURATION = 8;
     private final static int COL_INDEX_FOLDER_PATH = 9;
-    private final static int COL_INDEX_ALBUM_ART = 10;
 
+    private final static int COL_INDEX_ALBUM_ART = 10;
     private static final String[] projection = {
             MediaContract.MediaEntry.TABLE_NAME + "." + MediaContract.MediaEntry._ID,
             MediaContract.MediaEntry.COLUMN_SONG_ID,
@@ -49,6 +49,11 @@ public class SongsRepository {
             MediaContract.MediaEntry.COLUMN_FOLDER_PATH,
             MediaContract.MediaEntry.COLUMN_ALBUM_ART
     };
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Regular fields and methods
+    ///////////////////////////////////////////////////////////////////////////
+
     private Context mContext;
 
 
@@ -71,9 +76,6 @@ public class SongsRepository {
         }
 
         return s.toString();
-    }
-
-    public void removeAllSongsFromDatabase() {
     }
 
     public void removeSong(MediaMetadataCompat mediaMetadata) {
@@ -257,11 +259,16 @@ public class SongsRepository {
         return songMetadataList;
     }
 
+    /**
+     * Returns Metadata from database for given media id
+     * @param id the id provided by device and not the id saved for app
+     * @return metadata
+     */
     public MutableMediaMetadata getSongMetadataForId(String id) {
 
         Cursor songDataCursor = mContext.getContentResolver().query(MediaContract.MediaEntry.CONTENT_URI,
                 projection,
-                MediaContract.MediaEntry.COLUMN_SONG_ID + "=?",
+                MediaContract.MediaEntry._ID + "=?",
                 new String[]{id},
                 null);
 
@@ -294,6 +301,52 @@ public class SongsRepository {
         );
     }
 
+    /**
+     * Returns MetadataList from database for given media ids
+     * @param songIdList the ids provided by device and not the ids saved for app
+     * @return metadataList
+     */
+    private List<MutableMediaMetadata> getSongMetadataListForIds(List<String> songIdList) {
+
+        List<MutableMediaMetadata> metadataList = new ArrayList<>();
+
+        Cursor songDataCursor = mContext.getContentResolver().query(MediaContract.MediaEntry.CONTENT_URI,
+                projection,
+                MediaContract.MediaEntry._ID
+                        + " IN ("
+                        + getStringFromSelectorItems(songIdList)
+                        + ")",
+                null, null);
+
+        if (songDataCursor != null && songDataCursor.moveToFirst()) {
+            do {
+                //noinspection ResourceType
+                MediaMetadataCompat mediaMetadataCompat =
+                        new MediaMetadataCompat
+                                .Builder()
+                                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, songDataCursor.getString(COL_INDEX_ID))
+                                .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_TRACK_ID, songDataCursor.getString(COL_INDEX_SONG_ID))
+                                .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_TRACK_SOURCE, songDataCursor.getString(COL_INDEX_PATH))
+                                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, songDataCursor.getString(COL_INDEX_TITLE))
+                                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, songDataCursor.getString(COL_INDEX_ALBUM))
+                                .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_ALBUM_KEY, songDataCursor.getString(COL_INDEX_ALBUM_KEY))
+                                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, songDataCursor.getString(COL_INDEX_ARTIST))
+                                .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_ARTIST_KEY, songDataCursor.getString(COL_INDEX_ARTIST_KEY))
+                                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, songDataCursor.getLong(COL_INDEX_DURATION))
+                                .putString(MutableMediaMetadata.CUSTOM_METADATA_KEY_FOLDER_PATH, songDataCursor.getString(COL_INDEX_FOLDER_PATH))
+                                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, songDataCursor.getString(COL_INDEX_ALBUM_ART))
+                                .build();
+
+                metadataList.add(new MutableMediaMetadata(
+                        mediaMetadataCompat.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID),
+                        mediaMetadataCompat));
+            } while (songDataCursor.moveToNext());
+            songDataCursor.close();
+        }
+
+        return metadataList;
+    }
+
     public void storeSongRating(String songId, RatingCompat ratingCompat) {
         ContentValues cv = new ContentValues();
         cv.put(MediaContract.PlaylistsEntry.COLUMN_SONG_ID, songId);
@@ -317,14 +370,13 @@ public class SongsRepository {
         }
     }
 
-
     public List<MutableMediaMetadata> getAllSongs() {
 
         Cursor songsDataCursor = mContext.getContentResolver()
-                        .query(MediaContract.MediaEntry.CONTENT_URI,
-                                projection,
-                                null, null, null
-                        );
+                .query(MediaContract.MediaEntry.CONTENT_URI,
+                        projection,
+                        null, null, null
+                );
 
         List<MutableMediaMetadata> songMetadataList = new ArrayList<>();
 
@@ -362,5 +414,70 @@ public class SongsRepository {
         }
 
         return songMetadataList;
+    }
+
+    public List<String> getGenresForSong(String songId) {
+        String[] genreProjection = {MediaStore.Audio.Genres._ID,
+                MediaStore.Audio.Genres.NAME};
+        int GENRE_COL_INDEX_ID = 0;
+        int GENRE_COL_INDEX_NAME = 1;
+
+//        Uri baseUri = MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI;
+//
+//        String selection
+//                = MediaStore.Audio.Genres._ID + " in " +
+//                "(select genre_id from audio_genres_map where audio_id = ?)" ;
+//
+//        Cursor genreCursor = mContext
+//                .getContentResolver()
+//                .query(baseUri,
+//                        genreProjection,
+//                        selection,
+//                        new String[]{songId},
+//                        null);
+
+
+        Uri uri = MediaStore.Audio.Genres.getContentUriForAudioId("external", Integer.parseInt(songId));
+        Cursor genreCursor = mContext.getContentResolver().query(uri,
+                genreProjection, null, null, null);
+
+
+        if (genreCursor != null && genreCursor.moveToFirst()) {
+
+            List<String> genreList = new ArrayList<>(genreCursor.getCount());
+            do {
+                LogHelper.d(LOG_TAG, "Genre Name: " + genreCursor.getString(GENRE_COL_INDEX_NAME));
+                genreList.add(genreCursor.getString(GENRE_COL_INDEX_ID));
+            } while (genreCursor.moveToNext());
+
+            genreCursor.close();
+            return genreList;
+        }
+
+        return new ArrayList<>();
+    }
+
+    public List<MutableMediaMetadata> getSongsForGenres(List<String> genreList) {
+        String[] projection = {MediaStore.Audio.Media._ID};
+
+        List<String> songIdList = new ArrayList<>();
+
+        for (String genreId : genreList) {
+            Uri uri = MediaStore.Audio.Genres.Members.getContentUri("external", Long.parseLong(genreId));
+
+            Cursor songCursor = mContext
+                    .getContentResolver()
+                    .query(uri, projection, null, null, null);
+
+            if (songCursor != null && songCursor.moveToFirst()) {
+                do {
+                    songIdList.add(songCursor.getString(0));
+                } while (songCursor.moveToNext());
+                songCursor.close();
+            }
+
+        }
+
+        return getSongMetadataListForIds(songIdList);
     }
 }

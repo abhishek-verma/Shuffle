@@ -60,7 +60,7 @@ public class PlayingQueueFragment extends Fragment implements PlayingQueueContra
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
-        mRecyclerView.setHasFixedSize(true);
+//        mRecyclerView.setHasFixedSize(false);
 
         ItemTouchHelper.Callback callback =
                 new SimpleItemTouchHelperCallback(mPlayingQueueAdapter);
@@ -77,8 +77,8 @@ public class PlayingQueueFragment extends Fragment implements PlayingQueueContra
         super.onHiddenChanged(hidden);
 
         if (!hidden) {
-            showReveal();
             refreshViews();
+            showReveal();
             mRecyclerView.smoothScrollToPosition(QueueRepository.getInstance().getCurrentIndex());
         } else {
             hideReveal();

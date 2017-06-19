@@ -219,7 +219,13 @@ public class QueueRepository {
                 }
             }
         }.execute();
+    }
 
+    public synchronized void addNextSongs(List<MutableMediaMetadata> metadataList) {
+        if(mPlayingQueue!=null) {
+            mPlayingQueue.addAll(mCurrentTrackIndex + 1, metadataList);
+            EventBus.getDefault().post(new QueueContentsChangedEvent());
+        }
     }
 
     public
@@ -289,13 +295,15 @@ public class QueueRepository {
     }
 
     public void setRating(RatingCompat rating, Context context) {
-        MediaMetadataCompat metadata = mPlayingQueue.get(mCurrentTrackIndex).metadata;
+        MediaMetadataCompat metadata = getCurrentSong().metadata;
         mPlayingQueue.get(mCurrentTrackIndex).metadata = new MediaMetadataCompat
                 .Builder(metadata)
                 .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING, rating)
                 .build();
 
-        EventBus.getDefault().post(new QueueMetadataChangedEvent());
+        EventBus
+                .getDefault()
+                .post(new QueueMetadataChangedEvent(getCurrentSong().trackId));
 
         SongsRepository songsRepository = new SongsRepository(context);
         //noinspection ResourceType
@@ -388,12 +396,21 @@ public class QueueRepository {
         return mPreferences;
     }
 
+    public List<MutableMediaMetadata> getQueue() {
+        return mPlayingQueue;
+    }
+
 
     public interface RepositoryInitializedCallback {
         void onRepositoryInitialized(boolean success);
     }
 
     public class QueueMetadataChangedEvent {
+        private final String mediaId;
+
+        public QueueMetadataChangedEvent(String mediaId) {
+            this.mediaId = mediaId;
+        }
     }
 
     public class QueueContentsChangedEvent {

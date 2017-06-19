@@ -31,6 +31,7 @@ import com.inpen.shuffle.R;
 import com.inpen.shuffle.model.repositories.QueueRepository;
 import com.inpen.shuffle.playerscreen.player.PlayerViewPagerAdapter;
 import com.inpen.shuffle.playerscreen.playingqueue.PlayingQueueFragment;
+import com.inpen.shuffle.playerscreen.recommendation.RecommendationFragment;
 import com.inpen.shuffle.utility.LogHelper;
 
 import java.util.concurrent.Executors;
@@ -83,6 +84,7 @@ public class PlayerActivity extends AppCompatActivity
         }
     };
     private Fragment mPlayingQueueFragment;
+    private RecommendationFragment mRecommendationsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,9 +164,9 @@ public class PlayerActivity extends AppCompatActivity
                 rect.right = rect.left + fragmentView.getWidth();
                 rect.bottom = (int) (rect.top + fragmentView.getHeight() * 1.5f);
 
-                LogHelper.d(LOG_TAG, "left: " + rect.left + ", right: " + rect.right + ", top: " + rect.top + ", bottom: " + rect.bottom);
+//                LogHelper.d(LOG_TAG, "left: " + rect.left + ", right: " + rect.right + ", top: " + rect.top + ", bottom: " + rect.bottom);
+//                LogHelper.d(LOG_TAG, "is inside fragment: " + rect.contains((int) event.getX(), (int) event.getY()));
 
-                LogHelper.d(LOG_TAG, "is inside fragment: " + rect.contains((int) event.getX(), (int) event.getY()));
                 if (!rect.contains((int) event.getX(), (int) event.getY())) {
                     togglePlaylistVisibility();
                 }
@@ -175,11 +177,13 @@ public class PlayerActivity extends AppCompatActivity
 
     private void setupFragments() {
         mPlayingQueueFragment = new PlayingQueueFragment();
+        mRecommendationsFragment = new RecommendationFragment();
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
         ft.add(R.id.playingQueueContainer, mPlayingQueueFragment);
         ft.hide(mPlayingQueueFragment);
+        ft.add(R.id.recommendationsContainer, mRecommendationsFragment);
         ft.commit();
 
     }

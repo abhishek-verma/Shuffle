@@ -63,6 +63,11 @@ public class PlayingQueuePresenter implements PlayingQueueContract.PlayingQueueL
         mplayingQueueView.refreshViews();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onQueueContentsChanged(QueueRepository.QueueContentsChangedEvent event) {
+        updateContents();
+    }
+
     public void onItemClicked(int position) {
         LogHelper.d(LOG_TAG, "item at position " + position + " clicked!");
 
