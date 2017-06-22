@@ -15,4 +15,5 @@ public class StaticStrings {
 
     public static final String PlAYLIST_NAME_LIKED = "liked";
     public static final String PlAYLIST_NAME_DISLIKED = "disliked";
+    public static final String PlAYLIST_NAME_LAST_PLAYED = "last_played";
 }

@@ -94,7 +94,7 @@ public class RecommendationPresenter
                         .setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                QueueRepository.getInstance().addNextSongs(metadataList);
+                                QueueRepository.getInstance().addNextSongs(metadataList, mView.getCompatActivity());
                                 mView.getCompatActivity().getMediaController().getTransportControls().skipToNext();
                                 mBottomSheetDialog.dismiss();
                             }
@@ -105,7 +105,7 @@ public class RecommendationPresenter
                         .setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                QueueRepository.getInstance().addNextSongs(metadataList);
+                                QueueRepository.getInstance().addNextSongs(metadataList, mView.getCompatActivity());
                                 mBottomSheetDialog.dismiss();
                             }
                         });

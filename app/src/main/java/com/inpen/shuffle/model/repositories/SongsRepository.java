@@ -306,7 +306,12 @@ public class SongsRepository {
      * @param songIdList the ids provided by device and not the ids saved for app
      * @return metadataList
      */
-    private List<MutableMediaMetadata> getSongMetadataListForIds(List<String> songIdList) {
+    public List<MutableMediaMetadata> getSongMetadataListForIds(List<String> songIdList) {
+
+        if (songIdList == null) {
+            LogHelper.d(LOG_TAG, "Saved song list empty!");
+            return null;
+        }
 
         List<MutableMediaMetadata> metadataList = new ArrayList<>();
 
@@ -345,29 +350,6 @@ public class SongsRepository {
         }
 
         return metadataList;
-    }
-
-    public void storeSongRating(String songId, RatingCompat ratingCompat) {
-        ContentValues cv = new ContentValues();
-        cv.put(MediaContract.PlaylistsEntry.COLUMN_SONG_ID, songId);
-
-
-        // removing from both liked and disliked
-        mContext.getContentResolver().delete(MediaContract.PlaylistsEntry.CONTENT_URI,
-                MediaContract.PlaylistsEntry.COLUMN_SONG_ID + " = ? " +
-                        "AND " + MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME +
-                        " IN (?, ?) ",
-                new String[]{songId, StaticStrings.PlAYLIST_NAME_LIKED, StaticStrings.PlAYLIST_NAME_DISLIKED});
-
-        // adding only if rated (liked or disliked)
-        if (ratingCompat.isRated()) {
-            if (ratingCompat.isThumbUp()) {
-                cv.put(MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME, StaticStrings.PlAYLIST_NAME_LIKED);
-            } else {
-                cv.put(MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME, StaticStrings.PlAYLIST_NAME_DISLIKED);
-            }
-            mContext.getContentResolver().insert(MediaContract.PlaylistsEntry.CONTENT_URI, cv);
-        }
     }
 
     public List<MutableMediaMetadata> getAllSongs() {
@@ -479,5 +461,70 @@ public class SongsRepository {
         }
 
         return getSongMetadataListForIds(songIdList);
+    }
+
+    public void storeSongRating(String songId, RatingCompat ratingCompat) {
+        ContentValues cv = new ContentValues();
+        cv.put(MediaContract.PlaylistsEntry.COLUMN_SONG_ID, songId);
+
+
+        // removing from both liked and disliked
+        mContext.getContentResolver().delete(MediaContract.PlaylistsEntry.CONTENT_URI,
+                MediaContract.PlaylistsEntry.COLUMN_SONG_ID + " = ? " +
+                        "AND " + MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME +
+                        " IN (?, ?) ",
+                new String[]{songId, StaticStrings.PlAYLIST_NAME_LIKED, StaticStrings.PlAYLIST_NAME_DISLIKED});
+
+        // adding only if rated (liked or disliked)
+        if (ratingCompat.isRated()) {
+            if (ratingCompat.isThumbUp()) {
+                cv.put(MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME, StaticStrings.PlAYLIST_NAME_LIKED);
+            } else {
+                cv.put(MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME, StaticStrings.PlAYLIST_NAME_DISLIKED);
+            }
+            mContext.getContentResolver().insert(MediaContract.PlaylistsEntry.CONTENT_URI, cv);
+        }
+    }
+
+    /**
+     * Saves the last playing queue as a playlist
+     *
+     * @param mMetadataList
+     */
+    public void storeLastPLayed(List<MutableMediaMetadata> mMetadataList) {
+//
+//        // clearing previous last played
+//        int deletedCnt = mContext.getContentResolver().delete(MediaContract.PlaylistsEntry.CONTENT_URI,
+//                MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME + " = ? ",
+//                new String[]{StaticStrings.PlAYLIST_NAME_LAST_PLAYED});
+//
+//        LogHelper.d(LOG_TAG, deletedCnt + " items deleted from playlist LAST_PLAYED");
+//
+//        Vector<ContentValues> cvVector = new Vector<>(mMetadataList.size());
+//        ContentValues cv;
+//        //adding new Last Played
+//        for(MutableMediaMetadata mutableMetadata: mMetadataList) {
+//            cv = new ContentValues();
+//            cv.put(MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME, StaticStrings.PlAYLIST_NAME_LAST_PLAYED);
+//            cv.put(MediaContract.PlaylistsEntry.COLUMN_SONG_ID, mutableMetadata.metadata.getString(MutableMediaMetadata.CUSTOM_METADATA_KEY_TRACK_ID));
+//
+//            cvVector.add(cv);
+//        }
+//
+//        int insertedCnt;
+//
+//        // adding to db
+//        if (cvVector.size() > 0) {
+//            ContentValues[] cvArray = new ContentValues[cvVector.size()];
+//            cvVector.toArray(cvArray);
+//            try {
+//                insertedCnt = mContext.getContentResolver().bulkInsert(MediaContract.PlaylistsEntry.CONTENT_URI, cvArray);
+//                LogHelper.d(LOG_TAG, insertedCnt + " items inserted in playlist LAST_PLAYED");
+//            } catch (SQLiteConstraintException exception) {
+//                // try removing this try-catch to find the error
+//                LogHelper.e(LOG_TAG, "Cannot insert into database! ERROR: " + exception);
+//            }
+//        }
+
     }
 }

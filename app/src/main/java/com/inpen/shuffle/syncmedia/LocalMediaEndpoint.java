@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import com.inpen.shuffle.model.MutableMediaMetadata;
 import com.inpen.shuffle.model.database.MediaContract;
@@ -103,7 +102,7 @@ public class LocalMediaEndpoint implements MediaEndpoint {
 
         int inserted = 0;
 
-        // adding to db
+        // adding to db (previous songs are being removed in bulkInsert function)
         if (cvVector.size() > 0) {
             ContentValues[] cvArray = new ContentValues[cvVector.size()];
             cvVector.toArray(cvArray);

@@ -7,7 +7,6 @@ import android.os.SystemClock;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.telephony.TelephonyManager;
 import android.view.KeyEvent;
 
 import com.inpen.shuffle.model.MutableMediaMetadata;
@@ -184,6 +183,8 @@ public class PlaybackManager implements Playback.Callback {
     public void handleStopRequest(String withError) {
         LogHelper.d(TAG, "handleStopRequest: mState=" + mPlayback.getState() + " error=", withError);
         mPlayback.stop(true);
+//        mQueueRepository.clearQueue(mContext); // important since QueueRepo will save last played playlist before clearing
+        mQueueRepository.storeQueue(mContext);
         mServiceCallback.onPlaybackStop();
         updatePlaybackState(withError);
     }

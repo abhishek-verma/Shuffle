@@ -249,7 +249,7 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
 
     @Override
     public void playPauseClicked() {
-        if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+        if (mPlaybackState != null && mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
             mTransportControls.pause();
         } else {
             mTransportControls.play();
@@ -270,7 +270,6 @@ public class FabPresenter implements FabContract.InteractionsListener, FabViewMa
         mMediaMetadata = null;
         mPlaybackState = null;
         mTransportControls.stop();
-        mQueueRepo.clearQueue(mFabView.getFragmentActivity());
     }
 
     @Override

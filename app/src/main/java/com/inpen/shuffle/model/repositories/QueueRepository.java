@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.inpen.shuffle.model.MutableMediaMetadata;
 import com.inpen.shuffle.model.QueueProvider;
 import com.inpen.shuffle.utility.CustomTypes;
@@ -15,7 +17,10 @@ import com.inpen.shuffle.utility.LogHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.inpen.shuffle.utility.CustomTypes.RepositoryState.INITIALIZED;
@@ -221,11 +226,67 @@ public class QueueRepository {
         }.execute();
     }
 
-    public synchronized void addNextSongs(List<MutableMediaMetadata> metadataList) {
-        if(mPlayingQueue!=null) {
-            mPlayingQueue.addAll(mCurrentTrackIndex + 1, metadataList);
-            EventBus.getDefault().post(new QueueContentsChangedEvent());
-        }
+    public synchronized void addNextSongs(final List<MutableMediaMetadata> metadataList,
+                                          final Context context) {
+
+        // Asynchronously
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                if (mPlayingQueue != null) {
+                    mPlayingQueue.addAll(mCurrentTrackIndex + 1, metadataList);
+                }
+
+                // store playlist asynchronously
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        storeQueue(context);
+                    }
+                }.run();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+
+                EventBus.getDefault().post(new QueueContentsChangedEvent());
+            }
+        }.execute();
+    }
+
+    public void removeItemAtIndex(final int position, final Context context) {
+
+        // Asynchronously
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                if (mPlayingQueue != null) {
+                    mPlayingQueue.remove(position);
+                }
+
+                // store playlist asynchronously
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        storeQueue(context);
+                    }
+                }.run();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+
+                EventBus.getDefault().post(new QueueContentsChangedEvent());
+            }
+        }.execute();
     }
 
     public
@@ -270,20 +331,18 @@ public class QueueRepository {
         return mCurrentTrackIndex;
     }
 
-    public void removeItemAtIndex(int position) {
-        mPlayingQueue.remove(position);
-        EventBus.getDefault().post(new QueueContentsChangedEvent());
-    }
-
     public boolean isInitialized() {
         return mCurrentState == INITIALIZED;
     }
 
     public void clearQueue(Context context) {
 
+        setCurrentQueueIndex(-1);
+
+        new SongsRepository(context).storeLastPLayed(mPlayingQueue);
+
         mCurrentState = CustomTypes.RepositoryState.NON_INITIALIZED;
         mPlayingQueue.clear();
-        setCurrentQueueIndex(-1);
 
         SharedPreferences.Editor editor = getmPreferences(context).edit();
         editor.clear();
@@ -291,7 +350,7 @@ public class QueueRepository {
     }
 
     public boolean isCatchEmpty(Context context) {
-        return getmPreferences(context).contains(KEY_PLAYING_QUEUE);
+        return !getmPreferences(context).contains(KEY_PLAYING_QUEUE);
     }
 
     public void setRating(RatingCompat rating, Context context) {
@@ -358,34 +417,54 @@ public class QueueRepository {
         mPlayingQueue = playedAndPlayingSongs;
     }
 
+    /**
+     * Loads last played playlist from sharedPrefs,
+     *
+     * @param context
+     * @param callback
+     */
     private void loadCachedQueue(Context context, final RepositoryInitializedCallback callback) {
-        LogHelper.d(LOG_TAG, "loadCachedQueue called but unimplemented!");
+        Gson gson = new Gson();
+        String json = getmPreferences(context).getString(KEY_PLAYING_QUEUE, null);
 
-//
-//        Gson gson = new Gson();
-//        String json = getmPreferences(context).getString(KEY_PLAYING_QUEUE, null);
-//
-//        Type type = new TypeToken<ArrayList<MutableMediaMetadata>>() {
-//        }.getType();
-//
-//        mPlayingQueue = gson.fromJson(json, type);
-//        mCurrentTrackIndex = getmPreferences(context).getInt(KEY_CURRENT_TRACK_INDEX, -1);
-//
-//        if (mPlayingQueue != null && mPlayingQueue.size() > 0) {
-//            mCurrentState = CustomTypes.RepositoryState.INITIALIZED;
-//        }
+        Type type = new TypeToken<List<String>>() {
+        }.getType();
+
+        final List<String> idList = gson.fromJson(json, type);
+        mPlayingQueue = new SongsRepository(context).getSongMetadataListForIds(idList);
+        mCurrentTrackIndex = getmPreferences(context).getInt(KEY_CURRENT_TRACK_INDEX, -1);
+
+        // Restoring order of list obtained through sql
+        Collections.sort(mPlayingQueue, new Comparator<MutableMediaMetadata>() {
+            @Override
+            public int compare(MutableMediaMetadata m1, MutableMediaMetadata m2) {
+                int indexM1 = idList.indexOf(m1.metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID));
+                int indexM2 = idList.indexOf(m2.metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID));
+
+                return indexM1 == indexM2 ? 0 : indexM1 > indexM2 ? 1 : -1;
+            }
+        });
+
+
+        if (mPlayingQueue != null && mPlayingQueue.size() > 0) {
+            mCurrentState = CustomTypes.RepositoryState.INITIALIZED;
+        }
     }
 
-    private void storeQueue(Context context) {
-        LogHelper.d(LOG_TAG, "storeQueue called but unimplemented!");
+    public void storeQueue(Context context) {
+        SharedPreferences.Editor editor = getmPreferences(context).edit();
+        Gson gson = new Gson();
 
-//        SharedPreferences.Editor editor = getmPreferences(context).edit();
-//        Gson gson = new Gson();
-//        String json = gson.toJson(mPlayingQueue);
-//        editor.putString(KEY_PLAYING_QUEUE, json);
-//
-//        editor.putInt(KEY_CURRENT_TRACK_INDEX, mCurrentTrackIndex);
-//        editor.apply();
+        List<String> idList = new ArrayList<>(mPlayingQueue.size());
+
+        for (MutableMediaMetadata mutableMetadata : mPlayingQueue) {
+            idList.add(mutableMetadata.metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID));
+        }
+
+        String json = gson.toJson(idList);
+        editor.putString(KEY_PLAYING_QUEUE, json)
+                .putInt(KEY_CURRENT_TRACK_INDEX, mCurrentTrackIndex)
+                .apply();
     }
 
     private SharedPreferences getmPreferences(Context context) {

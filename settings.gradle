@@ -1,1 +1,1 @@
-include ':app', ':extendedfab', ':playpausebutton'
+include ':app', ':extendedfab', ':playpausebutton', ':bottomslidingdialog'

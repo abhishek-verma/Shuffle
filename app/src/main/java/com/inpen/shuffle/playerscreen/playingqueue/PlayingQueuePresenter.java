@@ -83,7 +83,7 @@ public class PlayingQueuePresenter implements PlayingQueueContract.PlayingQueueL
     public void onItemRemoved(int position) {
         LogHelper.d(LOG_TAG, "item at position " + position + " removed!");
 
-        QueueRepository.getInstance().removeItemAtIndex(position);
+        QueueRepository.getInstance().removeItemAtIndex(position, mplayingQueueView.getFragmentActivity());
     }
 
     public void onItemMoved(int positionInit, int positionFinal) {

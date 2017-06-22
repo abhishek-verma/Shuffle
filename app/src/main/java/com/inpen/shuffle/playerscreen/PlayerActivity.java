@@ -241,6 +241,10 @@ public class PlayerActivity extends AppCompatActivity
     @Override
     public void updateMetadataViews(final MediaMetadataCompat metadata) {
 
+        if (metadata == null) {
+            return;
+        }
+
         new Runnable() {
 
             @Override

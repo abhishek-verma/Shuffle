@@ -200,6 +200,8 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
     public void playbackStateChanged(PlaybackStateCompat state) {
         boolean shouldChangeViews = true;
 
+        if (state == null)
+            return;
 
         if (mPlaybackState != null)
             LogHelper.e(LOG_TAG, "last Playback state: " + mPlaybackState.getState());
@@ -236,7 +238,7 @@ public class PlayerActivityPresenter implements PlayerActivityContract.PlayerAct
 
     @Override
     public void playPauseButtonClicked() {
-        if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+        if (mPlaybackState != null && mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
             mTransportControls.pause();
         } else {
             mTransportControls.play();
