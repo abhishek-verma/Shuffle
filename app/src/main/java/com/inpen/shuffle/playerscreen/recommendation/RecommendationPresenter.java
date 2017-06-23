@@ -4,9 +4,9 @@ import android.app.LoaderManager;
 import android.content.Loader;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetDialog;
 import android.view.View;
 
+import com.abhi.bottomslidingdialog.BottomSlidingDialog;
 import com.inpen.shuffle.R;
 import com.inpen.shuffle.customviews.LocalRecommendationItemView;
 import com.inpen.shuffle.model.MutableMediaMetadata;
@@ -79,36 +79,29 @@ public class RecommendationPresenter
                                 mView.getCompatActivity())
                                 .getSongMetadataForId(item.id));
 
-                final BottomSheetDialog mBottomSheetDialog = new BottomSheetDialog(mView.getCompatActivity());
-                View sheetView
-                        = mView
-                        .getCompatActivity()
-                        .getLayoutInflater()
-                        .inflate(R.layout.recommend_botton_sheet_dialog, null);
-
-                mBottomSheetDialog.setContentView(sheetView);
-                mBottomSheetDialog.show();
-
-                sheetView
-                        .findViewById(R.id.optionPlayNow)
-                        .setOnClickListener(new View.OnClickListener() {
+                new BottomSlidingDialog(mView.getCompatActivity())
+                        .setDialogTitle(item.title)
+                        .addAction(R.string.play_now,
+                                R.drawable.ic_play_arrow_black_24dp,
+                                0)
+                        .addAction(R.string.play_next,
+                                R.drawable.ic_playlist_add_black_24dp,
+                                1)
+                        .setActionListener(new BottomSlidingDialog.ActionListener() {
                             @Override
-                            public void onClick(View view) {
-                                QueueRepository.getInstance().addNextSongs(metadataList, mView.getCompatActivity());
-                                mView.getCompatActivity().getMediaController().getTransportControls().skipToNext();
-                                mBottomSheetDialog.dismiss();
+                            public void onActionSelected(int actionId) {
+                                switch (actionId) {
+                                    case 0:
+                                        QueueRepository.getInstance().addNextSongs(metadataList, mView.getCompatActivity());
+                                        mView.getCompatActivity().getMediaController().getTransportControls().skipToNext();
+                                        break;
+                                    case 1:
+                                        QueueRepository.getInstance().addNextSongs(metadataList, mView.getCompatActivity());
+                                        break;
+                                }
                             }
-                        });
-
-                sheetView
-                        .findViewById(R.id.optionPlayNext)
-                        .setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                QueueRepository.getInstance().addNextSongs(metadataList, mView.getCompatActivity());
-                                mBottomSheetDialog.dismiss();
-                            }
-                        });
+                        })
+                        .show();
             }
         };
     }

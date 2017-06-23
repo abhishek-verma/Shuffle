@@ -47,4 +47,5 @@ dependencies {
     compile 'com.github.Yalantis:GuillotineMenu-Android:1.2'
     compile 'com.github.fccaikai:BottomMenuTutorial:1.0.3'
 
+    compile project(path: ':bottomslidingdialog')
 }

@@ -8,7 +8,10 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SlidingPaneLayout;
+import android.support.v7.app.AppCompatActivity;
 
+import com.abhi.bottomslidingdialog.BottomSlidingDialog;
 import com.inpen.shuffle.model.database.MediaContract;
 import com.inpen.shuffle.model.repositories.QueueRepository;
 import com.inpen.shuffle.model.repositories.SearchRepositiory;
@@ -36,25 +39,27 @@ public class ItemsPresenter
 
     private LoaderManager mLoaderManager;
     private ItemsContract.ItemsView mItemsView;
-    private Context mContext;
+    private AppCompatActivity mActivityContext;
     private CustomTypes.ItemType mItemType;
     private SelectedItemsRepository mSelectedItemsRepository;
 
     private boolean mActive = false;
 
     public ItemsPresenter(@NonNull LoaderManager loaderManager,
-                          @NonNull Context context,
+                          @NonNull AppCompatActivity activity,
                           @NonNull ItemsContract.ItemsView itemsView,
                           @NonNull CustomTypes.ItemType itemType,
                           @NonNull SelectedItemsRepository selectedItemsRepository) {
         mLoaderManager = checkNotNull(loaderManager);
         mItemsView = checkNotNull(itemsView);
-        mContext = checkNotNull(context);
+        mActivityContext = checkNotNull(activity);
         mItemType = checkNotNull(itemType);
         mSelectedItemsRepository = checkNotNull(selectedItemsRepository);
 
         EventBus.getDefault().register(this);
     }
+
+
 
     @Override
     public void initialize() {
@@ -85,7 +90,7 @@ public class ItemsPresenter
     @Override
     public void shuffleAllClicked(final FragmentActivity activity) {
         // Play all songs
-        QueueRepository.getInstance().initializeShuffleAll(mContext,
+        QueueRepository.getInstance().initializeShuffleAll(mActivityContext,
                 new QueueRepository.RepositoryInitializedCallback() {
                     @Override
                     public void onRepositoryInitialized(boolean success) {
@@ -120,35 +125,35 @@ public class ItemsPresenter
         switch (mItemType) {
             case SONG:
                 selection = MediaContract.MediaEntry.COLUMN_TITLE + " NOT NULL";
-                return new CursorLoader(mContext,
+                return new CursorLoader(mActivityContext,
                         MediaContract.MediaEntry.CONTENT_URI,
                         SONGS_QUERY_CURSOR_COLUMNS,
                         selection,
                         null, null);
             case ALBUM_KEY:
                 selection = MediaContract.MediaEntry.COLUMN_ALBUM_KEY + " NOT NULL GROUP BY " + MediaContract.MediaEntry.COLUMN_ALBUM_KEY;
-                return new CursorLoader(mContext,
+                return new CursorLoader(mActivityContext,
                         MediaContract.MediaEntry.CONTENT_URI,
                         ALBUMS_QUERY_CURSOR_COLUMNS,
                         selection,
                         null, null);
             case ARTIST_KEY:
                 selection = MediaContract.MediaEntry.COLUMN_ARTIST_KEY + " NOT NULL GROUP BY " + MediaContract.MediaEntry.COLUMN_ARTIST_KEY;
-                return new CursorLoader(mContext,
+                return new CursorLoader(mActivityContext,
                         MediaContract.MediaEntry.CONTENT_URI,
                         ARTISTS_QUERY_CURSOR_COLUMNS,
                         selection,
                         null, null);
             case FOLDER:
                 selection = MediaContract.MediaEntry.COLUMN_FOLDER_PATH + " NOT NULL GROUP BY " + MediaContract.MediaEntry.COLUMN_FOLDER_PATH;
-                return new CursorLoader(mContext,
+                return new CursorLoader(mActivityContext,
                         MediaContract.MediaEntry.CONTENT_URI,
                         FOLDERS_QUERY_CURSOR_COLUMNS,
                         selection,
                         null, null);
             case PLAYLIST:
                 selection = MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME + " NOT NULL) GROUP BY (" + MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME;
-                return new CursorLoader(mContext,
+                return new CursorLoader(mActivityContext,
                         MediaContract.PlaylistsEntry.CONTENT_URI,
                         PLAYLISTS_QUERY_CURSOR_COLUMNS,
                         selection,
@@ -231,6 +236,12 @@ public class ItemsPresenter
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    @Override
+    public void songItemMenuClicked(SongItem songItem) {
+        new BottomSlidingDialog(mActivityContext);
+        
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

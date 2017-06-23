@@ -70,6 +70,8 @@ class ItemsContract {
         void stop();
 
         void shuffleAllClicked(FragmentActivity activity);
+
+        void songItemMenuClicked(SongItem songItem);
     }
 
 }
