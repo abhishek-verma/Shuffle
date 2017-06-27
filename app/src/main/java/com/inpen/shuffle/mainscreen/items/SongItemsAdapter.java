@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
 
+import com.inpen.shuffle.R;
 import com.inpen.shuffle.customviews.SongItemView;
 import com.inpen.shuffle.model.repositories.SelectedItemsRepository;
 import com.inpen.shuffle.utility.BaseItem;
@@ -29,14 +30,17 @@ public class SongItemsAdapter extends RecyclerView.Adapter<SongItemsAdapter.Item
     private List<SongItem> mItemList;
     private List<SongItem> mFilteredList;
     private CustomTypes.ItemType mItemType;
+    private final MenuClickedListener mMenuClickedListener;
 
     public SongItemsAdapter(@NonNull List<SongItem> itemList,
                             @NonNull SelectedItemsRepository selectedItemsRepository,
-                            @NonNull CustomTypes.ItemType itemType) {
+                            @NonNull CustomTypes.ItemType itemType,
+                            @NonNull MenuClickedListener listener) {
         mItemList = checkNotNull(itemList);
         mSelectedItemsRepository = checkNotNull(selectedItemsRepository);
         mItemType = checkNotNull(itemType);
         mFilteredList = mItemList;
+        mMenuClickedListener = listener;
 
         setHasStableIds(true);
     }
@@ -155,7 +159,7 @@ public class SongItemsAdapter extends RecyclerView.Adapter<SongItemsAdapter.Item
         @Override
         public void onClick(View view) {
 
-            SongItemView itemView = (SongItemView) view;
+            final SongItemView itemView = (SongItemView) view;
 
 //            LogHelper.v(LOG_TAG, "view with itemId: " + itemView.getItem().id + " clicked! ");
 
@@ -163,9 +167,21 @@ public class SongItemsAdapter extends RecyclerView.Adapter<SongItemsAdapter.Item
             itemView.setSelected(select);
         }
 
-        public void bind(SongItem item) {
+        public void bind(final SongItem item) {
             mItemView.setItem(item, mSelectedItemsRepository.hasItem(item.id, mItemType));
             mItemView.setOnClickListener(this);
+
+            //setting listener for menu click
+            mItemView.findViewById(R.id.itemMenuBtn).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mMenuClickedListener.onOptionClicked(item);
+                }
+            });
         }
+    }
+
+    public interface MenuClickedListener {
+        void onOptionClicked(SongItem songItem);
     }
 }

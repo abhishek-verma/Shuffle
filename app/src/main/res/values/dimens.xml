@@ -42,5 +42,7 @@
 
     <dimen name="guillotine_item_text_size">20sp</dimen>
     <dimen name="guillotine_actionbar_background_view_height">35dp</dimen>
+    <dimen name="dialog_horizontal_margin">12dp</dimen>
+    <dimen name="dialog_text_size">6sp</dimen>
 
 </resources>

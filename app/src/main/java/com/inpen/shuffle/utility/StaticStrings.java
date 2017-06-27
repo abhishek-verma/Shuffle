@@ -13,7 +13,6 @@ public class StaticStrings {
     public static final String PREF_EXTRA_USER_DISPLAY_NAME_STRING_KEY = "display_name_id";
 
 
-    public static final String PlAYLIST_NAME_LIKED = "liked";
-    public static final String PlAYLIST_NAME_DISLIKED = "disliked";
-    public static final String PlAYLIST_NAME_LAST_PLAYED = "last_played";
+    public static final String PLAYLIST_NAME_LIKED = "Liked";
+    public static final String PLAYLIST_NAME_DISLIKED = "Disliked";
 }

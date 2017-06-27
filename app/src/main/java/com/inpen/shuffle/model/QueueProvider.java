@@ -64,12 +64,12 @@ public class QueueProvider {
 
         // get liked mSongs from songRepo
         List<String> playlistAsList = new ArrayList<>();
-        playlistAsList.add(StaticStrings.PlAYLIST_NAME_LIKED);
+        playlistAsList.add(StaticStrings.PLAYLIST_NAME_LIKED);
         List<MutableMediaMetadata> likedSongs = songsRepository.getSongsMetadataByFilter(playlistAsList, CustomTypes.ItemType.PLAYLIST);
 
         // get disliked mSongs from songRepo
         playlistAsList.clear();
-        playlistAsList.add(StaticStrings.PlAYLIST_NAME_DISLIKED);
+        playlistAsList.add(StaticStrings.PLAYLIST_NAME_DISLIKED);
         List<MutableMediaMetadata> dislikedSongs = songsRepository.getSongsMetadataByFilter(playlistAsList, CustomTypes.ItemType.PLAYLIST);
 
         setLikedAndDisliked(songList, likedSongs, dislikedSongs);
@@ -85,12 +85,12 @@ public class QueueProvider {
 //
 //        // get liked mSongs from songRepo
 //        List<String> playlistAsList = new ArrayList<String>();
-//        playlistAsList.add(StaticStrings.PlAYLIST_NAME_LIKED);
+//        playlistAsList.add(StaticStrings.PLAYLIST_NAME_LIKED);
 //        mLikedSongs = songsRepository.getSongsIdsByFilter(playlistAsList, CustomTypes.ItemType.PLAYLIST);
 //
 //        // get disliked mSongs from songRepo
 //        playlistAsList.clear();
-//        playlistAsList.add(StaticStrings.PlAYLIST_NAME_DISLIKED);
+//        playlistAsList.add(StaticStrings.PLAYLIST_NAME_DISLIKED);
 //        mDislikedSongs = songsRepository.getSongsIdsByFilter(playlistAsList, CustomTypes.ItemType.PLAYLIST);
 //
 //        shuffle();

@@ -1,6 +1,7 @@
 package com.abhi.bottomslidingdialog;
 
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -19,12 +20,16 @@ public class BottomSlidingDialog {
     BottomSheetDialog mBottomSheetDialog;
     ActionListener mActionListener;
 
+    public static BottomSlidingDialog build(AppCompatActivity activity) {
+        return new BottomSlidingDialog(activity);
+    }
+
     /**
      * Constructor for @{@link BottomSlidingDialog}
      *
      * @param activity Activity Context
      */
-    public BottomSlidingDialog(AppCompatActivity activity) {
+    private BottomSlidingDialog(AppCompatActivity activity) {
         mBottomSheetDialog = new BottomSheetDialog(activity);
         mActivity = activity;
 
@@ -56,10 +61,15 @@ public class BottomSlidingDialog {
     public BottomSlidingDialog addAction(int actionTitleStringRes,
                                          int actionIconDrawableRes,
                                          int actionId) {
-        addAction(mActivity.getString(actionTitleStringRes),
-                mActivity.getDrawable(actionIconDrawableRes),
-                actionId);
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            addAction(mActivity.getString(actionTitleStringRes),
+                    mActivity.getDrawable(actionIconDrawableRes),
+                    actionId);
+        } else {
+            addAction(mActivity.getString(actionTitleStringRes),
+                    mActivity.getResources().getDrawable(actionIconDrawableRes),
+                    actionId);
+        }
         return this;
     }
 

@@ -70,7 +70,15 @@ public class SongItemsFragment extends Fragment implements ItemsContract.ItemsVi
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_song_items, container, false);
 
-        mItemsAdapter = new SongItemsAdapter(new ArrayList<SongItem>(0), SelectedItemsRepository.getInstance(), mItemType);
+        mItemsAdapter = new SongItemsAdapter(new ArrayList<SongItem>(0),
+                SelectedItemsRepository.getInstance(),
+                mItemType,
+                new SongItemsAdapter.MenuClickedListener() {
+                    @Override
+                    public void onOptionClicked(SongItem songItem) {
+                        mActionsListener.itemMenuClicked(songItem);
+                    }
+                });
 
         ButterKnife.bind(this, view);
 

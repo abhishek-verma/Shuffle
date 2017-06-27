@@ -79,13 +79,13 @@ public class RecommendationPresenter
                                 mView.getCompatActivity())
                                 .getSongMetadataForId(item.id));
 
-                new BottomSlidingDialog(mView.getCompatActivity())
+                BottomSlidingDialog.build(mView.getCompatActivity())
                         .setDialogTitle(item.title)
                         .addAction(R.string.play_now,
                                 R.drawable.ic_play_arrow_black_24dp,
                                 0)
                         .addAction(R.string.play_next,
-                                R.drawable.ic_playlist_add_black_24dp,
+                                R.drawable.ic_play_next_black_24dp,
                                 1)
                         .setActionListener(new BottomSlidingDialog.ActionListener() {
                             @Override

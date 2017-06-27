@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">Shuffle</string>
 
     <string name="no_items_message">No Items Available</string>
@@ -41,4 +41,8 @@
     <string name="play_now">Play Now</string>
     <string name="play_next">Play Next</string>
     <string name="add_to_queue">Add To Queue</string>
+    <string name="add_to_playlist">Add to Playlist</string>
+    <string name="delete">Delete</string>
+    <string name="create_new_playlist">Create New Playlist</string>
+    <string name="songs_added_to_playlist"><xliff:g>%d</xliff:g> songs added to playlist <xliff:g>%s</xliff:g></string>
 </resources>

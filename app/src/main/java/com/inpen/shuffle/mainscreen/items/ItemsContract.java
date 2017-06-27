@@ -71,7 +71,7 @@ class ItemsContract {
 
         void shuffleAllClicked(FragmentActivity activity);
 
-        void songItemMenuClicked(SongItem songItem);
+        void itemMenuClicked(SongItem songItem);
     }
 
 }

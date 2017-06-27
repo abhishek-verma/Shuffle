@@ -45,7 +45,7 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/songItemOptionBtn"
+            android:layout_toStartOf="@+id/itemMenuBtn"
             android:layout_height="wrap_content">
 
             <TextView
@@ -74,7 +74,7 @@
         </RelativeLayout>
 
         <ImageButton
-            android:id="@+id/songItemOptionBtn"
+            android:id="@+id/itemMenuBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"

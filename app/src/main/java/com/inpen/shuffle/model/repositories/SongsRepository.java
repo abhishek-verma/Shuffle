@@ -3,11 +3,14 @@ package com.inpen.shuffle.model.repositories;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
+import android.widget.Toast;
 
+import com.inpen.shuffle.R;
 import com.inpen.shuffle.model.MutableMediaMetadata;
 import com.inpen.shuffle.model.database.MediaContract;
 import com.inpen.shuffle.utility.CustomTypes;
@@ -16,6 +19,7 @@ import com.inpen.shuffle.utility.StaticStrings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by Abhishek on 12/14/2016.
@@ -261,6 +265,7 @@ public class SongsRepository {
 
     /**
      * Returns Metadata from database for given media id
+     *
      * @param id the id provided by device and not the id saved for app
      * @return metadata
      */
@@ -303,6 +308,7 @@ public class SongsRepository {
 
     /**
      * Returns MetadataList from database for given media ids
+     *
      * @param songIdList the ids provided by device and not the ids saved for app
      * @return metadataList
      */
@@ -473,14 +479,14 @@ public class SongsRepository {
                 MediaContract.PlaylistsEntry.COLUMN_SONG_ID + " = ? " +
                         "AND " + MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME +
                         " IN (?, ?) ",
-                new String[]{songId, StaticStrings.PlAYLIST_NAME_LIKED, StaticStrings.PlAYLIST_NAME_DISLIKED});
+                new String[]{songId, StaticStrings.PLAYLIST_NAME_LIKED, StaticStrings.PLAYLIST_NAME_DISLIKED});
 
         // adding only if rated (liked or disliked)
         if (ratingCompat.isRated()) {
             if (ratingCompat.isThumbUp()) {
-                cv.put(MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME, StaticStrings.PlAYLIST_NAME_LIKED);
+                cv.put(MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME, StaticStrings.PLAYLIST_NAME_LIKED);
             } else {
-                cv.put(MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME, StaticStrings.PlAYLIST_NAME_DISLIKED);
+                cv.put(MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME, StaticStrings.PLAYLIST_NAME_DISLIKED);
             }
             mContext.getContentResolver().insert(MediaContract.PlaylistsEntry.CONTENT_URI, cv);
         }
@@ -525,6 +531,43 @@ public class SongsRepository {
 //                LogHelper.e(LOG_TAG, "Cannot insert into database! ERROR: " + exception);
 //            }
 //        }
+    }
 
+    /**
+     * @param songIds  custom song ids, not device ids
+     * @param playlist playlist name to which the songs need to be added to
+     */
+    public void addSongsToPlaylist(List<String> songIds, String playlist) {
+
+        Vector<ContentValues> cvVector = new Vector<>(songIds.size());
+        ContentValues cv;
+        //adding new Last Played
+        for (String songId : songIds) {
+            cv = new ContentValues();
+            cv.put(MediaContract.PlaylistsEntry.COLUMN_PLAYLIST_NAME, playlist);
+            cv.put(MediaContract.PlaylistsEntry.COLUMN_SONG_ID, songId);
+
+            cvVector.add(cv);
+        }
+
+        int insertedCnt;
+
+        // adding to db
+        if (cvVector.size() > 0) {
+            ContentValues[] cvArray = new ContentValues[cvVector.size()];
+            cvVector.toArray(cvArray);
+            try {
+                insertedCnt = mContext.getContentResolver().bulkInsert(MediaContract.PlaylistsEntry.CONTENT_URI, cvArray);
+                Toast
+                        .makeText(mContext,
+                                mContext.getString(R.string.songs_added_to_playlist, insertedCnt, playlist),
+                                Toast.LENGTH_SHORT)
+                        .show();
+                LogHelper.d(LOG_TAG, insertedCnt + " items inserted in playlist " + playlist);
+            } catch (SQLiteConstraintException exception) {
+                // try removing this try-catch to find the error
+                LogHelper.e(LOG_TAG, "Cannot insert into database! ERROR: " + exception);
+            }
+        }
     }
 }

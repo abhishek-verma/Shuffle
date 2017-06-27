@@ -1,6 +1,5 @@
 package com.inpen.shuffle.mainscreen.items;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,14 +7,17 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v7.app.AppCompatActivity;
 
 import com.abhi.bottomslidingdialog.BottomSlidingDialog;
+import com.inpen.shuffle.R;
+import com.inpen.shuffle.model.MutableMediaMetadata;
 import com.inpen.shuffle.model.database.MediaContract;
 import com.inpen.shuffle.model.repositories.QueueRepository;
 import com.inpen.shuffle.model.repositories.SearchRepositiory;
 import com.inpen.shuffle.model.repositories.SelectedItemsRepository;
+import com.inpen.shuffle.model.repositories.SongsRepository;
+import com.inpen.shuffle.playlist.AddToPlaylistDialogFragment;
 import com.inpen.shuffle.utility.BaseItem;
 import com.inpen.shuffle.utility.CustomTypes;
 
@@ -58,7 +60,6 @@ public class ItemsPresenter
 
         EventBus.getDefault().register(this);
     }
-
 
 
     @Override
@@ -239,9 +240,49 @@ public class ItemsPresenter
     }
 
     @Override
-    public void songItemMenuClicked(SongItem songItem) {
-        new BottomSlidingDialog(mActivityContext);
-        
+    public void itemMenuClicked(final SongItem songItem) {
+        BottomSlidingDialog.build(mActivityContext)
+                .setDialogTitle(songItem.title)
+                .addAction(R.string.play_now, R.drawable.ic_play_arrow_black_24dp, 0)
+                .addAction(R.string.play_next, R.drawable.ic_play_next_black_24dp, 1)
+                .addAction(R.string.add_to_playlist, R.drawable.ic_playlist_add_black_24dp, 2)
+                .addAction(R.string.delete, R.drawable.ic_delete_black_24dp, 3)
+                .setActionListener(new BottomSlidingDialog.ActionListener() {
+                    @Override
+                    public void onActionSelected(int actionId) {
+                        SongsRepository songsRepo = new SongsRepository(mActivityContext);
+
+                        List<MutableMediaMetadata> metadataList = new ArrayList<>();
+                        metadataList
+                                .add(songsRepo
+                                        .getSongMetadataForId(songItem.id));
+
+                        switch (actionId) {
+                            case 0: // play now
+                                QueueRepository.getInstance().addNextSongs(metadataList, mActivityContext);
+                                mActivityContext.getMediaController().getTransportControls().skipToNext();
+                                break;
+                            case 1: // play next
+                                QueueRepository.getInstance().addNextSongs(metadataList, mActivityContext);
+                                break;
+                            case 2: // add to playlist
+                                // TODO implement add to playlist
+                                // show a dialog with list of playlist's with add button
+                                // add the song to the returned playlist by calling
+                                // songsRepo.addToPlaylist(songMetadata, playlistName)
+                                new AddToPlaylistDialogFragment
+                                        .Builder(songItem.id)
+                                        .show(mActivityContext.getFragmentManager());
+                                break;
+                            case 3: // delete song
+                                // TODO implement delete song
+                                // show alert dialog to confirm deletion
+                                // if yes call songsRepo.deleteSong()
+                                break;
+                        }
+                    }
+                })
+                .show();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
