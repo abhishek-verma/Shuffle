@@ -58,14 +58,14 @@ public class ItemsPresenter
         mItemType = checkNotNull(itemType);
         mSelectedItemsRepository = checkNotNull(selectedItemsRepository);
 
-        EventBus.getDefault().register(this);
     }
 
 
     @Override
     public void initialize() {
         mSelectedItemsRepository = SelectedItemsRepository.getInstance();
-
+        
+        EventBus.getDefault().register(this);
 
         // Prepare the loader.  Either re-connect with an existing one,
         // or start a new one.
