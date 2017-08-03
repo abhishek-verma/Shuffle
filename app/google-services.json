@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1080898582399",
+    "firebase_url": "https://shuffle-fea3d.firebaseio.com",
+    "project_id": "shuffle-fea3d",
+    "storage_bucket": "shuffle-fea3d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1080898582399:android:1a0d53fc8c42f182",
+        "android_client_info": {
+          "package_name": "com.inpen.shuffle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1080898582399-um8orpv5iltaq38rc7al7h7135ia90a6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inpen.shuffle",
+            "certificate_hash": "e68dbffc063eb26cf25e8099ee6efc221e3e296d"
+          }
+        },
+        {
+          "client_id": "1080898582399-399lfdi5k9f4rv3a1kij3ksb4vait842.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPfIBOZBrBzORqKbtCzSm4ay7XxuW13lM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1080898582399-399lfdi5k9f4rv3a1kij3ksb4vait842.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

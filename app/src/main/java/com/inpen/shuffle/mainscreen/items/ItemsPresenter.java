@@ -66,7 +66,6 @@ public class ItemsPresenter
     public void initialize() {
         mSelectedItemsRepository = SelectedItemsRepository.getInstance();
 
-
         // Prepare the loader.  Either re-connect with an existing one,
         // or start a new one.
         mLoaderManager.initLoader(0, null, this);

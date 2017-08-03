@@ -1,6 +1,8 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">Shuffle</string>
 
+    <string name="web_client_id">1080898582399-s6u9j3odrcf9kscnucc9nmmb6grh819h.apps.googleusercontent.com</string>
+
     <string name="no_items_message">No Items Available</string>
     <string name="shuffle">SHUFFLE</string>
     <string name="tap_to_shuffle">\"Tap to shuffle\nand play!\"</string>
@@ -45,4 +47,6 @@
     <string name="delete">Delete</string>
     <string name="create_new_playlist">Create New Playlist</string>
     <string name="songs_added_to_playlist"><xliff:g>%d</xliff:g> songs added to playlist <xliff:g>%s</xliff:g></string>
+    <string name="sign_in_desc">Keep shuffle in sync across all your devices</string>
+    <string name="sign_in_desc_2"><![CDATA[Sync likes & dislikes, playlists and preferences]]></string>
 </resources>
