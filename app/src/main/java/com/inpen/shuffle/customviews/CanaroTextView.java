@@ -23,7 +23,7 @@ public class CanaroTextView extends TypefacedTextView {
     }
 
     private void init() {
-        applyTypeface("fonts/canaro_extra_bold.otf");
+        applyTypeface("fonts/PoiretOne-Regular.ttf.otf");
     }
 
 }

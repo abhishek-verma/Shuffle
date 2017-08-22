@@ -44,8 +44,8 @@ dependencies {
     debugCompile 'com.facebook.stetho:stetho:1.4.1'
 
     compile 'com.sothree.slidinguppanel:library:3.3.1'
-    compile 'com.github.Yalantis:GuillotineMenu-Android:1.2'
     compile 'com.github.fccaikai:BottomMenuTutorial:1.0.3'
+    compile 'com.yarolegovich:sliding-root-nav:1.0.2'
 
     compile project(path: ':bottomslidingdialog')
 }

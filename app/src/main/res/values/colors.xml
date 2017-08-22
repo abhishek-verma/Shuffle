@@ -29,5 +29,5 @@
 
     <color name="guillotine_background">@color/colorAccent</color>
     <color name="guillotine_background_dark">#0d48ae</color>
-    <color name="selected_item_color">#ffffff</color>
+    <color name="selected_item_color">@color/colorAccent</color>
 </resources>

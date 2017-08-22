@@ -15,17 +15,19 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.inpen.shuffle.R;
 import com.inpen.shuffle.mainscreen.fab.FabFragment;
 import com.inpen.shuffle.mainscreen.items.ItemsFragment;
 import com.inpen.shuffle.mainscreen.items.SongItemsFragment;
 import com.inpen.shuffle.utility.CustomTypes;
-import com.yalantis.guillotine.animation.GuillotineAnimation;
+import com.yarolegovich.slidingrootnav.SlidingRootNav;
+import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,8 +41,6 @@ public class MainActivity extends AppCompatActivity
 
     MainScreenContract.ActivityActionsListener mActivityActionsListener;
 
-    @BindView(R.id.root)
-    FrameLayout mRootView;
     @BindView(R.id.viewpager)
     ViewPager mViewPager;
     @BindView(R.id.tab_layout)
@@ -48,10 +48,12 @@ public class MainActivity extends AppCompatActivity
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
     @BindView(R.id.content_hamburger)
-    View contentHamburger;
+    ImageView mContentHamburger;
 
     private MyPagerAdapter mFragmentAdapter;
+
     private FabFragment mFabFragment;
+    private SlidingRootNav navMenuDrawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +78,7 @@ public class MainActivity extends AppCompatActivity
         mActivityActionsListener.init(this);
 
         setupAdapterAndViewPager();
-        setupGuillotineMenu();
+        setupNavigationMenu();
     }
 
     @Override
@@ -115,16 +117,27 @@ public class MainActivity extends AppCompatActivity
         mTabLayout.setupWithViewPager(mViewPager);
     }
 
-    private void setupGuillotineMenu() {
+    private void setupNavigationMenu() {
 
-        View guillotineMenu = LayoutInflater.from(this).inflate(R.layout.guillotine, null);
-        mRootView.addView(guillotineMenu);
+        navMenuDrawer = new SlidingRootNavBuilder(this)
+                .withMenuLayout(R.layout.navbar_menu)
+                .inject();
 
-        new GuillotineAnimation.GuillotineBuilder(guillotineMenu, guillotineMenu.findViewById(R.id.guillotine_hamburger), contentHamburger)
-                .setStartDelay(RIPPLE_DURATION)
-                .setActionBarViewForAnimation(mToolbar)
-                .setClosedOnStart(true)
-                .build();
+        mContentHamburger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                navMenuDrawer.openMenu();
+            }
+        });
+
+        LinearLayout profileGrp = (LinearLayout) findViewById(R.id.profile_group);
+
+        profileGrp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
     private void setupFabFragment() {
